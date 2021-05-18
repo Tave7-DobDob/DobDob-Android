@@ -24,8 +24,10 @@
         </activity>
         <activity android:name=".InitialSettingActivity"/>
         <activity android:name=".MainActivity"/>
-        <activity android:name=".PostingActivity"/>
-
+        <activity android:name=".PostingActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".PostActivity"/>
+        <activity android:name=".MyPageActivity"/>
     </application>
 
 </manifest>

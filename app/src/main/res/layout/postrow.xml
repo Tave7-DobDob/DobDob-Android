@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="5dp"
     android:orientation="vertical">
 
@@ -12,15 +12,15 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/postrow_picture"
+            android:id="@+id/postrow_profile"
             android:layout_width="45dp"
             android:layout_height="45dp"
+            android:src="@drawable/user_image"
             app:civ_border_width="1dp"
-            app:civ_border_color="#AAAAAA"
-            android:src="@drawable/user_image" />
+            app:civ_border_color="#AAAAAA" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="15dp"
@@ -67,7 +67,8 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/heart"/>
+            android:src="@drawable/heart"
+            android:contentDescription="하트수"/>
         <TextView
             android:id="@+id/postrow_heartNum"
             android:layout_width="wrap_content"
@@ -80,7 +81,8 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginStart="15dp"
-            android:src="@drawable/comment"/>
+            android:src="@drawable/comment"
+            android:contentDescription="댓글수"/>
         <TextView
             android:id="@+id/postrow_commentNum"
             android:layout_width="wrap_content"

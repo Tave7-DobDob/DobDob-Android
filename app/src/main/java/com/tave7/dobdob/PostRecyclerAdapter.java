@@ -1,6 +1,7 @@
 package com.tave7.dobdob;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -63,13 +64,13 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
     }
 
     public class PostViewHolder extends RecyclerView.ViewHolder {
-        CircleImageView writerPicture;      //TODO: 사진 받아와서 이 사진으로 설정함
+        CircleImageView writerProfile;      //TODO: 사진 받아와서 이 사진으로 설정함
         TextView writerName, postTime, postTitle, heartNum, commentNum;
         LinearLayout tags;
         
         PostViewHolder(final View itemView) {
             super(itemView);
-            writerPicture = itemView.findViewById(R.id.postrow_picture);
+            writerProfile = itemView.findViewById(R.id.postrow_profile);
             writerName = itemView.findViewById(R.id.postrow_nickname);
             postTime = itemView.findViewById(R.id.postrow_time);
             postTitle = itemView.findViewById(R.id.postrow_title);
@@ -84,7 +85,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     if (pos != RecyclerView.NO_POSITION) {
                         selected_pos = pos;
 
-                        //TODO: 선택한 post의 세부 내용을 다른 화면에 보여줌
+                        //TODO: 선택한 post의 세부 내용을 다른 화면에 보여줌(Bundle로 position이랑 어떤 글인지 넘겨줘야 함)
+                        Intent intent = new Intent(context, PostActivity.class);
+                        context.startActivity(intent);    //해당 글 창으로 넘어감
                     }
                 }
             });
