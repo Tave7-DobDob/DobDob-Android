@@ -17,12 +17,12 @@
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/post_scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="10dp"
         app:layout_constraintVertical_weight="1"
         app:layout_constraintTop_toBottomOf="@id/post_toolbar"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/post_writeCommentL"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent">
         <LinearLayout
@@ -35,6 +35,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="5dp"
+                android:layout_margin="10dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true">
 
@@ -45,7 +46,7 @@
                     android:orientation="horizontal">
 
                     <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/post_profile"
+                        android:id="@+id/post_writerProfile"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
                         android:src="@drawable/user_image"
@@ -61,7 +62,7 @@
                         android:orientation="vertical" >
 
                         <TextView
-                            android:id="@+id/post_nickname"
+                            android:id="@+id/post_writerNick"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
@@ -71,10 +72,10 @@
                             android:textColor="#000000"/>
 
                         <TextView
-                            android:id="@+id/post_town"
+                            android:id="@+id/post_writerTown"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
+                            android:layout_marginTop="3dp"
                             android:text="XX동"
                             android:textColor="#666666"/>
                     </LinearLayout>
@@ -84,7 +85,7 @@
                     android:id="@+id/post_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="15dp"
                     android:layout_marginBottom="5dp"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
@@ -121,11 +122,32 @@
                     android:inputType="none"
                     android:textColor="#000000" />
 
-                <!--TODO: 사진 추가해야 함-->
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp">
+                    <!--TODO: circleIndicator 위에 겹쳐서 추가!-->
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/vpPostPhotos"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    </androidx.viewpager2.widget.ViewPager2>
+                    <me.relex.circleindicator.CircleIndicator3
+                        android:id="@+id/indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_gravity="top|center"
+                        app:ci_drawable="@drawable/indicator_selected"
+                        app:ci_drawable_unselected="@drawable/indicator_unselected"
+                        app:ci_height="6dp"
+                        app:ci_width="6dp"
+                        app:ci_margin="4dp"/>
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
                     <ImageView
@@ -176,17 +198,63 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
                 android:background="#BCBCBC"/>
 
-            <!--TODO: 중첩돼서 스크롤이 되는지 확인해야 함-->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/postComments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
                 android:padding="10dp"/>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/post_writeCommentL"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="10dp"
+        android:layout_marginBottom="1dp"
+        android:background="@drawable/bt_upbar"
+        app:layout_constraintTop_toBottomOf="@id/post_scrollView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/post_commenterProfile"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/user_image"
+            app:civ_border_width="1dp"
+            app:civ_border_color="#AAAAAA" />
+
+        <EditText
+            android:id="@+id/post_etComment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@android:color/transparent"
+            android:bufferType="spannable"
+            android:hint="댓글 달기.."
+            android:inputType="text"
+            android:textSize="15sp"
+            android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/post_postComment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="게시"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:textColor="#4374D9" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -25,7 +24,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MainActivity extends AppCompatActivity {
     RecyclerView rvPost;
     PostRecyclerAdapter adapter;
-    FloatingActionButton fabAddPost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +40,12 @@ public class MainActivity extends AppCompatActivity {
         toolbarListener(toolbar);
 
         //TODO: 임시 postList 생성
-        ArrayList<PostInfo> postList = new ArrayList<>();
-        ArrayList<String> tmpTag = new ArrayList<>();
-        tmpTag.add("산책");
-        tmpTag.add("동네산책");
-        tmpTag.add("4명모집");
-        postList.add(new PostInfo("테이비", "", "2021.05.16 20:00", "오늘 저녁에 배드민턴 칠 사람 구해요!", 12, 4, tmpTag));
+            ArrayList<PostInfo> postList = new ArrayList<>();
+            ArrayList<String> tmpTag = new ArrayList<>();
+            tmpTag.add("산책");
+            tmpTag.add("동네산책");
+            tmpTag.add("4명모집");
+            postList.add(new PostInfo("", "테이비", "2021.05.16 20:00", "오늘 저녁에 배드민턴 칠 사람 구해요!", 12, 4, tmpTag));
 
         rvPost = findViewById(R.id.mainPost);
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL,false);
@@ -56,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         rvPost.setAdapter(adapter);      //어댑터 등록
         rvPost.addItemDecoration(new DividerItemDecoration(MainActivity.this, 1)); //리스트 사이의 구분선 설정
 
-        fabAddPost = findViewById(R.id.mainFabAddPost);
+        FloatingActionButton fabAddPost = findViewById(R.id.mainFabAddPost);
         fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

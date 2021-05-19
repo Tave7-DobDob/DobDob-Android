@@ -39,8 +39,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
     @Override
     public void onBindViewHolder(PostViewHolder holder, int position) {
-        //holder.writerPicture.setImageURI("");     //TODO: 이미지 URL을 보이게 함
-        holder.writerName.setText(postList.get(position).getWriterNickName());
+        //holder.writerProfile.setImageURI("");     //TODO: 이미지 URL을 보이게 함
+        holder.writerName.setText(postList.get(position).getWriterName());
         holder.postTime.setText(postList.get(position).getPostTime());
         holder.postTitle.setText(postList.get(position).getPostTitle());
         holder.heartNum.setText(String.valueOf(postList.get(position).getHeartNum()));
@@ -71,7 +71,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         PostViewHolder(final View itemView) {
             super(itemView);
             writerProfile = itemView.findViewById(R.id.postrow_profile);
-            writerName = itemView.findViewById(R.id.postrow_nickname);
+            writerName = itemView.findViewById(R.id.postrow_name);
             postTime = itemView.findViewById(R.id.postrow_time);
             postTitle = itemView.findViewById(R.id.postrow_title);
             heartNum = itemView.findViewById(R.id.postrow_heartNum);

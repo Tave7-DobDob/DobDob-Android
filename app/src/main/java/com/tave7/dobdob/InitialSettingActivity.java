@@ -11,7 +11,7 @@ import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class InitialSettingActivity extends AppCompatActivity {
-    EditText etNickName;
+    EditText etName;
     Button btCheckNick, btSubmit;
     Spinner spCity, spCountry, spDong;
 
@@ -20,7 +20,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialsetting);
 
-        etNickName = (EditText) findViewById(R.id.ISetNickName);
+        etName = (EditText) findViewById(R.id.ISetName);
         btCheckNick = (Button) findViewById(R.id.ISbtCheckNick);
         spCity = (Spinner) findViewById(R.id.ISspCityProvince);
         spCountry = (Spinner) findViewById(R.id.ISspCountyDistrict);
@@ -39,7 +39,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         btCheckNick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etNickName.getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
 
                 //TODO: 데이터베이스에서 닉네임 중복 확인함
             }
@@ -48,7 +48,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         btSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etNickName.getWindowToken(), 0);
+                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);
 
                 //TODO: 닉네임 중복확인하고 내용이 모두 선택되었는 지 확인 후 메인페이지로 넘어감
                 startActivity(new Intent(InitialSettingActivity.this, MainActivity.class));

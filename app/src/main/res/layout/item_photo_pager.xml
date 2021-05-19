@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/ivPostPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/logo"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:contentDescription="첨부사진"/>
+
+    <!--    android:scaleType="fitXY"
+    android:scaleType="fitCenter"와 android:adjustViewBounds="true" 하면 비율 유지-->
+
+</LinearLayout>
