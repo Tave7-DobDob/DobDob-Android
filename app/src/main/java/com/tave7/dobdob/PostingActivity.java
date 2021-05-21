@@ -13,8 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 public class PostingActivity extends AppCompatActivity {
-    TextView tvTown, tvPhoto;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,8 +60,8 @@ public class PostingActivity extends AppCompatActivity {
         //TODO: 사진모음(llShowPhotos)에서 각각의 사진에 대해 클릭 리스너 제공, 동 내용(tvTown) 클릭, 사진 업로드(tvPhoto) 위해 클릭
         LinearLayout llTown = findViewById(R.id.posting_llTown);
         LinearLayout llPhotos = findViewById(R.id.posting_llPhotos);
-        tvTown = findViewById(R.id.posting_town);                  //위치 지정하기 위해 클릭 가능 and 동이름 출력됨
-        tvPhoto = findViewById(R.id.posting_photo);                //사진 업로드하기 위해 클릭 가능 and 사진개수 출력됨
+        TextView tvTown = findViewById(R.id.posting_town);                  //위치 지정하기 위해 클릭 가능 and 동이름 출력됨
+        TextView tvPhoto = findViewById(R.id.posting_photo);                //사진 업로드하기 위해 클릭 가능 and 사진개수 출력됨
 
         llTown.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -19,7 +19,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder> {
     private Context context;
     private ArrayList<PostInfo> postList = null;
-    private int selected_pos = -1;
 
     public PostRecyclerAdapter(ArrayList<PostInfo> postList) {
         this.postList = postList;
@@ -47,15 +46,19 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         holder.commentNum.setText(String.valueOf(postList.get(position).getCommentNum()));
 
         //리니어레이아웃에 태그 추가함
-        for (String tagName : postList.get(position).getPostTag()){
-            TextView tvTag = new TextView(context);
-            tvTag.setText("#"+tagName+" ");
-            tvTag.setTypeface(null, Typeface.BOLD);
-            tvTag.setTextColor(Color.parseColor("#5AAEFF"));
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            tvTag.setLayoutParams(layoutParams);
-            holder.tags.addView(tvTag);
+        if (postList.get(position).getPostTag() != null && postList.get(position).getPostTag().size() != 0) {
+            for (String tagName : postList.get(position).getPostTag()){
+                TextView tvTag = new TextView(context);
+                tvTag.setText("#"+tagName+" ");
+                tvTag.setTypeface(null, Typeface.BOLD);
+                tvTag.setTextColor(Color.parseColor("#5AAEFF"));
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                tvTag.setLayoutParams(layoutParams);
+                holder.tags.addView(tvTag);
+            }
         }
+        else
+            holder.tags.setVisibility(View.GONE);
     }
 
     @Override
@@ -83,7 +86,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 public void onClick(View v) {
                     int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
-                        selected_pos = pos;
 
                         //TODO: 선택한 post의 세부 내용을 다른 화면에 보여줌(Bundle로 position이랑 어떤 글인지 넘겨줘야 함)
                         Intent intent = new Intent(context, PostActivity.class);

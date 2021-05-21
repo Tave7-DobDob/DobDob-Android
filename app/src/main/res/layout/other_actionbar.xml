@@ -15,7 +15,7 @@
         android:src="@drawable/cancel"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:contentDescription="🔍수정" /> <!--수정버튼 눌렀을 시-->
+        android:contentDescription="🔍수정취소" /> <!--수정버튼 눌렀을 시-->
     <TextView
         android:id="@+id/toolbar_delete"
         android:layout_width="wrap_content"

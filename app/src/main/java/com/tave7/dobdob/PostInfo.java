@@ -10,6 +10,7 @@ public class PostInfo {
     private int heartNum = 0;
     private int commentNum = 0;
     ArrayList<String> postTag = null;
+    //ArrayList<CommentInfo> comments = null;
 
     PostInfo(String writerProfile, String writerName, String postTime, String postTitle, int heartNum, int commentNum, ArrayList<String> postTag){
         this.writerProfile = writerProfile;
@@ -21,6 +22,8 @@ public class PostInfo {
 
         this.postTag = new ArrayList<String>();
         this.postTag = postTag;
+        //this.comments = new ArrayList<CommentInfo>();
+        //this.comments = comments;
     }
 
     public String getWriterProfile() { return writerProfile; }
