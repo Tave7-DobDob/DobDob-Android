@@ -45,10 +45,10 @@ public class MainActivity extends AppCompatActivity {
                 tmpTag.add("산책");
                 tmpTag.add("동네산책");
                 tmpTag.add("4명모집");
-            postList.add(new PostInfo("", "테이비", "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", 12, 4, tmpTag));
+            postList.add(new PostInfo("", "테이비", "신사동", "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", 12, 4, tmpTag));
             ArrayList<String> tmpTag2 = new ArrayList<>();
                 tmpTag2.add("자전거타기");
-            postList.add(new PostInfo("", "자전거탄풍경", "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", 5, 0, tmpTag2));
+            postList.add(new PostInfo("", "자전거탄풍경", "개포동", "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", 5, 0, tmpTag2));
 
         rvPost = findViewById(R.id.mainPost);
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL,false);
@@ -88,7 +88,9 @@ public class MainActivity extends AppCompatActivity {
         civProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MyPageActivity.class));     //마이페이지 화면으로 넘어감
+                Intent showMyPage = new Intent(MainActivity.this, MyPageActivity.class);
+                showMyPage.putExtra("isMyPage", true);
+                startActivity(showMyPage);      //마이페이지 화면으로 넘어감
             }
         });
     }

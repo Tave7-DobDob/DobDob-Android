@@ -70,8 +70,10 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginRight="50dp"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
                         android:orientation="vertical" >
 
                         <LinearLayout
@@ -83,12 +85,11 @@
                                 android:id="@+id/myPage_userNick"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_vertical"
                                 android:text="닉네임"
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 android:textColor="#000000"/>
-
+                            <!--
                             <ImageView
                                 android:id="@+id/myPage_ivEditNick"
                                 android:layout_width="20dp"
@@ -96,13 +97,14 @@
                                 android:layout_marginStart="25dp"
                                 android:src="@drawable/edit"
                                 android:contentDescription="닉네임 수정"/>
+                            -->
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
-                            android:layout_marginTop="5dp"
+                            android:layout_marginTop="13dp"
                             android:orientation="horizontal">
                             <ImageView
                                 android:layout_width="15dp"
@@ -116,6 +118,7 @@
                                 android:layout_marginStart="5dp"
                                 android:text="XX동"
                                 android:textColor="#666666"/>
+                            <!--
                             <Button
                                 android:id="@+id/myPage_btChangeTown"
                                 android:layout_width="wrap_content"
@@ -123,6 +126,7 @@
                                 android:layout_marginStart="25dp"
                                 android:padding="1dp"
                                 android:text="동네 재설정"/>
+                            -->
                         </LinearLayout>
 
 

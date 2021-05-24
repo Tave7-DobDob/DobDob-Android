@@ -2,6 +2,7 @@ package com.tave7.dobdob;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -77,10 +78,10 @@ public class PostActivity extends AppCompatActivity {
 
         //TODO: 임시 commentList 생성(commentList는 Post와 연결되어 있어야 함)
             commentList = new ArrayList<>();
-            commentList.add(new CommentInfo("", "테이비1", "XXX동", "2021.05.16 20:00", "@tave7", "첫 번째 댓글입니다!"));
-            commentList.add(new CommentInfo("", "테이비2", "XX동", "2021.05.17 13:00", "@tave7", "두 번째 댓글입니다!"));
-            commentList.add(new CommentInfo("", "테이비3", "XXX동", "2021.05.18 15:00", "@tave7", "세 번째 댓글입니다!"));
-            commentList.add(new CommentInfo("", "테이비4", "XX동", "2021.05.19 17:00", "@tave7", "네 번째 댓글입니다!"));
+            commentList.add(new CommentInfo("", "테이비1", "XXX동", "2021.05.16 20:00", "@tave1 첫 번째 댓글입니다!"));
+            commentList.add(new CommentInfo("", "테이비2", "XX동", "2021.05.17 13:00", "두 번째 댓글@tave2 입니다!"));
+            commentList.add(new CommentInfo("", "테이비3", "XXX동", "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
+            commentList.add(new CommentInfo("", "테이비4", "XX동", "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
 
         rvComments = findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
@@ -182,6 +183,19 @@ public class PostActivity extends AppCompatActivity {
     }
 
     public void postClickListener(){
+        TextView tvWriterNick = findViewById(R.id.post_writerNick);
+        tvWriterNick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isEdit) {
+                    //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
+                    Intent showProfilePage = new Intent(PostActivity.this, MyPageActivity.class);
+                    showProfilePage.putExtra("isMyPage", false);
+                    startActivity(showProfilePage);
+                }
+            }
+        });
+
         tvAddPhotos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
