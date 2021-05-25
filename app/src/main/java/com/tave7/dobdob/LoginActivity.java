@@ -22,7 +22,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        kakaoLogin = findViewById(R.id.btLogin);
+        kakaoLogin = (Button) findViewById(R.id.btLogin);
         kakaoLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

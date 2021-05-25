@@ -18,13 +18,13 @@ public class PostingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_posting);
 
-        EditText etTitle = findViewById(R.id.posting_title);                //글 제목
-        LinearLayout llShowPhotos = findViewById(R.id.posting_showPhotos);  //업로드한 사진들
-        EditText etContent = findViewById(R.id.posting_content);            //글 내용
-        LinearLayout llTags = findViewById(R.id.posting_llTags);            //글의 태그들 추가할 위치
-        EditText etTag = findViewById(R.id.posting_etTag);                  //글의 태그 입력칸(TODO: 드롭다운 가능해야 함)
+        EditText etTitle = (EditText) findViewById(R.id.posting_title);                //글 제목
+        LinearLayout llShowPhotos = (LinearLayout) findViewById(R.id.posting_showPhotos);  //업로드한 사진들
+        EditText etContent = (EditText) findViewById(R.id.posting_content);            //글 내용
+        LinearLayout llTags = (LinearLayout) findViewById(R.id.posting_llTags);            //글의 태그들 추가할 위치
+        EditText etTag = (EditText) findViewById(R.id.posting_etTag);                  //글의 태그 입력칸(TODO: 드롭다운 가능해야 함)
 
-        Toolbar toolbar = findViewById(R.id.posting_toolbar);      //툴바 설정
+        Toolbar toolbar = (Toolbar) findViewById(R.id.posting_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
             actionBar.setDisplayShowCustomEnabled(true);
@@ -38,7 +38,7 @@ public class PostingActivity extends AppCompatActivity {
     }
 
     public void toolbarListener(Toolbar toolbar){
-        ImageView ivCancel = toolbar.findViewById(R.id.toolbar_cancel);
+        ImageView ivCancel = (ImageView) toolbar.findViewById(R.id.toolbar_cancel);
         ivCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -46,7 +46,7 @@ public class PostingActivity extends AppCompatActivity {
             }
         });
         
-        TextView ivComplete = toolbar.findViewById(R.id.toolbar_complete);
+        TextView ivComplete = (TextView) toolbar.findViewById(R.id.toolbar_complete);
         ivComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,10 +58,10 @@ public class PostingActivity extends AppCompatActivity {
 
     public void postingClickListener(){
         //TODO: 사진모음(llShowPhotos)에서 각각의 사진에 대해 클릭 리스너 제공, 동 내용(tvTown) 클릭, 사진 업로드(tvPhoto) 위해 클릭
-        LinearLayout llTown = findViewById(R.id.posting_llTown);
-        LinearLayout llPhotos = findViewById(R.id.posting_llPhotos);
-        TextView tvTown = findViewById(R.id.posting_town);                  //위치 지정하기 위해 클릭 가능 and 동이름 출력됨
-        TextView tvPhoto = findViewById(R.id.posting_photo);                //사진 업로드하기 위해 클릭 가능 and 사진개수 출력됨
+        LinearLayout llTown = (LinearLayout) findViewById(R.id.posting_llTown);
+        LinearLayout llPhotos = (LinearLayout) findViewById(R.id.posting_llPhotos);
+        TextView tvTown = (TextView) findViewById(R.id.posting_town);                  //위치 지정하기 위해 클릭 가능 and 동이름 출력됨
+        TextView tvPhoto = (TextView) findViewById(R.id.posting_photo);                //사진 업로드하기 위해 클릭 가능 and 사진개수 출력됨
 
         llTown.setOnClickListener(new View.OnClickListener() {
             @Override

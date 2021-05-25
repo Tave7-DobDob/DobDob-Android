@@ -58,7 +58,7 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
         PhotosViewHolder(final View itemView) {
             super(itemView);
             //TODO: 권한이 있고 수정상태여야 삭제 텍스트가 보임
-            tvPhotoDelete = itemView.findViewById(R.id.tvPhotoDelete);
+            tvPhotoDelete = (TextView) itemView.findViewById(R.id.tvPhotoDelete);
             tvPhotoDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -86,16 +86,16 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
                 }
             });
 
-            ivPhoto = itemView.findViewById(R.id.ivPostPhoto);
+            ivPhoto = (ImageView) itemView.findViewById(R.id.ivPostPhoto);
             ivPhoto.setOnClickListener(new View.OnClickListener() {        //사진을 클릭했을 시
                 @Override
                 public void onClick(View v) {
                     //다이얼로그로 원본 사진을 보여줌
                     Dialog dialog = new Dialog(context);
                     dialog.setContentView(R.layout.item_photo_pager);
-                    TextView photoDelete = dialog.findViewById(R.id.tvPhotoDelete);
+                    TextView photoDelete = (TextView) dialog.findViewById(R.id.tvPhotoDelete);
                         photoDelete.setVisibility(View.GONE);
-                    ImageView photo = dialog.findViewById(R.id.ivPostPhoto);
+                    ImageView photo = (ImageView) dialog.findViewById(R.id.ivPostPhoto);
                         FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                         photo.setLayoutParams(param);
                         photo.setImageDrawable(ivPhoto.getDrawable());

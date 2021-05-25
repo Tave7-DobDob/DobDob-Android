@@ -13,14 +13,14 @@
         android:src="@drawable/logo"
         android:contentDescription="돕돕"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/ISSettingForm"
+        app:layout_constraintBottom_toTopOf="@id/is_settingForm"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintVertical_bias="0.3"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <LinearLayout
-        android:id="@+id/ISSettingForm"
+        android:id="@+id/is_settingForm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"
@@ -33,13 +33,27 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="닉네임"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#000000"/>
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="닉네임"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#000000"/>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/edit"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,7 +61,7 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
             <EditText
-                android:id="@+id/ISetName"
+                android:id="@+id/is_etName"
                 android:layout_width="170dp"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
@@ -60,47 +74,107 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
             <Button
-                android:id="@+id/ISbtCheckNick"
+                android:id="@+id/is_btCheckNick"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="중복확인"/>
         </LinearLayout>
-
         <TextView
+            android:id="@+id/is_tvNickError"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="3dp"
+            android:text="닉네임을 입력하지 않았습니다."
+            android:textSize="11sp"
+            android:textColor="#FF0000"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="60dp"
-            android:text="내 동네 설정"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#000000"/>
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="내 동네 설정"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#000000"/>
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="5dp"
+                android:src="@drawable/gps_pointer"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-            <Spinner
-                android:id="@+id/ISspCityProvince"
-                android:layout_width="100dp"
+            android:orientation="vertical">
+            <Button
+                android:id="@+id/is_btSelectTown"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_spinner"/>
-            <Spinner
-                android:id="@+id/ISspCountyDistrict"
-                android:layout_width="100dp"
+                android:text="주소 검색"/>
+            <TextView
+                android:id="@+id/is_tvTownError"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_spinner"/>
-            <Spinner
-                android:id="@+id/ISspDong"
-                android:layout_width="100dp"
+                android:layout_margin="3dp"
+                android:text="주소 검색을 하지 않으셨습니다."
+                android:textSize="11sp"
+                android:textColor="#FF0000"/>
+
+            <LinearLayout
+                android:id="@+id/is_llResultTown"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_spinner"/>
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/is_tvCity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_position_border"
+                    android:text="성남시"
+                    android:textSize="18sp"
+                    android:textColor="#757575"/>
+                <TextView
+                    android:id="@+id/is_tvCountry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_position_border"
+                    android:text="분당구"
+                    android:textSize="18sp"
+                    android:textColor="#757575"/>
+                <TextView
+                    android:id="@+id/is_tvDong"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/bg_position_border"
+                    android:text="백현동"
+                    android:textSize="18sp"
+                    android:textColor="#757575"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/is_tvFullAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="13dp"
+                android:background="@drawable/bg_position_border"
+                android:text="경기도 성남시 분당구 판교역로 지하160(백현동)"
+                android:textColor="#999999"/>
         </LinearLayout>
 
         <Button
-            android:id="@+id/ISbtSubmit"
+            android:id="@+id/is_btSubmit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="100dp"

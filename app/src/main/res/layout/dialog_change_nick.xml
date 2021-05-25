@@ -49,7 +49,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:textColor="#ff0000"
+        android:textColor="#FF0000"
         android:textSize="11sp"
         android:text="입력하신 닉네임이 이미 존재합니다."
         android:layout_below="@id/nickDialog_nick"/>

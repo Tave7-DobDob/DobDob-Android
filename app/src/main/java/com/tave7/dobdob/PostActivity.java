@@ -42,13 +42,15 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        etTitle = findViewById(R.id.post_title);
-        etContent = findViewById(R.id.post_content);
-        indicator = findViewById(R.id.indicator);
-        llWriteComment = findViewById(R.id.post_writeCommentL);
-        etWriteComment = findViewById(R.id.post_etComment);
+        etTitle = (EditText) findViewById(R.id.post_title);
+        etContent = (EditText) findViewById(R.id.post_content);
+        tvAddPhotos = (TextView) findViewById(R.id.post_addPhotos);        //사진 추가 버튼
+            tvAddPhotos.setVisibility(View.GONE);
+        indicator = (CircleIndicator3) findViewById(R.id.indicator);
+        llWriteComment = (LinearLayout) findViewById(R.id.post_writeCommentL);
+        etWriteComment = (EditText) findViewById(R.id.post_etComment);
 
-        Toolbar toolbar = findViewById(R.id.post_toolbar);      //툴바 설정
+        Toolbar toolbar = (Toolbar) findViewById(R.id.post_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
@@ -60,16 +62,13 @@ public class PostActivity extends AppCompatActivity {
         actionBar.setCustomView(customView);
         toolbarListener(toolbar);
 
-        tvAddPhotos = findViewById(R.id.post_addPhotos);        //사진 추가 버튼
-        tvAddPhotos.setVisibility(View.GONE);
-
         //TODO: 임시 photoList생성
         ArrayList<Bitmap> photoList = new ArrayList<>();
             Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo);
             photoList.add(icon);
             Bitmap icon2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.user_image);
             photoList.add(icon2);
-        ViewPager2 viewpager2 = findViewById(R.id.vpPostPhotos);
+        ViewPager2 viewpager2 = (ViewPager2) findViewById(R.id.vpPostPhotos);
         photoAdapter = new PostPhotosPagerAdapter(photoList);
         viewpager2.setAdapter(photoAdapter);
         indicator.setViewPager(viewpager2);
@@ -83,7 +82,7 @@ public class PostActivity extends AppCompatActivity {
             commentList.add(new CommentInfo("", "테이비3", "XXX동", "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
             commentList.add(new CommentInfo("", "테이비4", "XX동", "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
 
-        rvComments = findViewById(R.id.postComments);
+        rvComments = (RecyclerView) findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvComments.setLayoutManager(manager);
         CommentRecyclerAdapter cAdapter = new CommentRecyclerAdapter(commentList);
@@ -94,10 +93,10 @@ public class PostActivity extends AppCompatActivity {
     }
 
     public void toolbarListener(Toolbar toolbar){
-        ImageView ivEditCancel = toolbar.findViewById(R.id.toolbar_editCancel);
+        ImageView ivEditCancel = (ImageView) toolbar.findViewById(R.id.toolbar_editCancel);
             ivEditCancel.setVisibility(View.GONE);     //수정버튼이 눌릴 때만 수정취소버튼이 보이게 되어야 함
-        TextView tvPostDelete = toolbar.findViewById(R.id.toolbar_delete);
-        ImageView ivEdit = toolbar.findViewById(R.id.toolbar_edit);
+        TextView tvPostDelete = (TextView) toolbar.findViewById(R.id.toolbar_delete);
+        ImageView ivEdit = (ImageView) toolbar.findViewById(R.id.toolbar_edit);
 
         ivEditCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,7 +182,7 @@ public class PostActivity extends AppCompatActivity {
     }
 
     public void postClickListener(){
-        TextView tvWriterNick = findViewById(R.id.post_writerNick);
+        TextView tvWriterNick = (TextView) findViewById(R.id.post_writerNick);
         tvWriterNick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,11 +202,11 @@ public class PostActivity extends AppCompatActivity {
             }
         });
 
-        TextView tvAddComment = findViewById(R.id.post_postComment);
+        TextView tvAddComment = (TextView) findViewById(R.id.post_postComment);
         tvAddComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText etCommentContent = findViewById(R.id.post_etComment);
+                EditText etCommentContent = (EditText) findViewById(R.id.post_etComment);
                 //TODO: commentList에 댓글을 추가함(Post에도 연결되어 추가 됨) + DB에 댓글 저장
             }
         });

@@ -11,17 +11,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class MainActivity extends AppCompatActivity {
+    ArrayList<PostInfo> postList = null;        //메인에서 보여줄 postList
+    ArrayList<PostInfo> totalPostList = null;   //메인에서 보여줄 postList의 복사본
+
     RecyclerView rvPost;
     PostRecyclerAdapter adapter;
 
@@ -30,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
             actionBar.setDisplayShowCustomEnabled(true);
@@ -40,24 +44,26 @@ public class MainActivity extends AppCompatActivity {
         toolbarListener(toolbar);
 
         //TODO: 임시 postList 생성
-            ArrayList<PostInfo> postList = new ArrayList<>();
+            postList = new ArrayList<>();       //이후에 DB에서 내용 가져와서 =를 사용해야함
+            totalPostList = new ArrayList<>();
             ArrayList<String> tmpTag = new ArrayList<>();
                 tmpTag.add("산책");
                 tmpTag.add("동네산책");
                 tmpTag.add("4명모집");
-            postList.add(new PostInfo("", "테이비", "신사동", "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", 12, 4, tmpTag));
+            totalPostList.add(new PostInfo("", "테이비", "신사동", "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", 12, 4, tmpTag));
             ArrayList<String> tmpTag2 = new ArrayList<>();
                 tmpTag2.add("자전거타기");
-            postList.add(new PostInfo("", "자전거탄풍경", "개포동", "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", 5, 0, tmpTag2));
+            totalPostList.add(new PostInfo("", "자전거탄풍경", "개포동", "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", 5, 0, tmpTag2));
+            postList.addAll(totalPostList);     //TODO: 삭제했을 때 영향 미치는 지 확인해야 함
 
-        rvPost = findViewById(R.id.mainPost);
+        rvPost = (RecyclerView) findViewById(R.id.mainPost);
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL,false);
         rvPost.setLayoutManager(manager);
-        adapter = new PostRecyclerAdapter(postList);
+        adapter = new PostRecyclerAdapter(postList, totalPostList);
         rvPost.setAdapter(adapter);      //어댑터 등록
         rvPost.addItemDecoration(new DividerItemDecoration(MainActivity.this, 1)); //리스트 사이의 구분선 설정
 
-        FloatingActionButton fabAddPost = findViewById(R.id.mainFabAddPost);
+        FloatingActionButton fabAddPost = (FloatingActionButton) findViewById(R.id.mainFabAddPost);
         fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,9 +73,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toolbarListener(Toolbar toolbar){
-        TextView tvTown = toolbar.findViewById(R.id.toolbar_town);
-        ImageView ivSearch = toolbar.findViewById(R.id.toolbar_search);
-        CircleImageView civProfile = toolbar.findViewById(R.id.toolbar_profile);
+        TextView tvTown = (TextView) toolbar.findViewById(R.id.toolbar_town);
 
         tvTown.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,21 +81,78 @@ public class MainActivity extends AppCompatActivity {
                 //TODO: 동네를 클릭했을 때, 동네 변경이 가능해야 함
             }
         });
+    }
 
-        ivSearch.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.search_menu,menu);
+
+        MenuItem mSearch = menu.findItem(R.id.search);
+        mSearch.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
-            public void onClick(View v) {
-                //TODO: 검색 기능을 넣어야 함
+            public boolean onMenuItemActionExpand(MenuItem item) { return true; }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                searchTitleTag("");    //초기로 돌려놓음
+                return true;
+            }
+        });
+        SearchView sv = (SearchView) mSearch.getActionView();
+        //sv.setSubmitButtonEnabled(true);      TODO: 필요한가?
+        sv.setQueryHint("제목 및 태그 검색");
+        sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {    //SearchView의 검색 이벤트
+            @Override
+            public boolean onQueryTextSubmit(String query) {        //검색버튼을 눌렀을 경우
+                searchTitleTag(query);
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {      //텍스트가 바뀔때마다 호출
+                if (newText.length() == 0)
+                    searchTitleTag("");    //초기로 돌려놓음
+
+                return true;
             }
         });
 
-        civProfile.setOnClickListener(new View.OnClickListener() {
+        MenuItem mProfile = menu.findItem(R.id.profile);
+        mProfile.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onMenuItemClick(MenuItem item) {
                 Intent showMyPage = new Intent(MainActivity.this, MyPageActivity.class);
                 showMyPage.putExtra("isMyPage", true);
                 startActivity(showMyPage);      //마이페이지 화면으로 넘어감
+
+                return true;
             }
         });
+        return true;
+    }
+
+    public void searchTitleTag(String searchText) {     //제목 검색
+        postList.clear();   //리스트를 초기화 함
+
+        if (searchText.length() == 0)     //검색어 입력이 없을 경우
+            postList.addAll(totalPostList);
+        else {      //입력한 검색어가 있을 경우
+            for (PostInfo pi : totalPostList) {
+                if (pi.getPostTitle().toLowerCase().contains(searchText)) {
+                    postList.add(pi);
+                }
+                else {
+                    for (String tag : pi.getPostTag()) {
+                        if (tag.contains(searchText))
+                            postList.add(pi);
+                    }
+                }
+            }
+        }
+        adapter.notifyDataSetChanged();
     }
 }

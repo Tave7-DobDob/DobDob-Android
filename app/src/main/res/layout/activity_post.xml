@@ -135,7 +135,6 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="250dp">
-                    <!--TODO: circleIndicator 위에 겹쳐서 추가!-->
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vpPostPhotos"
                         android:layout_gravity="center"

@@ -37,7 +37,7 @@ public class MyPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mypage);
 
-        Toolbar toolbar = findViewById(R.id.myPage_toolbar);      //툴바 설정
+        Toolbar toolbar = (Toolbar) findViewById(R.id.myPage_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
@@ -50,16 +50,16 @@ public class MyPageActivity extends AppCompatActivity {
             toolbarListener(toolbar);
         }
 
-        civUserProfile = findViewById(R.id.myPage_userProfile);     //TODO: 해당 user의 이미지로 setImageResource변경
-        tvChangeProfile = findViewById(R.id.myPage_tvChangeProfile);
+        civUserProfile = (CircleImageView) findViewById(R.id.myPage_userProfile);     //TODO: 해당 user의 이미지로 setImageResource변경
+        tvChangeProfile = (TextView) findViewById(R.id.myPage_tvChangeProfile);
             tvChangeProfile.setVisibility(View.GONE);
-        tvUserNick = findViewById(R.id.myPage_userNick);            //TODO: 해당 user의 닉네임으로 setText("")변경
-        tvUserTown = findViewById(R.id.myPage_userTown);            //TODO: 해당 user의 동네로 setText("")변경(클릭시 주소 결정할 수 있게)
-        tvUserPosts = findViewById(R.id.myPage_tvUserPost);         //TODO: 해당 user의 닉네임으로 setText(nickName+" 님이 작성한 글")변경
-        rvMyPagePosts = findViewById(R.id.myPagePosts);
+        tvUserNick = (TextView) findViewById(R.id.myPage_userNick);            //TODO: 해당 user의 닉네임으로 setText("")변경
+        tvUserTown = (TextView) findViewById(R.id.myPage_userTown);            //TODO: 해당 user의 동네로 setText("")변경(클릭시 주소 결정할 수 있게)
+        tvUserPosts = (TextView) findViewById(R.id.myPage_tvUserPost);         //TODO: 해당 user의 닉네임으로 setText(nickName+" 님이 작성한 글")변경
+        rvMyPagePosts = (RecyclerView) findViewById(R.id.myPagePosts);
 
         //TODO: 임시 postList 생성
-            ArrayList<PostInfo> postList = new ArrayList<>();
+            ArrayList<PostInfo> postList = new ArrayList<>();       //얘로 해당 post를 보여주게 해야 함
             ArrayList<String> tmpTag = new ArrayList<>();
                 tmpTag.add("산책");
                 tmpTag.add("동네산책");
@@ -81,11 +81,11 @@ public class MyPageActivity extends AppCompatActivity {
     }
 
     public void toolbarListener(Toolbar toolbar){
-        ImageView ivEditCancel = toolbar.findViewById(R.id.toolbar_editCancel);
+        ImageView ivEditCancel = (ImageView) toolbar.findViewById(R.id.toolbar_editCancel);
             ivEditCancel.setVisibility(View.GONE);     //수정버튼이 눌릴 때만 수정취소버튼이 보이게 되어야 함
-        TextView tvPostDelete = toolbar.findViewById(R.id.toolbar_delete);
+        TextView tvPostDelete = (TextView) toolbar.findViewById(R.id.toolbar_delete);
             tvPostDelete.setVisibility(View.GONE);
-        ImageView ivEdit = toolbar.findViewById(R.id.toolbar_edit);
+        ImageView ivEdit = (ImageView) toolbar.findViewById(R.id.toolbar_edit);
 
         ivEditCancel.setOnClickListener(new View.OnClickListener() {
             @Override

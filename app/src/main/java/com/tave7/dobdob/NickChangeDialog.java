@@ -31,10 +31,10 @@ public class NickChangeDialog extends Dialog {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_change_nick);
 
-        et_dialogNick = findViewById(R.id.nickDialog_nick);
-        bt_dialogChange = findViewById(R.id.nickDialog_btChange);
-        bt_dialogCancel = findViewById(R.id.nickDialog_btCancel);
-        tv_dialogIsCheckedNick = findViewById(R.id.nickDialog_isCheckedNick);
+        et_dialogNick = (EditText) findViewById(R.id.nickDialog_nick);
+        bt_dialogChange = (Button) findViewById(R.id.nickDialog_btChange);
+        bt_dialogCancel = (Button) findViewById(R.id.nickDialog_btCancel);
+        tv_dialogIsCheckedNick = (TextView) findViewById(R.id.nickDialog_isCheckedNick);
 
         //값이 변경될 때,
         et_dialogNick.addTextChangedListener(new TextWatcher() {

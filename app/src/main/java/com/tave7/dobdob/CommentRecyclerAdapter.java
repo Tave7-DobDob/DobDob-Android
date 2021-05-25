@@ -92,11 +92,11 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
 
         CommentViewHolder(final View itemView) {
             super(itemView);
-            commenterProfile = itemView.findViewById(R.id.commentrow_profile);
-            commenterName = itemView.findViewById(R.id.commentrow_name);
-            commenterTown = itemView.findViewById(R.id.commentrow_town);
-            commentTime = itemView.findViewById(R.id.commentrow_time);
-            comment = itemView.findViewById(R.id.commentrow_comment);
+            commenterProfile = (CircleImageView) itemView.findViewById(R.id.commentrow_profile);
+            commenterName = (TextView) itemView.findViewById(R.id.commentrow_name);
+            commenterTown = (TextView) itemView.findViewById(R.id.commentrow_town);
+            commentTime = (TextView) itemView.findViewById(R.id.commentrow_time);
+            comment = (TextView) itemView.findViewById(R.id.commentrow_comment);
 
             commenterName.setOnClickListener(new View.OnClickListener() {        //상대 닉네임을 클릭했을 때
                 @Override
