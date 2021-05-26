@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class LoginActivity extends AppCompatActivity {
+    boolean isFirstLogin = true;
     Button kakaoLogin;
 
     @Override
@@ -27,9 +28,18 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                //TODO: 카카오 로그인 성공 시 (초기 로그인이라면 닉네임과 동네를 설정함)
-                startActivity(new Intent(LoginActivity.this, InitialSettingActivity.class));
-                finish();
+                //TODO: 카카오 로그인을 처음했을 때는 isFirstLogin = true (초기 로그인이라면 닉네임과 동네를 설정함)
+                //카카오 로그인을 이전에 해봤을 때는 isFirstLogin = false로 User정보를 MainActivity에 전달함
+                if (isFirstLogin) {
+                    startActivity(new Intent(LoginActivity.this, InitialSettingActivity.class));
+                    finish();
+                }
+                else {
+                    Intent showMain = new Intent(LoginActivity.this, MainActivity.class);
+                    //showMain.putExtra("userInfo", );      TODO: 로그인한 유저 정보(UserInfo 형식)를 전달해야 함
+                    startActivity(showMain);
+                    finish();
+                }
             }
         });
 

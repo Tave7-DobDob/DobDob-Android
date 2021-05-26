@@ -1,6 +1,8 @@
 package com.tave7.dobdob;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -12,11 +14,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class InitialSettingActivity extends AppCompatActivity {
-    boolean isCheckedNick = false, isSetTown = false;
+    boolean isCheckedName = false, isSetTown = false;
     EditText etName;
-    TextView tvNickError, tvTownError, tvFullAddress;
+    TextView tvNameError, tvTownError, tvResultDong, tvFullAddress;
     LinearLayout llResultTown;
-    Button btCheckNick, btSelectTown, btSubmit;
+    Button btCheckName, btSelectTown, btSubmit;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -24,14 +26,15 @@ public class InitialSettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_initialsetting);
 
         etName = (EditText) findViewById(R.id.is_etName);
-        tvNickError = (TextView) findViewById(R.id.is_tvNickError);
-            tvNickError.setVisibility(View.GONE);
-        btCheckNick = (Button) findViewById(R.id.is_btCheckNick);
+        tvNameError = (TextView) findViewById(R.id.is_tvNameError);
+            tvNameError.setVisibility(View.GONE);
+        btCheckName = (Button) findViewById(R.id.is_btCheckName);
         btSelectTown = (Button) findViewById(R.id.is_btSelectTown);
         tvTownError = (TextView) findViewById(R.id.is_tvTownError);
             tvTownError.setVisibility(View.GONE);
         llResultTown = (LinearLayout) findViewById(R.id.is_llResultTown);
             llResultTown.setVisibility(View.GONE);
+        tvResultDong = (TextView) findViewById(R.id.is_tvDong);
         tvFullAddress = (TextView) findViewById(R.id.is_tvFullAddress);
             tvFullAddress.setVisibility(View.GONE);
         btSubmit = (Button) findViewById(R.id.is_btSubmit);
@@ -40,22 +43,22 @@ public class InitialSettingActivity extends AppCompatActivity {
     }
 
     public void initialSettingClickListener(){
-        btCheckNick.setOnClickListener(new View.OnClickListener() {
+        btCheckName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
 
                 if (etName.getText().toString().equals("")) {
-                    tvNickError.setVisibility(View.VISIBLE);
-                    tvNickError.setText("닉네임을 입력하지 않았습니다.");
+                    tvNameError.setVisibility(View.VISIBLE);
+                    tvNameError.setText("닉네임을 입력하지 않았습니다.");
                 }
 
                 else {
                     //TODO: 데이터베이스에서 닉네임 중복 확인함
-                    //(중복 확인 후 사용가능하다면 isCheckedNick = true;과 tvNickError.setVisibility(View.VISIBLE);)
-                    isCheckedNick = true;
-                    tvNickError.setVisibility(View.VISIBLE);
-                    tvNickError.setText("사용 가능한 닉네임입니다.");
+                    //(중복 확인 후 사용가능하다면 isCheckedName = true;과 tvNameError.setVisibility(View.VISIBLE);)
+                    isCheckedName = true;
+                    tvNameError.setVisibility(View.VISIBLE);
+                    tvNameError.setText("사용 가능한 닉네임입니다.");
                 }
             }
         });
@@ -80,13 +83,18 @@ public class InitialSettingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);
 
-                if (isCheckedNick && isSetTown) {
-                    startActivity(new Intent(InitialSettingActivity.this, MainActivity.class));
+                if (isCheckedName && isSetTown) {
+                    //TODO: DB에 결과를 보냄 -> 닉네임과 주소!  -->  그 주소를 저장함      (url 이름 바꿔야 함)
+                    UserInfo user = new UserInfo("", etName.getText().toString(), tvResultDong.getText().toString());
+
+                    Intent showMain = new Intent(InitialSettingActivity.this, MainActivity.class);
+                    showMain.putExtra("userInfo", user);
+                    startActivity(showMain);
                     finish();
                 }
-                else if (!isCheckedNick) {      //닉네임 중복 확인을 하지 않은 경우
-                    tvNickError.setVisibility(View.VISIBLE);
-                    tvNickError.setText("닉네임 중복 확인해 주세요.");
+                else if (!isCheckedName) {      //닉네임 중복 확인을 하지 않은 경우
+                    tvNameError.setVisibility(View.VISIBLE);
+                    tvNameError.setText("닉네임 중복 확인해 주세요.");
                 }
                 else if (!isSetTown)            //동네 설정을 하지 않은 경우
                     tvTownError.setVisibility(View.VISIBLE);

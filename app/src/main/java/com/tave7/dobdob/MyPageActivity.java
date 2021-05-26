@@ -26,10 +26,12 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MyPageActivity extends AppCompatActivity {
+    UserInfo userInfo = null;
+    ArrayList<PostInfo> userPostList = null;        //user가 올린 글 모음
     private static final int PICK_FROM_GALLERY = 100;
-    boolean isEdit = false, isChangeImage = false, isChangeNick = false, isChangeTown = false ;     //현재 글 수정중인지
+    boolean isEdit = false, isChangeImage = false, isChangeName = false, isChangeTown = false ;     //현재 글 수정중인지
     CircleImageView civUserProfile;
-    TextView tvChangeProfile, tvUserNick, tvUserTown, tvUserPosts;
+    TextView tvChangeProfile, tvUserName, tvUserTown, tvUserPosts;
     RecyclerView rvMyPagePosts;
 
     @Override
@@ -44,36 +46,37 @@ public class MyPageActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
 
-        if (getIntent().getBooleanExtra("isMyPage", false)) {
+        userInfo = (UserInfo) getIntent().getSerializableExtra("userInfo");
+        userPostList = (ArrayList<PostInfo>) getIntent().getSerializableExtra("userPosts");
+
+        if (getIntent().getBooleanExtra("isMyPage", false)) {   //현재 사용자의 페이지를 보는 경우
             View customView = LayoutInflater.from(this).inflate(R.layout.other_actionbar, null);
             actionBar.setCustomView(customView);
             toolbarListener(toolbar);
         }
 
-        civUserProfile = (CircleImageView) findViewById(R.id.myPage_userProfile);     //TODO: 해당 user의 이미지로 setImageResource변경
+        civUserProfile = (CircleImageView) findViewById(R.id.myPage_userProfile);
+        if (userInfo.getUserProfileUrl().length() == 0)
+            civUserProfile.setImageResource(R.drawable.user_image);
+        else {    //TODO: 고쳐야 함(안됨)     //TODO: 해당 user의 이미지로 setImageResource변경
+            //user.setUserProfileUrl("https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE");
+            //civUserProfile.setImageBitmap(user.getBitmapProfile());
+        }
+
         tvChangeProfile = (TextView) findViewById(R.id.myPage_tvChangeProfile);
             tvChangeProfile.setVisibility(View.GONE);
-        tvUserNick = (TextView) findViewById(R.id.myPage_userNick);            //TODO: 해당 user의 닉네임으로 setText("")변경
+        tvUserName = (TextView) findViewById(R.id.myPage_userName);            //TODO: 변경 시 해당 user의 닉네임으로 setText("")변경
+            tvUserName.setText(userInfo.getUserName());
         tvUserTown = (TextView) findViewById(R.id.myPage_userTown);            //TODO: 해당 user의 동네로 setText("")변경(클릭시 주소 결정할 수 있게)
-        tvUserPosts = (TextView) findViewById(R.id.myPage_tvUserPost);         //TODO: 해당 user의 닉네임으로 setText(nickName+" 님이 작성한 글")변경
+            tvUserTown.setText(userInfo.getUserTown());
+        tvUserPosts = (TextView) findViewById(R.id.myPage_tvUserPost);         //TODO: 해당 user의 닉네임으로 setText(name+" 님이 작성한 글")변경
+            tvUserPosts.setText(userInfo.getUserName()+" 님이 작성한 글");
         rvMyPagePosts = (RecyclerView) findViewById(R.id.myPagePosts);
 
-        //TODO: 임시 postList 생성
-            ArrayList<PostInfo> postList = new ArrayList<>();       //얘로 해당 post를 보여주게 해야 함
-            ArrayList<String> tmpTag = new ArrayList<>();
-                tmpTag.add("산책");
-                tmpTag.add("동네산책");
-                tmpTag.add("4명모집");
-            postList.add(new PostInfo("", "테이비1", "한남동", "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", 12, 4, tmpTag));
-            ArrayList<String> tmpTag2 = new ArrayList<>();
-                tmpTag2.add("XX동");
-                tmpTag2.add("공구");
-            postList.add(new PostInfo("", "테이비1", "인사동", "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", 3, 2, tmpTag2));
-            postList.add(new PostInfo("", "테이비1", "개포동", "2021.05.20 11:30", "맥모닝 같이 먹을 사람 구해요!", 1, 0, null));
-            postList.add(new PostInfo("", "테이비1", "한남동", "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", 30, 43, null));
+
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);
-        PostRecyclerAdapter adapter = new PostRecyclerAdapter(postList);
+        PostRecyclerAdapter adapter = new PostRecyclerAdapter(userPostList, userInfo);
         rvMyPagePosts.setAdapter(adapter);      //어댑터 등록
         rvMyPagePosts.addItemDecoration(new DividerItemDecoration(MyPageActivity.this, 1)); //리스트 사이의 구분선 설정
 
@@ -93,8 +96,8 @@ public class MyPageActivity extends AppCompatActivity {
                 isEdit = false;     //지금부터 수정 안됨
                 isChangeImage = false;
                     civUserProfile.setImageResource(R.drawable.user_image);     //TODO: 다시 원래대로 사진 돌려놔야 함
-                isChangeNick = false;
-                    tvUserNick.setText("닉네임");     //TODO: 기존 닉네임으로 돌려놔야 함
+                isChangeName = false;
+                    tvUserName.setText("닉네임");     //TODO: 기존 닉네임으로 돌려놔야 함
                 isChangeTown = false;
                     tvUserTown.setText("XX동");      //TODO: 기존 동네로 돌려놔야 함
 
@@ -104,7 +107,7 @@ public class MyPageActivity extends AppCompatActivity {
                 ivEdit.setImageResource(R.drawable.edit);
 
                 tvChangeProfile.setVisibility(View.GONE);
-                tvUserNick.setTextColor(Color.parseColor("#000000"));
+                tvUserName.setTextColor(Color.parseColor("#000000"));
                 tvUserTown.setTextColor(Color.parseColor("#000000"));
                 tvUserPosts.setVisibility(View.VISIBLE);
                 rvMyPagePosts.setVisibility(View.VISIBLE);
@@ -123,7 +126,7 @@ public class MyPageActivity extends AppCompatActivity {
                     ivEdit.setImageResource(R.drawable.ok);
 
                     tvChangeProfile.setVisibility(View.VISIBLE);
-                    tvUserNick.setTextColor(Color.parseColor("#7112FF"));
+                    tvUserName.setTextColor(Color.parseColor("#7112FF"));
                     tvUserTown.setTextColor(Color.parseColor("#7112FF"));
                     tvUserPosts.setVisibility(View.GONE);
                     rvMyPagePosts.setVisibility(View.GONE);
@@ -135,7 +138,7 @@ public class MyPageActivity extends AppCompatActivity {
                     ivEdit.setImageResource(R.drawable.edit);
 
                     tvChangeProfile.setVisibility(View.GONE);
-                    tvUserNick.setTextColor(Color.parseColor("#000000"));
+                    tvUserName.setTextColor(Color.parseColor("#000000"));
                     tvUserTown.setTextColor(Color.parseColor("#000000"));
                     tvUserPosts.setVisibility(View.VISIBLE);
                     rvMyPagePosts.setVisibility(View.VISIBLE);
@@ -143,7 +146,7 @@ public class MyPageActivity extends AppCompatActivity {
                     if (isChangeImage) {
                         //TODO: DB에 바뀐 이미지 저장 + 마이페이지 내용 변경
                     }
-                    if (isChangeNick) {
+                    if (isChangeName) {
                         //TODO: DB에 바뀐 닉네임 저장 + 마이페이지 내용 변경
                     }
                     if (isChangeTown) {
@@ -167,20 +170,20 @@ public class MyPageActivity extends AppCompatActivity {
             }
         });
 
-        tvUserNick.setOnClickListener(new View.OnClickListener() {
+        tvUserName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isEdit) {
                     //마지막으로 닉네임 입력받음
-                    NickChangeDialog nickChangeDialog = new NickChangeDialog(MyPageActivity.this, new NickChangeDialog.NickChangeDialogListener() {
+                    NameChangeDialog nameChangeDialog = new NameChangeDialog(MyPageActivity.this, new NameChangeDialog.NameChangeDialogListener() {
                         @Override
                         public void onClickChangeBt() {    //닉네임 중복확인 완료 후 닉네임 변경
-                            isChangeNick = true;
+                            isChangeName = true;
 
                             //TODO: DB에 사용자 계정 추가 요청
                         }
                     });
-                    nickChangeDialog.show();
+                    nameChangeDialog.show();
                 }
             }
         });

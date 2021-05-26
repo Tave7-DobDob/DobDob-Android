@@ -23,6 +23,9 @@ public class TagPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tag_post);
 
+        ArrayList<PostInfo> tagPostLists = (ArrayList<PostInfo>) getIntent().getSerializableExtra("tagPostLists");
+        UserInfo userInfo = (UserInfo) getIntent().getSerializableExtra("userInfo");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.tagPost_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
@@ -42,7 +45,7 @@ public class TagPostActivity extends AppCompatActivity {
         RecyclerView rvTagPost = (RecyclerView) findViewById(R.id.tagPost);
         LinearLayoutManager manager = new LinearLayoutManager(TagPostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvTagPost.setLayoutManager(manager);
-        PostRecyclerAdapter adapter = new PostRecyclerAdapter((ArrayList<PostInfo>) getIntent().getSerializableExtra("tagPostList"));
+        PostRecyclerAdapter adapter = new PostRecyclerAdapter(tagPostLists, userInfo);
         rvTagPost.setAdapter(adapter);      //어댑터 등록
         rvTagPost.addItemDecoration(new DividerItemDecoration(TagPostActivity.this, 1)); //리스트 사이의 구분선 설정
     }

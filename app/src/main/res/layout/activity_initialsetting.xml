@@ -74,13 +74,13 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
             <Button
-                android:id="@+id/is_btCheckNick"
+                android:id="@+id/is_btCheckName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="중복확인"/>
         </LinearLayout>
         <TextView
-            android:id="@+id/is_tvNickError"
+            android:id="@+id/is_tvNameError"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"
