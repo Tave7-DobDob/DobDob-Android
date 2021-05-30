@@ -1,5 +1,6 @@
 package com.tave7.dobdob;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,10 +24,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    UserInfo userInfo = null;
-    ArrayList<PostInfo> postList = null;        //메인에서 보여줄 postList
-    ArrayList<PostInfo> totalPostList = null;   //메인에서 보여줄 postList의 복사본
+    static final int MYPAGE_REQUEST = 7000;  //requestCode로 사용될 상수(마이페이지)
 
+    UserInfo userInfo = null;
+    ArrayList<PostInfoSimple> postList = null;        //메인에서 보여줄 postList
+    ArrayList<PostInfoSimple> totalPostList = null;   //메인에서 보여줄 postList의 복사본
+
+    TextView tvTown;
     RecyclerView rvPost;
     PostRecyclerAdapter adapter;
 
@@ -36,7 +39,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        userInfo = (UserInfo) getIntent().getSerializableExtra("userInfo");     //지금 화면을 보고 있는 사용자의 정보
+        String userProfileUrl = PreferenceManager.getString(MainActivity.this, "userProfileUrl");
+        String userName = PreferenceManager.getString(MainActivity.this, "userName");
+        String userTown = PreferenceManager.getString(MainActivity.this, "userTown");
+        userInfo = new UserInfo(userProfileUrl, userName, userTown);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -58,17 +64,17 @@ public class MainActivity extends AppCompatActivity {
                 tmpHeartUsers.add("생귤");
                 tmpHeartUsers.add("테이비1");     tmpHeartUsers.add("테이비2");
                 tmpHeartUsers.add("테이비3");     tmpHeartUsers.add("테이비4");
-            totalPostList.add(new PostInfo("", "테이비", "신사동", "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", tmpHeartUsers, 4, tmpTag));
+            totalPostList.add(new PostInfoSimple("", "테이비", "신사동", "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", tmpHeartUsers, 4, tmpTag));
             ArrayList<String> tmpTag2 = new ArrayList<>();
                 tmpTag2.add("자전거타기");
             ArrayList<String> tmpHeartUsers2 = new ArrayList<>();
                 tmpHeartUsers2.add("테이브");      tmpHeartUsers2.add("테이비7");
                 tmpHeartUsers2.add("테이비");      tmpHeartUsers2.add("테이비2");
                 tmpHeartUsers2.add("테이비3");     tmpHeartUsers2.add("테이비4");
-            totalPostList.add(new PostInfo("", "자전거탄풍경", "개포동", "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", tmpHeartUsers2, 0, tmpTag2));
-            totalPostList.add(new PostInfo("", "테이비1", "인사동", "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers, 2, tmpTag2));
-            totalPostList.add(new PostInfo("", "테이비2", "개포동", "2021.05.20 11:30", "맥모닝 같이 먹을 사람 구해요!", null, 0, null));
-            totalPostList.add(new PostInfo("", "테이비", "한남동", "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers2, 39, null));
+            totalPostList.add(new PostInfoSimple("", "자전거탄풍경", "개포동", "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", tmpHeartUsers2, 0, tmpTag2));
+            totalPostList.add(new PostInfoSimple("", "테이비1", "인사동", "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers, 2, tmpTag2));
+            totalPostList.add(new PostInfoSimple("", "테이비2", "개포동", "2021.05.20 11:30", "맥모닝 같이 먹을 사람 구해요!", null, 0, null));
+            totalPostList.add(new PostInfoSimple("", "테이비", "한남동", "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers2, 39, null));
             postList.addAll(totalPostList);     //TODO: 삭제했을 때 영향 미치는 지 확인해야 함
 
         rvPost = (RecyclerView) findViewById(R.id.mainPost);
@@ -88,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toolbarListener(Toolbar toolbar){
-        TextView tvTown = (TextView) toolbar.findViewById(R.id.toolbar_town);
+        tvTown = (TextView) toolbar.findViewById(R.id.toolbar_town);
         tvTown.setText(userInfo.getUserTown());     //초기에 user가 설정한 동네로 보여줌
 
         tvTown.setOnClickListener(new View.OnClickListener() {
@@ -143,10 +149,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Intent showMyPage = new Intent(MainActivity.this, MyPageActivity.class);
-                showMyPage.putExtra("isMyPage", true);
-                showMyPage.putExtra("userPosts", adapter.searchUserPosts(userInfo.getUserName()));
-                showMyPage.putExtra("userInfo", userInfo);
-                startActivity(showMyPage);      //마이페이지 화면으로 넘어감
+                Bundle smpBundle = new Bundle();
+                    smpBundle.putBoolean("isMyPage", true);
+                    smpBundle.putSerializable("userPosts", adapter.searchUserPosts(userInfo.getUserName()));
+                    smpBundle.putSerializable("userInfo", userInfo);
+                showMyPage.putExtras(smpBundle);
+                startActivityForResult(showMyPage,MYPAGE_REQUEST);
 
                 return true;
             }
@@ -160,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         if (searchText.length() == 0)     //검색어 입력이 없을 경우
             postList.addAll(totalPostList);
         else {      //입력한 검색어가 있을 경우
-            for (PostInfo pi : totalPostList) {
+            for (PostInfoSimple pi : totalPostList) {
                 if (pi.getPostTitle().toLowerCase().contains(searchText)) {
                     postList.add(pi);
                 }
@@ -173,5 +181,30 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == MYPAGE_REQUEST){        //MyPage에서 User 정보 변경 시 적용 위함
+                /*TODO: 확인 요망!
+                if (data.getExtras().getString("userProfile").length()>0)
+                    userInfo.setUserProfileUrl(data.getExtras().getString("userProfile"));
+                 */
+                if (data.getExtras().getString("userName").length()>0)
+                    userInfo.setUserName(data.getExtras().getString("userName"));
+                if (data.getExtras().getString("userTown").length()>0) {
+                    tvTown.setText(data.getExtras().getString("userTown"));
+                        //TODO: 동네에 대한 post가 바뀌어야 함
+                    userInfo.setUserTown(data.getExtras().getString("userTown"));
+                }
+            }
+        }
+
+        //TODO: 이후에 post글 추가를 한다면 동네에 대한 post를 최신으로 새로고침해야 함
+        //마이페이지를 봤다면 그대로 내버려둠
+        //글의 세부 내용을 보는 거라면 그대로 내버려둠
     }
 }

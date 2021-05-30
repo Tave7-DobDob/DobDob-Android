@@ -66,6 +66,8 @@ public class NameChangeDialog extends Dialog {
 
                     //TODO: 서버로 입력한 닉네임을 전달해 중복 확인
                     //TODO: 중복이 되지 않았다면 onClickChangeBt();를 호출해 DB에 바뀐 닉네임 저장 and dismiss();
+                    nameChangeDialogListener.onClickChangeBt(userName);
+                    dismiss();
                 }
             }
         });
@@ -79,6 +81,6 @@ public class NameChangeDialog extends Dialog {
     }
 
     public interface NameChangeDialogListener{
-        void onClickChangeBt();
+        void onClickChangeBt(String userName);
     }
 }

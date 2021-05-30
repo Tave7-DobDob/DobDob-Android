@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,17 +22,17 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder> {
     private Context context;
     private boolean isMain = true;
-    private ArrayList<PostInfo> postList = null;
-    private ArrayList<PostInfo> totalPostList = null;    //메인에서 보여줄 postList의 복사본
+    private ArrayList<PostInfoSimple> postList = null;
+    private ArrayList<PostInfoSimple> totalPostList = null;    //메인에서 보여줄 postList의 복사본
     private UserInfo userInfo;
 
-    public PostRecyclerAdapter(ArrayList<PostInfo> postList, UserInfo userInfo) {      //MyPageActivity에서 호출
+    public PostRecyclerAdapter(ArrayList<PostInfoSimple> postList, UserInfo userInfo) {      //MyPageActivity에서 호출
         isMain = false;        //태그 클릭 시 태그에 대한 게시물 검색이 안됨
         this.postList = postList;
         this.userInfo = userInfo;
     }
 
-    public PostRecyclerAdapter(ArrayList<PostInfo> postList, ArrayList<PostInfo> totalPostList, UserInfo userInfo) {   //MainActivity에서 호출
+    public PostRecyclerAdapter(ArrayList<PostInfoSimple> postList, ArrayList<PostInfoSimple> totalPostList, UserInfo userInfo) {   //MainActivity에서 호출
         this.postList = postList;
         this.totalPostList = totalPostList;
         this.userInfo = userInfo;
@@ -94,7 +95,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
         holder.commentNum.setText(String.valueOf(postList.get(position).getCommentNum()));
 
-        //리니어레이아웃에 태그 추가함
         holder.tags.removeAllViews();       //기존에 있는 태그들 초기화
         if (postList.get(position).getPostTag() != null && postList.get(position).getPostTag().size() != 0) {
             Log.i("하트 태그", "태그 있음");
@@ -114,9 +114,11 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                             String searchTag = tvTag.getText().toString().substring(1, tvTag.getText().length()-1);
 
                             Intent showContainTagPost = new Intent(context, TagPostActivity.class);
-                            showContainTagPost.putExtra("tagName", searchTag);
-                            showContainTagPost.putExtra("tagPostLists", searchTagPosts(searchTag));
-                            showContainTagPost.putExtra("userInfo", userInfo);
+                            Bundle sctBundle = new Bundle();
+                                sctBundle.putString("tagName", searchTag);
+                                sctBundle.putSerializable("tagPostLists", searchTagPosts(searchTag));
+                                sctBundle.putSerializable("userInfo", userInfo);
+                            showContainTagPost.putExtras(sctBundle);
                             context.startActivity(showContainTagPost);
                         }
                     }
@@ -133,10 +135,23 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         return postList.size();
     }
 
-    public ArrayList<PostInfo> searchTagPosts(String searchText) {     //태그가 포함된 검색
-        ArrayList<PostInfo> tmpTagPosts = new ArrayList<>();
+    public void changeWriterName(String beforeName, String afterName) {     //MyPage에서 이름 변경 적용 시
+        for (PostInfoSimple pi : postList){
+            pi.setWriterName(afterName);
 
-        for (PostInfo pi : totalPostList) {
+            for (int i=0; i<pi.getHeartUsers().size(); i++) {
+                if (pi.getHeartUsers().get(i).equals(beforeName))
+                    pi.getHeartUsers().set(i, afterName);
+            }
+        }
+        //TODO: 댓글에 writer가 존재하는 경우에는 post를 서버에서 받아오는 것으로 하자!
+        notifyDataSetChanged();
+    }
+
+    public ArrayList<PostInfoSimple> searchTagPosts(String searchText) {     //태그가 포함된 검색
+        ArrayList<PostInfoSimple> tmpTagPosts = new ArrayList<>();
+
+        for (PostInfoSimple pi : totalPostList) {
             for (String tag : pi.getPostTag()) {
                 if (tag.equals(searchText))
                     tmpTagPosts.add(pi);
@@ -146,10 +161,10 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         return tmpTagPosts;
     }
 
-    public ArrayList<PostInfo> searchUserPosts(String userName) {
-        ArrayList<PostInfo> tmpUserPosts = new ArrayList<>();
+    public ArrayList<PostInfoSimple> searchUserPosts(String userName) {
+        ArrayList<PostInfoSimple> tmpUserPosts = new ArrayList<>();
 
-        for (PostInfo pi : totalPostList) {
+        for (PostInfoSimple pi : totalPostList) {
             if (pi.getWriterName().equals(userName))
                 tmpUserPosts.add(pi);
         }
@@ -179,11 +194,15 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 public void onClick(View v) {
                     int pos = getAdapterPosition();
                     if (pos != RecyclerView.NO_POSITION) {
-                        //TODO: 선택한 post의 세부 내용을 다른 화면에 보여줌(Bundle로 position이랑 어떤 글인지 넘겨줘야 함)
-                        Intent intent = new Intent(context, PostActivity.class);
-                        intent.putExtra("userInfo", userInfo);
-                        intent.putExtra("postInfo", postList.get(pos));
-                        context.startActivity(intent);    //해당 글 창으로 넘어감
+                        //선택한 post의 세부 내용을 다른 화면에 보여줌
+                        //TODO: DB에 post 작성자의 이름과 시간을 전달한 후에, 해당 내용을 받아옴
+                        Intent showPostPage = new Intent(context, PostActivity.class);
+                        Bundle sppBundle = new Bundle();
+                            sppBundle.putSerializable("seeUserInfo", userInfo);
+                            //sppBundle.putSerializable("postInfoDetail", postInfoDetail);        //PostInfoDetail postInfoDetail;
+                            sppBundle.putSerializable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
+                        showPostPage.putExtras(sppBundle);
+                        context.startActivity(showPostPage);    //해당 글 창으로 넘어감
                     }
                 }
             });

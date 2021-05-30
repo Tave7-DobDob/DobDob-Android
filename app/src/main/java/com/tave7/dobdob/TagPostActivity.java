@@ -23,8 +23,8 @@ public class TagPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tag_post);
 
-        ArrayList<PostInfo> tagPostLists = (ArrayList<PostInfo>) getIntent().getSerializableExtra("tagPostLists");
-        UserInfo userInfo = (UserInfo) getIntent().getSerializableExtra("userInfo");
+        ArrayList<PostInfoSimple> tagPostLists = (ArrayList<PostInfoSimple>) getIntent().getExtras().getSerializable("tagPostLists");
+        UserInfo userInfo = (UserInfo) getIntent().getExtras().getSerializable("userInfo");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tagPost_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -38,7 +38,7 @@ public class TagPostActivity extends AppCompatActivity {
         ImageView ivGPS = (ImageView) toolbar.findViewById(R.id.toolbar_gpspointer);
             ivGPS.setVisibility(View.GONE);
         TextView tvTag = (TextView) toolbar.findViewById(R.id.toolbar_town);
-            tvTag.setText("# "+getIntent().getStringExtra("tagName"));
+            tvTag.setText("# "+getIntent().getExtras().getString("tagName"));
             tvTag.setTextColor(Color.parseColor("#5AAEFF"));
 
 

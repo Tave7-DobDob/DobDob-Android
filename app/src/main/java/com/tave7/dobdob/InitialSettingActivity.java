@@ -85,11 +85,12 @@ public class InitialSettingActivity extends AppCompatActivity {
 
                 if (isCheckedName && isSetTown) {
                     //TODO: DB에 결과를 보냄 -> 닉네임과 주소!  -->  그 주소를 저장함      (url 이름 바꿔야 함)
-                    UserInfo user = new UserInfo("", etName.getText().toString(), tvResultDong.getText().toString());
+                    PreferenceManager.setBoolean(InitialSettingActivity.this, "isDidInitialSetting", true);
+                    PreferenceManager.setString(InitialSettingActivity.this, "userName", etName.getText().toString());
+                    PreferenceManager.setString(InitialSettingActivity.this, "userTown", tvResultDong.getText().toString());
 
-                    Intent showMain = new Intent(InitialSettingActivity.this, MainActivity.class);
-                    showMain.putExtra("userInfo", user);
-                    startActivity(showMain);
+                    //TODO: DB에서 postList 내용 받아와야 함!(이때)
+
                     finish();
                 }
                 else if (!isCheckedName) {      //닉네임 중복 확인을 하지 않은 경우

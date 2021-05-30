@@ -3,6 +3,7 @@ package com.tave7.dobdob;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -50,8 +51,11 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                     //멘션 닉네임을 눌렀을 때 가능한 이벤트
                     //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
-                    showProfilePage.putExtra("isMyPage", false);
-                    context.startActivity(showProfilePage);
+                    Bundle sppBundle = new Bundle();
+                        sppBundle.putBoolean("isMyPage", false);
+                    showProfilePage.putExtras(sppBundle);
+                    //TODO: user의 닉네임을 DB에 전달해서 DB로부터 해당 userInfo와 user가 쓴 글을 받아와야 함
+                    //context.startActivity(showProfilePage);
                 }
 
                 @Override
@@ -103,8 +107,11 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                 public void onClick(View v) {
                     //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
-                    showProfilePage.putExtra("isMyPage", false);
-                    context.startActivity(showProfilePage);
+                    Bundle sppBundle = new Bundle();
+                        sppBundle.putBoolean("isMyPage", false);
+                    showProfilePage.putExtras(sppBundle);
+                    //TODO: user의 닉네임을 DB에 전달해서 DB로부터 해당 userInfo와 user가 쓴 글을 받아와야 함
+                    //context.startActivity(showProfilePage);
                 }
             });
         }

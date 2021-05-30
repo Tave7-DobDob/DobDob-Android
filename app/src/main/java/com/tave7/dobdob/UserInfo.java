@@ -7,7 +7,6 @@ public class UserInfo implements Serializable {
     private String userName = "";
     private String userTown = "";       //XX동
 
-
     UserInfo(String userProfileUrl, String userName, String userTown) {
         this.userProfileUrl = userProfileUrl;       //userProfileUrl.length = 0이라면 기본 R.drawable.user_image 사용해야 함
         this.userName = userName;

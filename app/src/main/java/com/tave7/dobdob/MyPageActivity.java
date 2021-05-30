@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,13 +27,18 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MyPageActivity extends AppCompatActivity {
+    boolean isMyPage = false;
     UserInfo userInfo = null;
-    ArrayList<PostInfo> userPostList = null;        //user가 올린 글 모음
+    UserInfo tmpUserInfo = null;
+    Bitmap tmpChangeProfile;
+
+    ArrayList<PostInfoSimple> userPostList = null;        //user가 올린 글 모음
     private static final int PICK_FROM_GALLERY = 100;
-    boolean isEdit = false, isChangeImage = false, isChangeName = false, isChangeTown = false ;     //현재 글 수정중인지
+    boolean isEdit = false, isChangeProfile = false, isChangeName = false, isChangeTown = false ;     //현재 글 수정중인지
     CircleImageView civUserProfile;
     TextView tvChangeProfile, tvUserName, tvUserTown, tvUserPosts;
     RecyclerView rvMyPagePosts;
+    PostRecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +52,12 @@ public class MyPageActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
 
-        userInfo = (UserInfo) getIntent().getSerializableExtra("userInfo");
-        userPostList = (ArrayList<PostInfo>) getIntent().getSerializableExtra("userPosts");
+        tmpUserInfo = new UserInfo("", "", "");
+        userInfo = (UserInfo) getIntent().getExtras().getSerializable("userInfo");
+        userPostList = (ArrayList<PostInfoSimple>) getIntent().getExtras().getSerializable("userPosts");
 
-        if (getIntent().getBooleanExtra("isMyPage", false)) {   //현재 사용자의 페이지를 보는 경우
+        isMyPage = getIntent().getExtras().getBoolean("isMyPage");
+        if (isMyPage) {   //현재 사용자의 페이지를 보는 경우
             View customView = LayoutInflater.from(this).inflate(R.layout.other_actionbar, null);
             actionBar.setCustomView(customView);
             toolbarListener(toolbar);
@@ -76,7 +84,7 @@ public class MyPageActivity extends AppCompatActivity {
 
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);
-        PostRecyclerAdapter adapter = new PostRecyclerAdapter(userPostList, userInfo);
+        adapter = new PostRecyclerAdapter(userPostList, userInfo);
         rvMyPagePosts.setAdapter(adapter);      //어댑터 등록
         rvMyPagePosts.addItemDecoration(new DividerItemDecoration(MyPageActivity.this, 1)); //리스트 사이의 구분선 설정
 
@@ -94,12 +102,12 @@ public class MyPageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {   //수정 취소
                 isEdit = false;     //지금부터 수정 안됨
-                isChangeImage = false;
+                isChangeProfile = false;
                     civUserProfile.setImageResource(R.drawable.user_image);     //TODO: 다시 원래대로 사진 돌려놔야 함
                 isChangeName = false;
-                    tvUserName.setText("닉네임");     //TODO: 기존 닉네임으로 돌려놔야 함
+                    tvUserName.setText(userInfo.getUserName());
                 isChangeTown = false;
-                    tvUserTown.setText("XX동");      //TODO: 기존 동네로 돌려놔야 함
+                    tvUserTown.setText(userInfo.getUserTown());
 
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);    //뒤로가기 버튼 보이게 함
                 ivEditCancel.setVisibility(View.GONE);
@@ -143,14 +151,22 @@ public class MyPageActivity extends AppCompatActivity {
                     tvUserPosts.setVisibility(View.VISIBLE);
                     rvMyPagePosts.setVisibility(View.VISIBLE);
 
-                    if (isChangeImage) {
+                    if (isChangeProfile) {
                         //TODO: DB에 바뀐 이미지 저장 + 마이페이지 내용 변경
+                        //tmpChangeProfile(Bitmap형식)를 db에 저장하고 해당 url을 userInfo에 저장함
                     }
                     if (isChangeName) {
                         //TODO: DB에 바뀐 닉네임 저장 + 마이페이지 내용 변경
+                        adapter.changeWriterName(userInfo.getUserName(), tmpUserInfo.getUserName());
+                        userInfo.setUserName(tmpUserInfo.getUserName());
+                        tvUserPosts.setText(userInfo.getUserName()+" 님이 작성한 글");
+                        //PreferenceManager.setString(MyPageActivity.this, "userName", userInfo.getUserName());
+                        //(DB에 바뀐 이름을 전달하고 DB에서 totalPostList를 받아 search를 통해 notify 함)
                     }
                     if (isChangeTown) {
                         //TODO: DB에 바뀐 동네 저장 + 마이페이지 내용 변경
+                        //userInfo.setUserTown(tmpUserInfo.getUserTown());
+                        //PreferenceManager.setString(MyPageActivity.this, "userTown", userInfo.getUserTown());
                     }
                 }
             }
@@ -173,14 +189,16 @@ public class MyPageActivity extends AppCompatActivity {
         tvUserName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isEdit) {
+                if (isEdit) {       //사용자 이름 변경
                     //마지막으로 닉네임 입력받음
                     NameChangeDialog nameChangeDialog = new NameChangeDialog(MyPageActivity.this, new NameChangeDialog.NameChangeDialogListener() {
                         @Override
-                        public void onClickChangeBt() {    //닉네임 중복확인 완료 후 닉네임 변경
+                        public void onClickChangeBt(String userName) {    //닉네임 중복확인 완료 후 닉네임 변경
                             isChangeName = true;
 
                             //TODO: DB에 사용자 계정 추가 요청
+                            tvUserName.setText(userName);
+                            tmpUserInfo.setUserName(userName);
                         }
                     });
                     nameChangeDialog.show();
@@ -192,7 +210,12 @@ public class MyPageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (isEdit) {
-                    //주소를 입력하여 변경할 수 있도록 해야함 -> 취소버튼을 누르지 않았다면 isChangeTown = true;가 됨
+                    //isChangeTown = true;
+                    //tmpUserInfo.setUserTown("서현동");
+                    //tvUserTown.setText("서현동");
+                    //TODO: 주소를 입력하여 변경할 수 있도록 해야함 -> 취소버튼을 누르지 않았다면 isChangeTown = true;가 됨
+                    //tvUserTown.setText("userTown");
+                    //tmpUserInfo.setUserTown("입력값");
                 }
             }
         });
@@ -210,17 +233,45 @@ public class MyPageActivity extends AppCompatActivity {
     }
 
     @Override
+    public void finish() {
+        if (isMyPage) {
+            Intent giveUserInfo = new Intent();
+
+            Bundle bUserInfo = new Bundle();
+            /*  TODO: 이미지를 String으로 전달해야 함
+            if (isChangeProfile)
+                bUserInfo.putString();
+
+             */
+            if (isChangeName)
+                bUserInfo.putString("userName", userInfo.getUserName());
+            else
+                bUserInfo.putString("userName", "");
+            if (isChangeTown)
+                bUserInfo.putString("userTown", userInfo.getUserTown());
+            else
+                bUserInfo.putString("userTown", "");
+
+            giveUserInfo.putExtras(bUserInfo);
+            setResult(RESULT_OK, giveUserInfo);
+        }
+
+        super.finish();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK){
             try {
-                isChangeImage = true;
+                isChangeProfile = true;
                 
                 InputStream is = getContentResolver().openInputStream(data.getData());
-                Bitmap bm = BitmapFactory.decodeStream(is);
+                tmpChangeProfile = BitmapFactory.decodeStream(is);
                 is.close();
                 //TODO: 추가로 선택한 이미지를 변수로 저장한 후 수정완료 버튼 클릭 시 DB에 저장
-                civUserProfile.setImageBitmap(bm);
+                //url을 tmpUserInfo.setUserProfileUrl("");을 통해 저장
+                civUserProfile.setImageBitmap(tmpChangeProfile);
             } catch (Exception e){
                 e.printStackTrace();
             }

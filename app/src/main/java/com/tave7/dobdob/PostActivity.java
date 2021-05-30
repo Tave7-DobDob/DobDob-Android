@@ -28,8 +28,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import me.relex.circleindicator.CircleIndicator3;
 
 public class PostActivity extends AppCompatActivity {
-    UserInfo userInfo;
-    PostInfo postInfo;
+    UserInfo seeUserInfo;
+    PostInfoSimple postInfo;
     boolean isEdit = false, isClickedHeart = false;     //현재 글 수정중인지 || 현재 글에 대해 하트를 눌렀는 지
     EditText etTitle, etContent, etWriteComment;
     TextView tvAddPhotos, tvHeartNums, tvCommentNums;
@@ -46,8 +46,8 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        userInfo = (UserInfo) getIntent().getSerializableExtra("userInfo");     //지금 화면을 보고 있는 사용자의 정보
-        postInfo = (PostInfo) getIntent().getSerializableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
+        seeUserInfo = (UserInfo) getIntent().getSerializableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
+        postInfo = (PostInfoSimple) getIntent().getSerializableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
 
         CircleImageView civWriterProfile = (CircleImageView) findViewById(R.id.post_writerProfile);
             //TODO: postInfo.getWriterProfile()를 통해 사진 설정
@@ -78,7 +78,7 @@ public class PostActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
 
         //TODO: 글 작성자일 때만 해당되게 해야 함(cf. 글 작성자가 아니라면 뒤로가기 버튼만 보이게 됨)       -> 확인 요망!
-        if (userInfo.getUserName().equals(postInfo.getWriterName())) {
+        if (seeUserInfo.getUserName().equals(postInfo.getWriterName())) {
             View customView = LayoutInflater.from(this).inflate(R.layout.other_actionbar, null);
             actionBar.setCustomView(customView);
             toolbarListener(toolbar);
@@ -98,7 +98,7 @@ public class PostActivity extends AppCompatActivity {
 
         ivHeart = (ImageView) findViewById(R.id.post_ivHeart);
         for (String user: postInfo.getHeartUsers()) {
-            if (user.equals(userInfo.getUserName())) {
+            if (user.equals(seeUserInfo.getUserName())) {
                 isClickedHeart = true;
                 break;
             }
@@ -223,8 +223,11 @@ public class PostActivity extends AppCompatActivity {
                 if (!isEdit) {
                     //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
                     Intent showProfilePage = new Intent(PostActivity.this, MyPageActivity.class);
-                    showProfilePage.putExtra("isMyPage", false);
-                    startActivity(showProfilePage);
+                    Bundle sppBundle = new Bundle();
+                        sppBundle.putBoolean("isMyPage", false);
+                    showProfilePage.putExtras(sppBundle);
+                    //TODO: user의 닉네임을 DB에 전달해서 DB로부터 해당 userInfo와 user가 쓴 글을 받아와야 함
+                    //startActivity(showProfilePage);
                 }
             }
         });
@@ -243,14 +246,14 @@ public class PostActivity extends AppCompatActivity {
 
                 if (isClickedHeart) {
                     ivHeart.setImageResource(R.drawable.heart_full);
-                    postInfo.getHeartUsers().add(userInfo.getUserName());
+                    postInfo.getHeartUsers().add(seeUserInfo.getUserName());
                     tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
 
                     //TODO: DB에 저장하고 수정 + MainActivity에서도 변경된 값을 갖고 있도록 해야함!
                 }
                 else {
                     ivHeart.setImageResource(R.drawable.heart_empty);
-                    postInfo.getHeartUsers().remove(userInfo.getUserName());
+                    postInfo.getHeartUsers().remove(seeUserInfo.getUserName());
                     tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
 
                     //TODO: DB에 저장하고 수정
