@@ -1,5 +1,6 @@
 package com.tave7.dobdob;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -79,7 +80,8 @@ public class InitialSettingActivity extends AppCompatActivity {
                 PreferenceManager.setString(InitialSettingActivity.this, "userTown", tvResultDong.getText().toString());
 
                 //TODO: DB에서 postList 내용 받아와야 함!(이때)
-
+                Intent showMain = new Intent(InitialSettingActivity.this, MainActivity.class);
+                startActivity(showMain);
                 finish();
             }
             else if (!isCheckedName) {      //닉네임 중복 확인을 하지 않은 경우

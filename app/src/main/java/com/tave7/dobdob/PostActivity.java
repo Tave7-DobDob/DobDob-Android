@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -31,13 +33,14 @@ public class PostActivity extends AppCompatActivity {
     UserInfo seeUserInfo;
     PostInfoSimple postInfo;
     boolean isEdit = false, isClickedHeart = false;     //현재 글 수정중인지 || 현재 글에 대해 하트를 눌렀는 지
+    boolean isDeleted = false;      //MainActivity에 전달해야 함(글을 삭제했는 지)
     EditText etTitle, etContent, etWriteComment;
     TextView tvAddPhotos, tvHeartNums, tvCommentNums;
     CircleIndicator3 indicator;
     PostPhotosPagerAdapter photoAdapter;
     ImageView ivHeart;
     RecyclerView rvComments;
-    LinearLayout llWriteComment;
+    LinearLayout llTag, llWriteComment;
 
     ArrayList<CommentInfo> commentList = null;
     
@@ -66,7 +69,35 @@ public class PostActivity extends AppCompatActivity {
             tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
         tvCommentNums = (TextView) findViewById(R.id.post_commentNum);
             tvCommentNums.setText(String.valueOf(postInfo.getCommentNum()));        //TODO: 수정 요망!
+        llTag = (LinearLayout) findViewById(R.id.post_LinearTag);
+            if (postInfo.getPostTag().size() != 0) {
+                for (String tagName : postInfo.getPostTag()){
+                    TextView tvTag = new TextView(PostActivity.this);
+                    tvTag.setText("#"+tagName+" ");
+                    tvTag.setTypeface(null, Typeface.BOLD);
+                    tvTag.setTextColor(Color.parseColor("#5AAEFF"));
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    tvTag.setLayoutParams(layoutParams);
+                    llTag.addView(tvTag);
 
+                    /*  TODO: 태그 검색이 가능하게 할 것인가?!
+                    tvTag.setOnClickListener(v -> {
+                        String searchTag = tvTag.getText().toString().substring(1, tvTag.getText().length()-1);
+
+                        Intent showContainTagPost = new Intent(PostActivity.this, TagPostActivity.class);
+                        Bundle sctBundle = new Bundle();
+                            sctBundle.putString("tagName", searchTag);
+                            sctBundle.putSerializable("tagPostLists", searchTagPosts(searchTag));       //어떻게?
+                            sctBundle.putSerializable("userInfo", seeUserInfo);
+                        showContainTagPost.putExtras(sctBundle);
+                        startActivity(showContainTagPost);
+                        finish();
+                    });
+                     */
+                }
+            }
+            else
+                llTag.setVisibility(View.GONE);
         llWriteComment = (LinearLayout) findViewById(R.id.post_writeCommentL);
         etWriteComment = (EditText) findViewById(R.id.post_etComment);
 
@@ -161,7 +192,8 @@ public class PostActivity extends AppCompatActivity {
                 builder.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //TODO: DB에서 포스트를 삭제하고, 안드로이드 스튜디오 내의 postList에서 post를 삭제해야 함
+                        //TODO: DB에서 포스트를 삭제하고, 안드로이드 스튜디오 내의 postList에서 post를 삭제해야 함(전달! Bundle로)
+                        isDeleted = true;
                         finish();
                     }
                 });
@@ -269,6 +301,14 @@ public class PostActivity extends AppCompatActivity {
                 //TODO: commentList에 댓글을 추가함(Post에도 연결되어 추가 됨) + DB에 댓글 저장
             }
         });
+    }
+
+    @Override
+    public void finish() {
+        //변경 내용이 있다면 보내줌
+        //if (isDeleted)        //글을 삭제했다고 Main에 전달해야 함!!
+
+        super.finish();
     }
 
     @Override

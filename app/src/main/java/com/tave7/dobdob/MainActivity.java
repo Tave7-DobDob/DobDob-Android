@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +25,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    static final int POST_REQUEST = 6000;  //requestCode로 사용될 상수(마이페이지)
     static final int MYPAGE_REQUEST = 7000;  //requestCode로 사용될 상수(마이페이지)
 
     UserInfo userInfo = null;
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 tmpTag.add("4명모집");
             ArrayList<String> tmpHeartUsers = new ArrayList<>();
                 tmpHeartUsers.add("생귤");
-                tmpHeartUsers.add("테이비1");     tmpHeartUsers.add("테이비2");
+                tmpHeartUsers.add("테이비");     tmpHeartUsers.add("테이비2");
                 tmpHeartUsers.add("테이비3");     tmpHeartUsers.add("테이비4");
             totalPostList.add(new PostInfoSimple("", "테이비", "신사동", "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", tmpHeartUsers, 4, tmpTag));
             ArrayList<String> tmpTag2 = new ArrayList<>();
@@ -71,10 +73,16 @@ public class MainActivity extends AppCompatActivity {
                 tmpHeartUsers2.add("테이브");      tmpHeartUsers2.add("테이비7");
                 tmpHeartUsers2.add("테이비");      tmpHeartUsers2.add("테이비2");
                 tmpHeartUsers2.add("테이비3");     tmpHeartUsers2.add("테이비4");
+            ArrayList<String> tmpHeartUsers3 = new ArrayList<>();
+                tmpHeartUsers3.add("테이비");      tmpHeartUsers3.add("테이비5");
+                tmpHeartUsers3.add("테이비3");     tmpHeartUsers3.add("테이비7");
+            ArrayList<String> tmpHeartUsers4 = new ArrayList<>();
+                tmpHeartUsers4.add("생귤");
+                tmpHeartUsers4.add("테이비3");     tmpHeartUsers4.add("테이비7");
             totalPostList.add(new PostInfoSimple("", "자전거탄풍경", "개포동", "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", tmpHeartUsers2, 0, tmpTag2));
-            totalPostList.add(new PostInfoSimple("", "테이비1", "인사동", "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers, 2, tmpTag2));
+            totalPostList.add(new PostInfoSimple("", "테이비1", "인사동", "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers3, 2, tmpTag2));
             totalPostList.add(new PostInfoSimple("", "테이비2", "개포동", "2021.05.20 11:30", "맥모닝 같이 먹을 사람 구해요!", null, 0, null));
-            totalPostList.add(new PostInfoSimple("", "테이비", "한남동", "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers2, 39, null));
+            totalPostList.add(new PostInfoSimple("", "테이비", "한남동", "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers4, 39, null));
             postList.addAll(totalPostList);     //TODO: 삭제했을 때 영향 미치는 지 확인해야 함
 
         rvPost = (RecyclerView) findViewById(R.id.mainPost);
@@ -154,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                     smpBundle.putSerializable("userPosts", adapter.searchUserPosts(userInfo.getUserName()));
                     smpBundle.putSerializable("userInfo", userInfo);
                 showMyPage.putExtras(smpBundle);
-                startActivityForResult(showMyPage,MYPAGE_REQUEST);
+                startActivityForResult(showMyPage, MYPAGE_REQUEST);
 
                 return true;
             }
@@ -200,6 +208,10 @@ public class MainActivity extends AppCompatActivity {
                         //TODO: 동네에 대한 post가 바뀌어야 함
                     userInfo.setUserTown(data.getExtras().getString("userTown"));
                 }
+            }
+
+            else if (requestCode == POST_REQUEST){
+                Log.i("확인용", "post_request");
             }
         }
 

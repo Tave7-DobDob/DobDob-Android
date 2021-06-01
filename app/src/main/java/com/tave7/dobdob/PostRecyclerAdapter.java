@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.tave7.dobdob.MainActivity.POST_REQUEST;
 
 public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder> {
     private Context context;
@@ -69,35 +70,25 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         else
             holder.ivHeart.setImageResource(R.drawable.heart_empty);
 
-        /* TODO: 수정 요망!!!!!! --> heart를 막 누르면 태그가 안보이는 곳이 있음(메인에 태그가 필요한 것인가...?)
-        boolean isClickHeart = isClickedHeart;
-        holder.ivHeart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i("하트수", holder.heartNum.getText().toString());
-                if (isClickHeart) {       //기존에는 하트가 눌렸었지만 하트를 취소함
-                    //holder.ivHeart.setImageResource(R.drawable.heart_empty);
-                    postList.get(position).getHeartUsers().remove(userInfo.getUserName());
-                    Log.i("하트 취소 위치", String.valueOf(position));
-                    notifyItemChanged(position);
-                }
-                else {
-                    //holder.ivHeart.setImageResource(R.drawable.heart_full);
-                    postList.get(position).getHeartUsers().add(userInfo.getUserName());
-                    Log.i("하트 클릭 위치", String.valueOf(position));
-                    notifyItemChanged(position);
-                }
+        boolean IsHeartFull = isClickedHeart;
+        holder.ivHeart.setOnClickListener(v -> {
+            if (IsHeartFull) {       //기존에는 하트가 눌렸었지만 하트를 취소함
+                postList.get(position).getHeartUsers().remove(userInfo.getUserName());
+                //TODO: DB에 하트를 취소했다고 추가해야 함!!
             }
-        });
+            else {
+                postList.get(position).getHeartUsers().add(userInfo.getUserName());
+                //TODO: DB에 하트를 클릭했다고 추가해야 함!!
+            }
 
-         */
+            notifyDataSetChanged();
+        });
         holder.heartNum.setText(String.valueOf(postList.get(position).getHeartUsers().size()));
 
         holder.commentNum.setText(String.valueOf(postList.get(position).getCommentNum()));
 
         holder.tags.removeAllViews();       //기존에 있는 태그들 초기화
         if (postList.get(position).getPostTag() != null && postList.get(position).getPostTag().size() != 0) {
-            Log.i("하트 태그", "태그 있음");
             for (String tagName : postList.get(position).getPostTag()){
                 TextView tvTag = new TextView(context);
                 tvTag.setText("#"+tagName+" ");
@@ -107,23 +98,19 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 tvTag.setLayoutParams(layoutParams);
                 holder.tags.addView(tvTag);
 
-                tvTag.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (isMain) {
-                            String searchTag = tvTag.getText().toString().substring(1, tvTag.getText().length()-1);
+                tvTag.setOnClickListener(v -> {
+                    if (isMain) {       //TODO: 마이페이지에서 태그 검색이 가능하게 할 것인가?
+                        String searchTag = tvTag.getText().toString().substring(1, tvTag.getText().length()-1);
 
-                            Intent showContainTagPost = new Intent(context, TagPostActivity.class);
-                            Bundle sctBundle = new Bundle();
-                                sctBundle.putString("tagName", searchTag);
-                                sctBundle.putSerializable("tagPostLists", searchTagPosts(searchTag));
-                                sctBundle.putSerializable("userInfo", userInfo);
-                            showContainTagPost.putExtras(sctBundle);
-                            context.startActivity(showContainTagPost);
-                        }
+                        Intent showContainTagPost = new Intent(context, TagPostActivity.class);
+                        Bundle sctBundle = new Bundle();
+                        sctBundle.putString("tagName", searchTag);
+                        sctBundle.putSerializable("tagPostLists", searchTagPosts(searchTag));
+                        sctBundle.putSerializable("userInfo", userInfo);
+                        showContainTagPost.putExtras(sctBundle);
+                        context.startActivity(showContainTagPost);
                     }
                 });
-
             }
         }
         else
@@ -144,7 +131,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     pi.getHeartUsers().set(i, afterName);
             }
         }
-        //TODO: 댓글에 writer가 존재하는 경우에는 post를 서버에서 받아오는 것으로 하자!
+        //TODO: 댓글에 writer가 존재하는 경우에는 post를 서버에서 받아오는 것으로 하자!(댓글은 PostDetail이기 때문에 Post를 클릭 시 DB에서 댓글 내용을 받아옴으로 괜찮음)
         notifyDataSetChanged();
     }
 
@@ -189,21 +176,19 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             commentNum = (TextView) itemView.findViewById(R.id.postrow_commentNum);
             tags = (LinearLayout) itemView.findViewById(R.id.postrow_LinearTag);
 
-            itemView.setOnClickListener(new View.OnClickListener() {        //항목을 클릭했을 때
-                @Override
-                public void onClick(View v) {
-                    int pos = getAdapterPosition();
-                    if (pos != RecyclerView.NO_POSITION) {
-                        //선택한 post의 세부 내용을 다른 화면에 보여줌
-                        //TODO: DB에 post 작성자의 이름과 시간을 전달한 후에, 해당 내용을 받아옴
-                        Intent showPostPage = new Intent(context, PostActivity.class);
-                        Bundle sppBundle = new Bundle();
-                            sppBundle.putSerializable("seeUserInfo", userInfo);
-                            //sppBundle.putSerializable("postInfoDetail", postInfoDetail);        //PostInfoDetail postInfoDetail;
-                            sppBundle.putSerializable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
-                        showPostPage.putExtras(sppBundle);
-                        context.startActivity(showPostPage);    //해당 글 창으로 넘어감
-                    }
+            itemView.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+
+                if (pos != RecyclerView.NO_POSITION) {
+                    //선택한 post의 세부 내용을 다른 화면에 보여줌
+                    //TODO: DB에 post 작성자의 이름과 시간을 전달한 후에, 해당 내용을 받아옴
+                    Intent showPostPage = new Intent(context, PostActivity.class);
+                    Bundle sppBundle = new Bundle();
+                    sppBundle.putSerializable("seeUserInfo", userInfo);
+                    //sppBundle.putSerializable("postInfoDetail", postInfoDetail);        //PostInfoDetail postInfoDetail;
+                    sppBundle.putSerializable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
+                    showPostPage.putExtras(sppBundle);
+                    ((MainActivity)context).startActivityForResult(showPostPage, POST_REQUEST);     //해당 글 창으로 넘어감
                 }
             });
         }

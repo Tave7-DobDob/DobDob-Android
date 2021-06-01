@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,13 +26,14 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MyPageActivity extends AppCompatActivity {
+    private static final int PICK_FROM_GALLERY = 100;
+
     boolean isMyPage = false;
     UserInfo userInfo = null;
     UserInfo tmpUserInfo = null;
     Bitmap tmpChangeProfile;
 
     ArrayList<PostInfoSimple> userPostList = null;        //user가 올린 글 모음
-    private static final int PICK_FROM_GALLERY = 100;
     boolean isEdit = false, isChangeProfile = false, isChangeName = false, isChangeTown = false ;     //현재 글 수정중인지
     CircleImageView civUserProfile;
     TextView tvChangeProfile, tvUserName, tvUserTown, tvUserPosts;

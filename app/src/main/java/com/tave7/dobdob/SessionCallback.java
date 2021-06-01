@@ -8,6 +8,7 @@ import android.util.Log;
 import com.kakao.auth.ISessionCallback;
 import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.UserManagement;
+import com.kakao.usermgmt.api.UserApi;
 import com.kakao.usermgmt.callback.MeV2ResponseCallback;
 import com.kakao.usermgmt.response.MeV2Response;
 import com.kakao.usermgmt.response.model.UserAccount;
@@ -28,9 +29,9 @@ public class SessionCallback implements ISessionCallback {
         Log.e("SessionCallback :: ", "onSessionOpenFailed : " + exception.getMessage());
     }
 
-    public void giveContext(Context context, Activity activity) {   //Context 저장
+    public void giveContext(Context context) {   //Context와 Activity 저장
         this.context = context;
-        this.activity = activity;
+        this.activity = ((LoginActivity) context);
     }
 
     //사용자 정보 요청

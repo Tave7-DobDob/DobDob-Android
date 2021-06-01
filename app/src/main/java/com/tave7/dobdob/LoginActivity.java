@@ -26,8 +26,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        boolean isDidLogin = PreferenceManager.getBoolean(LoginActivity.this, "isDidLogin");
+        //TODO: DB로부터 사용자의 로그인 정보를 받아와 PreferenceManger를 통해 SharedPreferences 값을 업데이트함(userProfile, userName, userTown!)
+        //TODO: InitialSettingActivity를 한 사용자 혹은 웹에서 회원가임 폼을 작성한 사용자라면 MainActivity가 바로 보일 수 있도록 함!
+        
         /*
+        boolean isDidLogin = PreferenceManager.getBoolean(LoginActivity.this, "isDidLogin");        //자동 로그인을 위함(but 순서가 바뀌어야 함)
+        
         if (isDidLogin) {      //이전에 로그인을 한 기록이 있는 경우  TODO: 7일 뒤라면 자동로그인 해제!!!!
             //TODO: 로그인을 했는데 초기 설정을 하지 않은 경우에는 그냥 다시 로그인하도록 할 것인가?  --> 그러면 여기서 DB에 저장하면 안됨!
             if (!PreferenceManager.getBoolean(LoginActivity.this, "isDidInitialSetting")) {      //로그인 이후 초기 설정을 하지 않은 경우
@@ -47,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
 
         kakaoLogin = (Button) findViewById(R.id.btLogin);
         kakaoLogin.setOnClickListener(v -> {
-            sessionCallback.giveContext(LoginActivity.this, LoginActivity.this);
+            sessionCallback.giveContext(LoginActivity.this);
 
             if (Session.getCurrentSession().checkAndImplicitOpen()) {
                 Log.d("kakao", "onClick: 로그인 세션 살아있음");

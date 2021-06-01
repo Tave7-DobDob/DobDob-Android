@@ -91,11 +91,11 @@
                     android:layout_marginRight="5dp"
                     android:background="@android:color/transparent"
                     android:enabled="false"
-                    android:inputType="text"
+                    android:inputType="none"
                     android:text="post 제목"
                     android:textStyle="bold"
                     android:textSize="20sp"
-                    android:textColor="#000000"/>
+                    android:textColor="#000000" />
                 <TextView
                     android:id="@+id/post_time"
                     android:layout_width="wrap_content"
@@ -195,12 +195,6 @@
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
                     <!--각 태그들이 나열됨-->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="#태그"
-                        android:textStyle="bold"
-                        android:textColor="#5AAEFF"/>
                 </LinearLayout>
             </LinearLayout>
 
