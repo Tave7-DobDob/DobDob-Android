@@ -8,9 +8,17 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,6 +27,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,7 +43,8 @@ public class PostActivity extends AppCompatActivity {
     PostInfoSimple postInfo;
     boolean isEdit = false, isClickedHeart = false;     //현재 글 수정중인지 || 현재 글에 대해 하트를 눌렀는 지
     boolean isDeleted = false;      //MainActivity에 전달해야 함(글을 삭제했는 지)
-    EditText etTitle, etContent, etWriteComment;
+
+    EditText etTitle, etContent;
     TextView tvAddPhotos, tvHeartNums, tvCommentNums;
     CircleIndicator3 indicator;
     PostPhotosPagerAdapter photoAdapter;
@@ -99,7 +109,6 @@ public class PostActivity extends AppCompatActivity {
             else
                 llTag.setVisibility(View.GONE);
         llWriteComment = (LinearLayout) findViewById(R.id.post_writeCommentL);
-        etWriteComment = (EditText) findViewById(R.id.post_etComment);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.post_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -248,6 +257,17 @@ public class PostActivity extends AppCompatActivity {
     }
 
     public void postClickListener(){
+        ConstraintLayout clWhole = (ConstraintLayout) findViewById(R.id.post_wholeCL);
+        clWhole.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+                getCurrentFocus().clearFocus();
+
+                return false;
+            }
+        });
+
         TextView tvWriterName = (TextView) findViewById(R.id.post_writerName);
         tvWriterName.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -293,13 +313,24 @@ public class PostActivity extends AppCompatActivity {
             }
         });
 
-        TextView tvAddComment = (TextView) findViewById(R.id.post_postComment);
-        tvAddComment.setOnClickListener(new View.OnClickListener() {
+        EditText etWriteComment = (EditText) findViewById(R.id.post_etComment);
+        etWriteComment.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                EditText etCommentContent = (EditText) findViewById(R.id.post_etComment);
-                //TODO: commentList에 댓글을 추가함(Post에도 연결되어 추가 됨) + DB에 댓글 저장
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                //TODO: mention이름을 저장해야 함
+                if (s.charAt(s.length()-1) == '@') {
+                    //사용자들의 id를 filter를 사용해 드롭다운으로 보여줘야함
+                }
             }
+        });
+
+        TextView tvAddComment = (TextView) findViewById(R.id.post_postComment);
+        tvAddComment.setOnClickListener(v -> {
+            //TODO: commentList에 댓글을 추가함(Post에도 연결되어 추가 됨) + DB에 댓글 저장
         });
     }
 

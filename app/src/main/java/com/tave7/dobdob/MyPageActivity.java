@@ -276,7 +276,7 @@ public class MyPageActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         } else if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED){
-            Toast.makeText(this,"취소", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"사진 선택 취소", Toast.LENGTH_SHORT).show();
         }
 
     }

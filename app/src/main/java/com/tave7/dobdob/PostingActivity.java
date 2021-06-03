@@ -2,7 +2,9 @@ package com.tave7.dobdob;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class PostingActivity extends AppCompatActivity {
     @Override
@@ -57,6 +60,17 @@ public class PostingActivity extends AppCompatActivity {
     }
 
     public void postingClickListener(){
+        ConstraintLayout clWhole = (ConstraintLayout) findViewById(R.id.posting_wholeCL);
+        clWhole.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+                getCurrentFocus().clearFocus();
+
+                return false;
+            }
+        });
+
         //TODO: 사진모음(llShowPhotos)에서 각각의 사진에 대해 클릭 리스너 제공, 동 내용(tvTown) 클릭, 사진 업로드(tvPhoto) 위해 클릭
         LinearLayout llTown = (LinearLayout) findViewById(R.id.posting_llTown);
         LinearLayout llPhotos = (LinearLayout) findViewById(R.id.posting_llPhotos);

@@ -1,7 +1,10 @@
 package com.tave7.dobdob;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -10,9 +13,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class InitialSettingActivity extends AppCompatActivity {
     boolean isCheckedName = false, isSetTown = false;
+    ConstraintLayout clWhole;
     EditText etName;
     TextView tvNameError, tvTownError, tvResultDong, tvFullAddress;
     LinearLayout llResultTown;
@@ -23,6 +28,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialsetting);
 
+        clWhole = findViewById(R.id.is_wholeLayout);
         etName = (EditText) findViewById(R.id.is_etName);
         tvNameError = (TextView) findViewById(R.id.is_tvNameError);
             tvNameError.setVisibility(View.GONE);
@@ -40,10 +46,30 @@ public class InitialSettingActivity extends AppCompatActivity {
         initialSettingClickListener();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public void initialSettingClickListener(){
-        btCheckName.setOnClickListener(v -> {
-            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+        clWhole.setOnTouchListener((v, event) -> {
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+            getCurrentFocus().clearFocus();
 
+            return false;
+        });
+
+        etName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tvNameError.setVisibility(View.GONE);
+                isCheckedName = false;
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+
+        btCheckName.setOnClickListener(v -> {
             if (etName.getText().toString().equals("")) {
                 tvNameError.setVisibility(View.VISIBLE);
                 tvNameError.setText("닉네임을 입력하지 않았습니다.");
@@ -59,9 +85,9 @@ public class InitialSettingActivity extends AppCompatActivity {
         });
 
         btSelectTown.setOnClickListener(v -> {
-            tvTownError.setVisibility(View.GONE);
-
             ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+
+            tvTownError.setVisibility(View.GONE);
 
             //TODO: 주소검색을 함 (각각의 시, 구, 동과 전체 주소를 TextView에 setText함)
             //주소 검색 완료 후
@@ -71,8 +97,6 @@ public class InitialSettingActivity extends AppCompatActivity {
         });
 
         btSubmit.setOnClickListener(v -> {
-            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);
-
             if (isCheckedName && isSetTown) {
                 //TODO: DB에 결과를 보냄 -> 닉네임과 주소!  -->  그 주소를 저장함      (url 이름 바꿔야 함)
                 PreferenceManager.setBoolean(InitialSettingActivity.this, "isDidInitialSetting", true);

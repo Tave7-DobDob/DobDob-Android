@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -118,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        MenuInflater inflater=getMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.search_menu,menu);
 
         MenuItem mSearch = menu.findItem(R.id.search);
@@ -128,12 +129,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
+                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
                 searchTitleTag("");    //초기로 돌려놓음
+
                 return true;
             }
         });
         SearchView sv = (SearchView) mSearch.getActionView();
-        //sv.setSubmitButtonEnabled(true);      TODO: 필요한가?
         sv.setQueryHint("제목 및 태그 검색");
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {    //SearchView의 검색 이벤트
             @Override
@@ -146,7 +148,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {      //텍스트가 바뀔때마다 호출
                 if (newText.length() == 0)
-                    searchTitleTag("");    //초기로 돌려놓음
+                    searchTitleTag("");  //초기로 돌려놓음
+                else {
+                    searchTitleTag(newText);
+                }
 
                 return true;
             }
@@ -163,6 +168,15 @@ public class MainActivity extends AppCompatActivity {
                     smpBundle.putSerializable("userInfo", userInfo);
                 showMyPage.putExtras(smpBundle);
                 startActivityForResult(showMyPage, MYPAGE_REQUEST);
+
+                return true;
+            }
+        });
+        MenuItem mLogout = menu.findItem(R.id.logout);
+        mLogout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                //TODO: 로그아웃을 할 수 있어야 함!
 
                 return true;
             }

@@ -7,8 +7,16 @@
         app:showAsAction="collapseActionView|ifRoom"
         app:actionViewClass="android.widget.SearchView" />
 
-    <item android:id="@+id/profile"
-        android:title="마이페이지"
+    <item android:id="@+id/subMenuUser"
+        android:title="설정"
         android:icon="@drawable/user_image"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always">
+        <menu>
+            <item android:id="@+id/profile"
+                android:title="마이페이지" />
+
+            <item android:id="@+id/logout"
+                android:title="로그아웃" />
+        </menu>
+    </item>
 </menu>
