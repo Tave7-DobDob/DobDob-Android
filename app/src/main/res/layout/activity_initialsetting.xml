@@ -116,11 +116,36 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="vertical">
-            <Button
-                android:id="@+id/is_btSelectTown"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="주소 검색"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:id="@+id/is_ivGPS"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="5dp"
+                    android:src="@drawable/gps_pointer"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true" />
+                <TextView
+                    android:id="@+id/is_tvTown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3dp"
+                    android:layout_marginEnd="25dp"
+                    android:text="백현동"
+                    android:textSize="18sp"
+                    android:textColor="#757575" />
+
+                <Button
+                    android:id="@+id/is_btSelectTown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="주소 검색"/>
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/is_tvTownError"
                 android:layout_width="wrap_content"
@@ -130,39 +155,6 @@
                 android:textSize="11sp"
                 android:textColor="#FF0000"/>
 
-            <LinearLayout
-                android:id="@+id/is_llResultTown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/is_tvCity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_position_border"
-                    android:text="성남시"
-                    android:textSize="18sp"
-                    android:textColor="#757575"/>
-                <TextView
-                    android:id="@+id/is_tvCountry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_position_border"
-                    android:text="분당구"
-                    android:textSize="18sp"
-                    android:textColor="#757575"/>
-                <TextView
-                    android:id="@+id/is_tvDong"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_position_border"
-                    android:text="백현동"
-                    android:textSize="18sp"
-                    android:textColor="#757575"/>
-            </LinearLayout>
 
             <TextView
                 android:id="@+id/is_tvFullAddress"
@@ -180,7 +172,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="100dp"
             android:layout_gravity="center"
-            android:text="완료"/>
+            android:text="돕돕 시작하기"/>
     </LinearLayout>
 
     <TextView

@@ -1,4 +1,4 @@
-package com.tave7.dobdob;
+package com.tave7.dobdob.adapter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.tave7.dobdob.R;
 
 import java.util.ArrayList;
 

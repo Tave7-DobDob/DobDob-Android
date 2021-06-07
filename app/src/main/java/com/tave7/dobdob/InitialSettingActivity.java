@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -19,8 +20,8 @@ public class InitialSettingActivity extends AppCompatActivity {
     boolean isCheckedName = false, isSetTown = false;
     ConstraintLayout clWhole;
     EditText etName;
-    TextView tvNameError, tvTownError, tvResultDong, tvFullAddress;
-    LinearLayout llResultTown;
+    ImageView ivGPSPointer;
+    TextView tvNameError, tvTownError, tvResultTown, tvFullAddress;
     Button btCheckName, btSelectTown, btSubmit;
 
     @Override
@@ -36,9 +37,10 @@ public class InitialSettingActivity extends AppCompatActivity {
         btSelectTown = (Button) findViewById(R.id.is_btSelectTown);
         tvTownError = (TextView) findViewById(R.id.is_tvTownError);
             tvTownError.setVisibility(View.GONE);
-        llResultTown = (LinearLayout) findViewById(R.id.is_llResultTown);
-            llResultTown.setVisibility(View.GONE);
-        tvResultDong = (TextView) findViewById(R.id.is_tvDong);
+        ivGPSPointer = (ImageView) findViewById(R.id.is_ivGPS);
+            ivGPSPointer.setVisibility(View.GONE);
+        tvResultTown = (TextView) findViewById(R.id.is_tvTown);
+            tvResultTown.setVisibility(View.GONE);
         tvFullAddress = (TextView) findViewById(R.id.is_tvFullAddress);
             tvFullAddress.setVisibility(View.GONE);
         btSubmit = (Button) findViewById(R.id.is_btSubmit);
@@ -57,14 +59,13 @@ public class InitialSettingActivity extends AppCompatActivity {
 
         etName.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 tvNameError.setVisibility(View.GONE);
                 isCheckedName = false;
             }
 
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
             public void afterTextChanged(Editable s) { }
         });
@@ -89,11 +90,14 @@ public class InitialSettingActivity extends AppCompatActivity {
 
             tvTownError.setVisibility(View.GONE);
 
-            //TODO: 주소검색을 함 (각각의 시, 구, 동과 전체 주소를 TextView에 setText함)
+            //TODO: 주소검색을 함 (동과 전체 주소를 TextView에 setText함)
             //주소 검색 완료 후
             isSetTown = true;
-            llResultTown.setVisibility(View.VISIBLE);
+            ivGPSPointer.setVisibility(View.VISIBLE);
+            tvResultTown.setVisibility(View.VISIBLE);
+                tvResultTown.setText("백현동");
             tvFullAddress.setVisibility(View.VISIBLE);
+            btSelectTown.setText("주소 재검색");
         });
 
         btSubmit.setOnClickListener(v -> {
@@ -101,7 +105,7 @@ public class InitialSettingActivity extends AppCompatActivity {
                 //TODO: DB에 결과를 보냄 -> 닉네임과 주소!  -->  그 주소를 저장함      (url 이름 바꿔야 함)
                 PreferenceManager.setBoolean(InitialSettingActivity.this, "isDidInitialSetting", true);
                 PreferenceManager.setString(InitialSettingActivity.this, "userName", etName.getText().toString());
-                PreferenceManager.setString(InitialSettingActivity.this, "userTown", tvResultDong.getText().toString());
+                PreferenceManager.setString(InitialSettingActivity.this, "userTown", tvResultTown.getText().toString());
 
                 //TODO: DB에서 postList 내용 받아와야 함!(이때)
                 Intent showMain = new Intent(InitialSettingActivity.this, MainActivity.class);

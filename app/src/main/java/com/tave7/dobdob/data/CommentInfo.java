@@ -1,4 +1,4 @@
-package com.tave7.dobdob;
+package com.tave7.dobdob.data;
 
 public class CommentInfo {
     private String commenterProfile = "";           //TODO: UserInfo와 일치해야 함
@@ -8,7 +8,7 @@ public class CommentInfo {
     //private ArrayList<String> mention = null;      (멘션된 사용자의 id가 포함되어야 함)
     private String content = "";
 
-    CommentInfo(String commenterProfile, String commenterName, String commenterTown, String commentTime, String content){
+    public CommentInfo(String commenterProfile, String commenterName, String commenterTown, String commentTime, String content){
         this.commenterProfile = commenterProfile;
         this.commenterName = commenterName;
         this.commenterTown = commenterTown;

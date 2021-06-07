@@ -15,6 +15,10 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tave7.dobdob.adapter.PostRecyclerAdapter;
+import com.tave7.dobdob.data.PostInfoSimple;
+import com.tave7.dobdob.data.UserInfo;
+
 import java.util.ArrayList;
 
 public class TagPostActivity extends AppCompatActivity {

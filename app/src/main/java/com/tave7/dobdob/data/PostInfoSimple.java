@@ -1,4 +1,4 @@
-package com.tave7.dobdob;
+package com.tave7.dobdob.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ public class PostInfoSimple implements Serializable {
     private int commentNum = 0;
     ArrayList<String> postTag = null;
 
-    PostInfoSimple(String writerProfile, String writerName, String writerTown, String postTime, String postTitle, ArrayList<String> heartUsers, int commentNum, ArrayList<String> postTag){
+    public PostInfoSimple(String writerProfile, String writerName, String writerTown, String postTime, String postTitle, ArrayList<String> heartUsers, int commentNum, ArrayList<String> postTag){
         this.writerProfile = writerProfile;
         this.writerName = writerName;
         this.writerTown = writerTown;

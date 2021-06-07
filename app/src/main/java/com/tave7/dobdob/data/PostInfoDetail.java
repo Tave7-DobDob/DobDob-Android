@@ -1,4 +1,4 @@
-package com.tave7.dobdob;
+package com.tave7.dobdob.data;
 
 import android.graphics.Bitmap;
 
@@ -10,7 +10,7 @@ public class PostInfoDetail {
     private ArrayList<Bitmap> postPhotos = null;     //사진 저장
     private ArrayList<CommentInfo> comments = null;
 
-    PostInfoDetail(PostInfoSimple postInfoSimple, String postContent){
+    public PostInfoDetail(PostInfoSimple postInfoSimple, String postContent){
         this.postInfoSimple = postInfoSimple;
         this.postContent = postContent;
 

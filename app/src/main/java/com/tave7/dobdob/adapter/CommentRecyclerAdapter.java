@@ -1,4 +1,4 @@
-package com.tave7.dobdob;
+package com.tave7.dobdob.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +15,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.tave7.dobdob.MyPageActivity;
+import com.tave7.dobdob.R;
+import com.tave7.dobdob.data.CommentInfo;
 
 import java.util.ArrayList;
 

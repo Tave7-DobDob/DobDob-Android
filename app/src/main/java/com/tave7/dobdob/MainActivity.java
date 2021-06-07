@@ -22,12 +22,15 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.tave7.dobdob.adapter.PostRecyclerAdapter;
+import com.tave7.dobdob.data.PostInfoSimple;
+import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    static final int POST_REQUEST = 6000;  //requestCode로 사용될 상수(마이페이지)
-    static final int MYPAGE_REQUEST = 7000;  //requestCode로 사용될 상수(마이페이지)
+    public static final int POST_REQUEST = 6000;  //requestCode로 사용될 상수(마이페이지)
+    public static final int MYPAGE_REQUEST = 7000;  //requestCode로 사용될 상수(마이페이지)
 
     UserInfo userInfo = null;
     ArrayList<PostInfoSimple> postList = null;        //메인에서 보여줄 postList

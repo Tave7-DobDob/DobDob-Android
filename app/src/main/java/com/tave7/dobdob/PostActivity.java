@@ -1,5 +1,6 @@
 package com.tave7.dobdob;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,14 +10,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -32,6 +28,12 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.tave7.dobdob.adapter.CommentRecyclerAdapter;
+import com.tave7.dobdob.adapter.PostPhotosPagerAdapter;
+import com.tave7.dobdob.data.CommentInfo;
+import com.tave7.dobdob.data.PostInfoSimple;
+import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 
@@ -172,25 +174,22 @@ public class PostActivity extends AppCompatActivity {
         TextView tvPostDelete = (TextView) toolbar.findViewById(R.id.toolbar_delete);
         ImageView ivEdit = (ImageView) toolbar.findViewById(R.id.toolbar_edit);
 
-        ivEditCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {   //수정 취소
-                isEdit = false;     //지금부터 수정 안됨
-                
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);    //뒤로가기 버튼 보이게 함
-                ivEditCancel.setVisibility(View.GONE);
-                tvPostDelete.setVisibility(View.VISIBLE);
-                ivEdit.setImageResource(R.drawable.edit);
+        ivEditCancel.setOnClickListener(v -> {   //수정 취소
+            isEdit = false;     //지금부터 수정 안됨
 
-                etTitle.setEnabled(false);
-                etContent.setEnabled(false);
-                tvAddPhotos.setVisibility(View.GONE);
-                rvComments.setVisibility(View.VISIBLE);
-                llWriteComment.setVisibility(View.VISIBLE);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);    //뒤로가기 버튼 보이게 함
+            ivEditCancel.setVisibility(View.GONE);
+            tvPostDelete.setVisibility(View.VISIBLE);
+            ivEdit.setImageResource(R.drawable.edit);
 
-                photoAdapter.changeIsEditable();
-                photoAdapter.notifyDataSetChanged();
-            }
+            etTitle.setEnabled(false);
+            etContent.setEnabled(false);
+            tvAddPhotos.setVisibility(View.GONE);
+            rvComments.setVisibility(View.VISIBLE);
+            llWriteComment.setVisibility(View.VISIBLE);
+
+            photoAdapter.changeIsEditable();
+            photoAdapter.notifyDataSetChanged();
         });
 
         tvPostDelete.setOnClickListener(new View.OnClickListener() {
@@ -256,16 +255,14 @@ public class PostActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public void postClickListener(){
         ConstraintLayout clWhole = (ConstraintLayout) findViewById(R.id.post_wholeCL);
-        clWhole.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
-                getCurrentFocus().clearFocus();
+        clWhole.setOnTouchListener((v, event) -> {
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+            getCurrentFocus().clearFocus();
 
-                return false;
-            }
+            return false;
         });
 
         TextView tvWriterName = (TextView) findViewById(R.id.post_writerName);

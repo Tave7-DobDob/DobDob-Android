@@ -1,4 +1,4 @@
-package com.tave7.dobdob;
+package com.tave7.dobdob.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.tave7.dobdob.MainActivity;
+import com.tave7.dobdob.PostActivity;
+import com.tave7.dobdob.R;
+import com.tave7.dobdob.TagPostActivity;
+import com.tave7.dobdob.data.PostInfoSimple;
+import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 

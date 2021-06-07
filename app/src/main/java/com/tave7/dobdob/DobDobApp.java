@@ -2,8 +2,6 @@ package com.tave7.dobdob;
 
 import android.app.Application;
 
-import androidx.annotation.Nullable;
-
 import com.kakao.auth.ApprovalType;
 import com.kakao.auth.AuthType;
 import com.kakao.auth.IApplicationConfig;
@@ -50,7 +48,6 @@ public class DobDobApp extends Application {        //Kakao SDK를 사용하기 
                 @Override
                 public boolean isSecureMode() { return false; }
 
-                @Nullable
                 @Override
                 public ApprovalType getApprovalType() { return ApprovalType.INDIVIDUAL; }
 
