@@ -44,7 +44,13 @@
                 android:layout_marginTop="3dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
-
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="5dp"
+                    android:src="@drawable/gps_pointer"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true" />
                 <TextView
                     android:id="@+id/commentrow_town"
                     android:layout_width="wrap_content"
@@ -59,9 +65,15 @@
                     android:layout_height="wrap_content"
                     android:text="2021.05.16 20:00"
                     android:textColor="#666666"/>
-
             </LinearLayout>
         </LinearLayout>
+        <TextView
+            android:id="@+id/commentrow_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_marginRight="10dp"
+            android:text="삭제"/>
     </LinearLayout>
 
     <TextView

@@ -161,7 +161,7 @@ public class PostActivity extends AppCompatActivity {
         rvComments = (RecyclerView) findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvComments.setLayoutManager(manager);
-        CommentRecyclerAdapter cAdapter = new CommentRecyclerAdapter(commentList);
+        CommentRecyclerAdapter cAdapter = new CommentRecyclerAdapter(commentList, seeUserInfo);
         rvComments.setAdapter(cAdapter);      //어댑터 등록
         rvComments.addItemDecoration(new DividerItemDecoration(PostActivity.this, 1));
 
@@ -334,7 +334,7 @@ public class PostActivity extends AppCompatActivity {
     @Override
     public void finish() {
         //변경 내용이 있다면 보내줌
-        //if (isDeleted)        //글을 삭제했다고 Main에 전달해야 함!!
+        //if (isDeleted)        //글을 삭제했다고 Main에 전달해야 함!!(메인의 postList를 갱신해야 함)
 
         super.finish();
     }

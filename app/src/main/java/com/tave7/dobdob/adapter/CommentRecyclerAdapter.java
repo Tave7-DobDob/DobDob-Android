@@ -1,6 +1,8 @@
 package com.tave7.dobdob.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,11 +16,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.R;
 import com.tave7.dobdob.data.CommentInfo;
+import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 
@@ -26,10 +30,15 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecyclerAdapter.CommentViewHolder> {
     private Context context;
-    private ArrayList<CommentInfo> commentList = null;
+    private UserInfo seeUserInfo;
+    private ArrayList<CommentInfo> commentList;
 
-    public CommentRecyclerAdapter(ArrayList<CommentInfo> commentList) { this.commentList = commentList; }
+    public CommentRecyclerAdapter(ArrayList<CommentInfo> commentList, UserInfo seeUserInfo) {
+        this.commentList = commentList;
+        this.seeUserInfo = seeUserInfo;
+    }
 
+    @NonNull
     @Override
     public CommentRecyclerAdapter.CommentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context = parent.getContext();
@@ -89,6 +98,32 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                     break;
             }
             holder.comment.setMovementMethod(LinkMovementMethod.getInstance());
+
+        if (seeUserInfo.getUserName().equals(commentList.get(position).getCommenterName())){
+            holder.commentDelete.setVisibility(View.VISIBLE);
+            holder.commentDelete.setOnClickListener(v -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("댓글 삭제").setMessage("이 댓글을 삭제하시겠습니까?");
+                builder.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //TODO: DB에서 댓글을 삭제
+                        commentList.remove(position);
+                        notifyDataSetChanged();
+                    }
+                });
+                builder.setNegativeButton("취소", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();    //삭제가 되지 않음
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            });
+        }
+        else
+            holder.commentDelete.setVisibility(View.GONE);
     }
 
     @Override
@@ -96,7 +131,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
 
     public class CommentViewHolder extends RecyclerView.ViewHolder {
         CircleImageView commenterProfile;
-        TextView commenterName, commenterTown, commentTime, comment;
+        TextView commenterName, commenterTown, commentTime, comment, commentDelete;
 
         CommentViewHolder(final View itemView) {
             super(itemView);
@@ -105,6 +140,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             commenterTown = (TextView) itemView.findViewById(R.id.commentrow_town);
             commentTime = (TextView) itemView.findViewById(R.id.commentrow_time);
             comment = (TextView) itemView.findViewById(R.id.commentrow_comment);
+            commentDelete = (TextView) itemView.findViewById(R.id.commentrow_delete);
 
             commenterName.setOnClickListener(new View.OnClickListener() {        //상대 닉네임을 클릭했을 때
                 @Override
