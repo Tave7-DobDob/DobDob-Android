@@ -44,8 +44,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal" >
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -70,8 +70,8 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="50dp"
+                        android:layout_marginStart="45dp"
+                        android:layout_marginEnd="45dp"
                         android:focusable="true"
                         android:focusableInTouchMode="true"
                         android:orientation="vertical" >
@@ -89,15 +89,19 @@
                                 android:textSize="20sp"
                                 android:textStyle="bold"
                                 android:textColor="#000000"/>
-                            <!--
-                            <ImageView
-                                android:id="@+id/myPage_ivEditName"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                            <androidx.appcompat.widget.AppCompatButton
+                                android:id="@+id/myPage_btCheckName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:layout_marginStart="25dp"
-                                android:src="@drawable/edit"
-                                android:contentDescription="닉네임 수정"/>
-                            -->
+                                android:background="@drawable/bg_roundcorner"
+                                android:minHeight="0dp"
+                                android:minWidth="0dp"
+                                android:paddingTop="5dp"
+                                android:paddingBottom="5dp"
+                                android:paddingLeft="10dp"
+                                android:paddingRight="10dp"
+                                android:text="중복 확인"/>
                         </LinearLayout>
 
                         <LinearLayout
@@ -118,20 +122,44 @@
                                 android:layout_marginStart="5dp"
                                 android:text="XX동"
                                 android:textColor="#666666"/>
-                            <!--
-                            <Button
+                            <androidx.appcompat.widget.AppCompatButton
                                 android:id="@+id/myPage_btChangeTown"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="25dp"
-                                android:padding="1dp"
+                                android:background="@drawable/bg_roundcorner"
+                                android:minHeight="0dp"
+                                android:minWidth="0dp"
+                                android:paddingTop="5dp"
+                                android:paddingBottom="5dp"
+                                android:paddingLeft="15dp"
+                                android:paddingRight="15dp"
                                 android:text="동네 재설정"/>
-                            -->
                         </LinearLayout>
-
-
+                        <TextView
+                            android:id="@+id/myPage_tvFullAddress"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_position_border"
+                            android:text="경기도 성남시 분당구 판교역로 지하160(백현동)"
+                            android:textColor="#999999"
+                            android:textSize="11sp"/>
                     </LinearLayout>
                 </LinearLayout>
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/myPage_btComplete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:background="@drawable/bg_roundcorner"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:text="완료"/>
 
                 <TextView
                     android:id="@+id/myPage_tvUserPost"

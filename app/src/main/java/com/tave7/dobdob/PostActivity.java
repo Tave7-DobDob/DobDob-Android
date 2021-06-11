@@ -2,7 +2,6 @@ package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,7 +10,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -24,6 +24,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,27 +36,35 @@ import com.tave7.dobdob.data.CommentInfo;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.relex.circleindicator.CircleIndicator3;
 
 public class PostActivity extends AppCompatActivity {
     UserInfo seeUserInfo;
-    PostInfoSimple postInfo;
+    PostInfoSimple postInfo;        //TODO: PostInfoDetail로 변경해야 함!
+    Menu menu;
+    boolean isWriter = false;
     boolean isEdit = false, isClickedHeart = false;     //현재 글 수정중인지 || 현재 글에 대해 하트를 눌렀는 지
     boolean isDeleted = false;      //MainActivity에 전달해야 함(글을 삭제했는 지)
 
-    EditText etTitle, etContent;
-    TextView tvAddPhotos, tvHeartNums, tvCommentNums;
+    NestedScrollView svEntirePost;
+    EditText etTitle, etContent, etTag;
+    TextView tvAddPhotos, tvHeartNums, tvCommentNums, tvTag;
     CircleIndicator3 indicator;
     PostPhotosPagerAdapter photoAdapter;
     ImageView ivHeart;
     RecyclerView rvComments;
+    CommentRecyclerAdapter commentAdapter;
     LinearLayout llTag, llWriteComment;
 
     ArrayList<CommentInfo> commentList = null;
     
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,24 +73,31 @@ public class PostActivity extends AppCompatActivity {
         seeUserInfo = (UserInfo) getIntent().getSerializableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
         postInfo = (PostInfoSimple) getIntent().getSerializableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
 
-        CircleImageView civWriterProfile = (CircleImageView) findViewById(R.id.post_writerProfile);
+        isWriter = seeUserInfo.getUserName().equals(postInfo.getWriterName());
+
+        svEntirePost = findViewById(R.id.post_scrollView);
+        CircleImageView civWriterProfile = findViewById(R.id.post_writerProfile);
             //TODO: postInfo.getWriterProfile()를 통해 사진 설정
-        TextView tvWriterName = (TextView) findViewById(R.id.post_writerName);
+        TextView tvWriterName = findViewById(R.id.post_writerName);
             tvWriterName.setText(postInfo.getWriterName());
-        TextView tvWriterTown = (TextView) findViewById(R.id.post_writerTown);
+        TextView tvWriterTown = findViewById(R.id.post_writerTown);
             tvWriterTown.setText(postInfo.getWriterTown());
-        etTitle = (EditText) findViewById(R.id.post_title);
+        etTitle = findViewById(R.id.post_title);
             etTitle.setText(postInfo.getPostTitle());
-        etContent = (EditText) findViewById(R.id.post_content);
+        etContent = findViewById(R.id.post_content);
             //TODO: etContent에 대해서 저장해야 함
-        tvAddPhotos = (TextView) findViewById(R.id.post_addPhotos);        //사진 추가 버튼
+        tvAddPhotos = findViewById(R.id.post_addPhotos);        //사진 추가 버튼
             tvAddPhotos.setVisibility(View.GONE);
-        indicator = (CircleIndicator3) findViewById(R.id.indicator);
-        tvHeartNums = (TextView) findViewById(R.id.post_heartNum);
+        indicator = findViewById(R.id.indicator);
+        tvHeartNums = findViewById(R.id.post_heartNum);
             tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
-        tvCommentNums = (TextView) findViewById(R.id.post_commentNum);
+        tvCommentNums = findViewById(R.id.post_commentNum);
             tvCommentNums.setText(String.valueOf(postInfo.getCommentNum()));        //TODO: 수정 요망!
-        llTag = (LinearLayout) findViewById(R.id.post_LinearTag);
+        tvTag = findViewById(R.id.post_tag);
+            tvTag.setVisibility(View.GONE);
+        etTag = findViewById(R.id.post_etTag);
+            etTag.setVisibility(View.GONE);
+        llTag = findViewById(R.id.post_LinearTag);
             if (postInfo.getPostTag().size() != 0) {
                 for (String tagName : postInfo.getPostTag()){
                     TextView tvTag = new TextView(PostActivity.this);
@@ -110,21 +126,14 @@ public class PostActivity extends AppCompatActivity {
             }
             else
                 llTag.setVisibility(View.GONE);
-        llWriteComment = (LinearLayout) findViewById(R.id.post_writeCommentL);
+        llWriteComment = findViewById(R.id.post_writeCommentL);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.post_toolbar);      //툴바 설정
+        Toolbar toolbar = findViewById(R.id.post_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowCustomEnabled(true);
+        Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
-
-        //TODO: 글 작성자일 때만 해당되게 해야 함(cf. 글 작성자가 아니라면 뒤로가기 버튼만 보이게 됨)       -> 확인 요망!
-        if (seeUserInfo.getUserName().equals(postInfo.getWriterName())) {
-            View customView = LayoutInflater.from(this).inflate(R.layout.other_actionbar, null);
-            actionBar.setCustomView(customView);
-            toolbarListener(toolbar);
-        }
 
         //TODO: 임시 photoList생성      ->   postInfo.get()을 통해 사진을 받아와서 Bitmap으로 adapter에 연결함
         ArrayList<Bitmap> photoList = new ArrayList<>();
@@ -132,13 +141,13 @@ public class PostActivity extends AppCompatActivity {
             photoList.add(icon);
             Bitmap icon2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.user_image);
             photoList.add(icon2);
-        ViewPager2 viewpager2 = (ViewPager2) findViewById(R.id.vpPostPhotos);
+        ViewPager2 viewpager2 = findViewById(R.id.vpPostPhotos);
         photoAdapter = new PostPhotosPagerAdapter(photoList);
         viewpager2.setAdapter(photoAdapter);
         indicator.setViewPager(viewpager2);
         photoAdapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
 
-        ivHeart = (ImageView) findViewById(R.id.post_ivHeart);
+        ivHeart = findViewById(R.id.post_ivHeart);
         for (String user: postInfo.getHeartUsers()) {
             if (user.equals(seeUserInfo.getUserName())) {
                 isClickedHeart = true;
@@ -158,106 +167,19 @@ public class PostActivity extends AppCompatActivity {
             commentList.add(new CommentInfo("", "테이비3", "XXX동", "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
             commentList.add(new CommentInfo("", "테이비4", "XX동", "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
 
-        rvComments = (RecyclerView) findViewById(R.id.postComments);
+        rvComments = findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvComments.setLayoutManager(manager);
-        CommentRecyclerAdapter cAdapter = new CommentRecyclerAdapter(commentList, seeUserInfo);
-        rvComments.setAdapter(cAdapter);      //어댑터 등록
+        commentAdapter = new CommentRecyclerAdapter(commentList, seeUserInfo);
+        rvComments.setAdapter(commentAdapter);      //어댑터 등록
         rvComments.addItemDecoration(new DividerItemDecoration(PostActivity.this, 1));
 
         postClickListener();
     }
 
-    public void toolbarListener(Toolbar toolbar){
-        ImageView ivEditCancel = (ImageView) toolbar.findViewById(R.id.toolbar_editCancel);
-            ivEditCancel.setVisibility(View.GONE);     //수정버튼이 눌릴 때만 수정취소버튼이 보이게 되어야 함
-        TextView tvPostDelete = (TextView) toolbar.findViewById(R.id.toolbar_delete);
-        ImageView ivEdit = (ImageView) toolbar.findViewById(R.id.toolbar_edit);
-
-        ivEditCancel.setOnClickListener(v -> {   //수정 취소
-            isEdit = false;     //지금부터 수정 안됨
-
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);    //뒤로가기 버튼 보이게 함
-            ivEditCancel.setVisibility(View.GONE);
-            tvPostDelete.setVisibility(View.VISIBLE);
-            ivEdit.setImageResource(R.drawable.edit);
-
-            etTitle.setEnabled(false);
-            etContent.setEnabled(false);
-            tvAddPhotos.setVisibility(View.GONE);
-            rvComments.setVisibility(View.VISIBLE);
-            llWriteComment.setVisibility(View.VISIBLE);
-
-            photoAdapter.changeIsEditable();
-            photoAdapter.notifyDataSetChanged();
-        });
-
-        tvPostDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
-                builder.setTitle("글 삭제").setMessage("현재 글을 삭제하시겠습니까?");
-                builder.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //TODO: DB에서 포스트를 삭제하고, 안드로이드 스튜디오 내의 postList에서 post를 삭제해야 함(전달! Bundle로)
-                        isDeleted = true;
-                        finish();
-                    }
-                });
-                builder.setNegativeButton("취소", new DialogInterface.OnClickListener(){
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();    //삭제가 되지 않음
-                    }
-                });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-            }
-        });
-
-        ivEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isEdit = !isEdit;   //지금부터 수정가능여부
-
-                if (isEdit) {   //작성한 글(post)을 수정할 수 있음
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);    //뒤로가기 버튼 안보이게 함
-                    ivEditCancel.setVisibility(View.VISIBLE);
-                    tvPostDelete.setVisibility(View.GONE);
-                    ivEdit.setImageResource(R.drawable.ok);
-
-                    etTitle.setEnabled(true);
-                    etContent.setEnabled(true);
-                    tvAddPhotos.setVisibility(View.VISIBLE);
-                    rvComments.setVisibility(View.GONE);        //댓글 영역 안보임
-                    llWriteComment.setVisibility(View.GONE);    //댓글 작성 영역 안보임
-
-                    photoAdapter.changeIsEditable();
-                    photoAdapter.notifyDataSetChanged();
-                }
-                else {          //수정완료함(수정한 것 반영)-> TODO: DB에 바뀐 내용을 저장해야 함 -> 제목,내용,사진추가 등
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);    //뒤로가기 버튼 보이게 함
-                    ivEditCancel.setVisibility(View.GONE);
-                    tvPostDelete.setVisibility(View.VISIBLE);
-                    ivEdit.setImageResource(R.drawable.edit);
-
-                    etTitle.setEnabled(false);
-                    etContent.setEnabled(false);
-                    tvAddPhotos.setVisibility(View.GONE);
-                    rvComments.setVisibility(View.VISIBLE);
-                    llWriteComment.setVisibility(View.VISIBLE);
-
-                    photoAdapter.changeIsEditable();
-                    photoAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     public void postClickListener(){
-        ConstraintLayout clWhole = (ConstraintLayout) findViewById(R.id.post_wholeCL);
+        ConstraintLayout clWhole = findViewById(R.id.post_wholeCL);
         clWhole.setOnTouchListener((v, event) -> {
             ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
             getCurrentFocus().clearFocus();
@@ -265,52 +187,44 @@ public class PostActivity extends AppCompatActivity {
             return false;
         });
 
-        TextView tvWriterName = (TextView) findViewById(R.id.post_writerName);
-        tvWriterName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isEdit) {
-                    //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
-                    Intent showProfilePage = new Intent(PostActivity.this, MyPageActivity.class);
-                    Bundle sppBundle = new Bundle();
-                        sppBundle.putBoolean("isMyPage", false);
-                    showProfilePage.putExtras(sppBundle);
-                    //TODO: user의 닉네임을 DB에 전달해서 DB로부터 해당 userInfo와 user가 쓴 글을 받아와야 함
-                    //startActivity(showProfilePage);
-                }
+        TextView tvWriterName = findViewById(R.id.post_writerName);
+        tvWriterName.setOnClickListener(v -> {
+            if (!isEdit) {
+                //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
+                Intent showProfilePage = new Intent(PostActivity.this, MyPageActivity.class);
+                Bundle sppBundle = new Bundle();
+                    sppBundle.putBoolean("isMyPage", false);
+                showProfilePage.putExtras(sppBundle);
+                //TODO: user의 닉네임을 DB에 전달해서 DB로부터 해당 userInfo와 user가 쓴 글을 받아와야 함
+                //startActivity(showProfilePage);
             }
         });
 
-        tvAddPhotos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO: 사진 갤러리에서 불러와서 photoList에 추가함
+        tvAddPhotos.setOnClickListener(v -> {
+            //TODO: 사진 갤러리에서 불러와서 photoList에 추가함
+        });
+
+        //하트 클릭 시
+        ivHeart.setOnClickListener(v -> {
+            isClickedHeart = !isClickedHeart;
+
+            if (isClickedHeart) {
+                ivHeart.setImageResource(R.drawable.heart_full);
+                postInfo.getHeartUsers().add(seeUserInfo.getUserName());
+                tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
+
+                //TODO: DB에 저장하고 수정 + MainActivity에서도 변경된 값을 갖고 있도록 해야함!
+            }
+            else {
+                ivHeart.setImageResource(R.drawable.heart_empty);
+                postInfo.getHeartUsers().remove(seeUserInfo.getUserName());
+                tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
+
+                //TODO: DB에 저장하고 수정
             }
         });
 
-        ivHeart.setOnClickListener(new View.OnClickListener() {     //하트 클릭 시
-            @Override
-            public void onClick(View v) {
-                isClickedHeart = !isClickedHeart;
-
-                if (isClickedHeart) {
-                    ivHeart.setImageResource(R.drawable.heart_full);
-                    postInfo.getHeartUsers().add(seeUserInfo.getUserName());
-                    tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
-
-                    //TODO: DB에 저장하고 수정 + MainActivity에서도 변경된 값을 갖고 있도록 해야함!
-                }
-                else {
-                    ivHeart.setImageResource(R.drawable.heart_empty);
-                    postInfo.getHeartUsers().remove(seeUserInfo.getUserName());
-                    tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
-
-                    //TODO: DB에 저장하고 수정
-                }
-            }
-        });
-
-        EditText etWriteComment = (EditText) findViewById(R.id.post_etComment);
+        EditText etWriteComment = findViewById(R.id.post_etComment);
         etWriteComment.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -319,26 +233,65 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 //TODO: mention이름을 저장해야 함
-                if (s.charAt(s.length()-1) == '@') {
+                if (s.length() != 0 && s.charAt(s.length()-1) == '@') {
                     //사용자들의 id를 filter를 사용해 드롭다운으로 보여줘야함
                 }
             }
         });
 
-        TextView tvAddComment = (TextView) findViewById(R.id.post_postComment);
+        TextView tvAddComment = findViewById(R.id.post_postComment);    //댓글 추가
         tvAddComment.setOnClickListener(v -> {
-            //TODO: commentList에 댓글을 추가함(Post에도 연결되어 추가 됨) + DB에 댓글 저장
+            etWriteComment.setEnabled(false);
+
+            String writeComment = etWriteComment.getText().toString();
+            writeComment = writeComment.trim();
+            if (writeComment.length() != 0) {
+                //TODO: DB에 댓글 저장(현재 시간 저장) -> DB에 시간을 형식 맞게 저장하자!
+                Calendar calendar = Calendar.getInstance();
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+                String date = sdf.format(calendar.getTime());
+
+                commentList.add(new CommentInfo(seeUserInfo.getUserProfileUrl(), seeUserInfo.getUserName(), seeUserInfo.getUserTown(),
+                        date, writeComment));
+                commentAdapter.notifyDataSetChanged();
+
+                tvCommentNums.setText(String.valueOf(commentList.size()));      //TODO: 추후에 postInfo와 CommentInfo를 연동해야 함!!
+                etWriteComment.setText("");
+
+                svEntirePost.post(() -> {
+                    svEntirePost.fullScroll(View.FOCUS_DOWN);       //화면 하단이 보이도록 함
+                });
+            }
+
+            etWriteComment.setEnabled(true);
         });
     }
 
     @Override
     public void finish() {
-        //변경 내용이 있다면 보내줌
+        //변경 내용이 있다면 보내줌(있으면 true 전달, 없으면 false 전달 -> Main에서 처리하게 함!)
         //if (isDeleted)        //글을 삭제했다고 Main에 전달해야 함!!(메인의 postList를 갱신해야 함)
 
         super.finish();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        this.menu = menu;
+        if (isWriter) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.post_menu, menu);
+
+            menu.findItem(R.id.postEditComplete).setVisible(false);     //수정 시에만 보여야 함
+            menu.findItem(R.id.postEditCancel).setVisible(false);
+        }
+
+        return true;
+    }
+
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
@@ -346,7 +299,71 @@ public class PostActivity extends AppCompatActivity {
                 finish();
                 return true;
             }
+            case R.id.postEdit: {
+                SetEditing(true);
+
+                return true;
+            }
+            case R.id.postDelete: {
+                AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
+                builder.setTitle("글 삭제").setMessage("현재 글을 삭제하시겠습니까?");
+                builder.setPositiveButton("삭제", (dialog, which) -> {
+                    //TODO: DB에서 포스트를 삭제하고, 안드로이드 스튜디오 내의 postList에서 post를 삭제해야 함(전달! Bundle로)
+                    isDeleted = true;
+                    finish();
+                });
+                builder.setNegativeButton("취소", (dialog, id) -> {
+                    dialog.cancel();    //삭제가 되지 않음
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+                return true;
+            }
+            case R.id.postEditComplete: {
+                //TODO: DB에 바뀐 내용을 저장해야 함 -> 제목,내용,사진추가 등
+                SetEditing(false);
+
+                return true;
+            }
+            case R.id.postEditCancel: {
+                //TODO: 기존 값으로 돌려놓아야 함!
+                SetEditing(false);
+
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    void SetEditing(boolean isEdit) {   //수정 상태일 때와 아닐 때에 대한 화면 설정
+        this.isEdit = isEdit;   //수정중인 상태인 가를 저장
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(!isEdit);    //뒤로가기 버튼 보이게 함
+        menu.findItem(R.id.postEdit).setVisible(!isEdit);
+        menu.findItem(R.id.postDelete).setVisible(!isEdit);
+        menu.findItem(R.id.postEditComplete).setVisible(isEdit);
+        menu.findItem(R.id.postEditCancel).setVisible(isEdit);
+
+        etTitle.setEnabled(!isEdit);
+        etContent.setEnabled(!isEdit);
+
+        if (isEdit) {
+            tvAddPhotos.setVisibility(View.VISIBLE);
+            tvTag.setVisibility(View.VISIBLE);
+            etTag.setVisibility(View.VISIBLE);
+            rvComments.setVisibility(View.GONE);
+            llWriteComment.setVisibility(View.GONE);
+        }
+        else {
+            tvAddPhotos.setVisibility(View.GONE);
+            tvTag.setVisibility(View.GONE);
+            etTag.setVisibility(View.GONE);
+            rvComments.setVisibility(View.VISIBLE);
+            llWriteComment.setVisibility(View.VISIBLE);
+        }
+
+        photoAdapter.changeIsEditable();
+        photoAdapter.notifyDataSetChanged();
     }
 }

@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreateOptionsMenu(menu);
 
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.search_menu,menu);
+        inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem mSearch = menu.findItem(R.id.search);
         mSearch.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {

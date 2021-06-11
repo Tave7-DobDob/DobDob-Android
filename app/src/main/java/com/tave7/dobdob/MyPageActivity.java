@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +40,7 @@ public class MyPageActivity extends AppCompatActivity {
 
     ArrayList<PostInfoSimple> userPostList = null;        //user가 올린 글 모음
     boolean isEdit = false, isChangeProfile = false, isChangeName = false, isChangeTown = false ;     //현재 글 수정중인지
+    Button btComplete;
     CircleImageView civUserProfile;
     TextView tvChangeProfile, tvUserName, tvUserTown, tvUserPosts;
     RecyclerView rvMyPagePosts;
@@ -49,7 +51,7 @@ public class MyPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mypage);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.myPage_toolbar);      //툴바 설정
+        Toolbar toolbar = findViewById(R.id.myPage_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
@@ -81,6 +83,7 @@ public class MyPageActivity extends AppCompatActivity {
             tvUserName.setText(userInfo.getUserName());
         tvUserTown = (TextView) findViewById(R.id.myPage_userTown);            //TODO: 해당 user의 동네로 setText("")변경(클릭시 주소 결정할 수 있게)
             tvUserTown.setText(userInfo.getUserTown());
+        btComplete = findViewById(R.id.myPage_btComplete);
         tvUserPosts = (TextView) findViewById(R.id.myPage_tvUserPost);         //TODO: 해당 user의 닉네임으로 setText(name+" 님이 작성한 글")변경
             tvUserPosts.setText(userInfo.getUserName()+" 님이 작성한 글");
         rvMyPagePosts = (RecyclerView) findViewById(R.id.myPagePosts);
@@ -98,8 +101,6 @@ public class MyPageActivity extends AppCompatActivity {
     public void toolbarListener(Toolbar toolbar){
         ImageView ivEditCancel = (ImageView) toolbar.findViewById(R.id.toolbar_editCancel);
             ivEditCancel.setVisibility(View.GONE);     //수정버튼이 눌릴 때만 수정취소버튼이 보이게 되어야 함
-        TextView tvPostDelete = (TextView) toolbar.findViewById(R.id.toolbar_delete);
-            tvPostDelete.setVisibility(View.GONE);
         ImageView ivEdit = (ImageView) toolbar.findViewById(R.id.toolbar_edit);
 
         ivEditCancel.setOnClickListener(new View.OnClickListener() {
@@ -115,7 +116,6 @@ public class MyPageActivity extends AppCompatActivity {
 
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);    //뒤로가기 버튼 보이게 함
                 ivEditCancel.setVisibility(View.GONE);
-                tvPostDelete.setVisibility(View.VISIBLE);
                 ivEdit.setImageResource(R.drawable.edit);
 
                 tvChangeProfile.setVisibility(View.GONE);
@@ -131,10 +131,9 @@ public class MyPageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 isEdit = !isEdit;   //지금부터 수정가능여부
 
-                if (isEdit) {   //작성한 글(post)을 수정할 수 있음
+                if (isEdit) {   //개인 정보를 수정할 수 있음
                     getSupportActionBar().setDisplayHomeAsUpEnabled(false);    //뒤로가기 버튼 안보이게 함
                     ivEditCancel.setVisibility(View.VISIBLE);
-                    tvPostDelete.setVisibility(View.GONE);
                     ivEdit.setImageResource(R.drawable.ok);
 
                     tvChangeProfile.setVisibility(View.VISIBLE);
@@ -146,7 +145,6 @@ public class MyPageActivity extends AppCompatActivity {
                 else {          //수정완료함(수정한 것 반영)
                     getSupportActionBar().setDisplayHomeAsUpEnabled(true);    //뒤로가기 버튼 보이게 함
                     ivEditCancel.setVisibility(View.GONE);
-                    tvPostDelete.setVisibility(View.VISIBLE);
                     ivEdit.setImageResource(R.drawable.edit);
 
                     tvChangeProfile.setVisibility(View.GONE);
@@ -222,6 +220,10 @@ public class MyPageActivity extends AppCompatActivity {
                     //tmpUserInfo.setUserTown("입력값");
                 }
             }
+        });
+
+        btComplete.setOnClickListener(v -> {
+            //TODO: 완료 버튼 클릭 시!
         });
     }
 

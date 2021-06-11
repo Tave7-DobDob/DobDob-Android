@@ -4,7 +4,6 @@
     android:layout_height="65dp"
     android:orientation="horizontal">
 
-    <!--post글 화면에서 사용-->
     <ImageView
         android:id="@+id/toolbar_editCancel"
         android:layout_width="23dp"
@@ -15,18 +14,8 @@
         android:src="@drawable/cancel"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:contentDescription="🔍수정취소" /> <!--수정버튼 눌렀을 시-->
-    <TextView
-        android:id="@+id/toolbar_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/toolbar_edit"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="20dp"
-        android:text="삭제"
-        android:textSize="17sp"
-        android:textStyle="bold"
-        android:textColor="#000000" />
+        android:contentDescription="🔍수정취소" />
+
     <ImageView
         android:id="@+id/toolbar_edit"
         android:layout_width="25dp"
