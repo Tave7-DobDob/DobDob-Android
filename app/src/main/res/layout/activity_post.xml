@@ -82,7 +82,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <EditText
+                <TextView
                     android:id="@+id/post_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -90,9 +90,6 @@
                     android:layout_marginBottom="5dp"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:background="@android:color/transparent"
-                    android:enabled="false"
-                    android:inputType="none"
                     android:text="post 제목"
                     android:textStyle="bold"
                     android:textSize="20sp"
@@ -106,7 +103,7 @@
                     android:text="2021.05.16 20:00"
                     android:textColor="#666666"/>
 
-                <EditText
+                <TextView
                     android:id="@+id/post_content"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -116,23 +113,8 @@
                     android:layout_marginBottom="20dp"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:background="@android:color/transparent"
-                    android:enabled="false"
-                    android:scrollHorizontally="false"
-                    android:hint="Content~~\n...\n..."
-                    android:inputType="none"
                     android:textColor="#000000" />
 
-                <TextView
-                    android:id="@+id/post_addPhotos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:text="+사진 추가"
-                    android:textColor="#000000"/>
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="250dp">

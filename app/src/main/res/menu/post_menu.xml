@@ -6,11 +6,4 @@
 
     <item android:id="@+id/postDelete"
         android:title="글 삭제" />
-
-    <!--글 수정 메뉴항목 클릭 이후-->
-    <item android:id="@+id/postEditComplete"
-        android:title="완료" />
-
-    <item android:id="@+id/postEditCancel"
-        android:title="취소"/>
 </menu>

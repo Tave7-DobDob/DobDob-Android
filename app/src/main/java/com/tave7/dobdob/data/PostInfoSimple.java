@@ -12,7 +12,7 @@ public class PostInfoSimple implements Parcelable {
     private String postTitle = "";
     private ArrayList<String> heartUsers = null;    //사용자 이름들 저장
     private int commentNum = 0;
-    ArrayList<String> postTag = null;
+    private ArrayList<String> postTag = null;
 
     public PostInfoSimple(UserInfo writerInfo, String postTime, String postTitle, ArrayList<String> heartUsers, int commentNum, ArrayList<String> postTag){
         this.writerInfo = writerInfo;

@@ -47,19 +47,14 @@
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp" >
             <LinearLayout
                 android:id="@+id/posting_showPhotos"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <!--사진이 존재하면 사진이 보여짐(마우스 올리면 삭제가능하게 보여짐)-->
-                <ImageView
-                    android:layout_width="75dp"
-                    android:layout_height="75dp"
-                    android:layout_marginEnd="10dp"
-                    android:src="@drawable/logo"/>
+                android:orientation="horizontal"
+                android:padding="10dp" >
+                <!--사진이 존재하면 사진이 보여짐-->
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -79,7 +74,7 @@
             android:layout_marginTop="10dp"
             android:background="@android:color/transparent"
             android:scrollHorizontally="false"
-            android:hint="내용을 입력해주세요:)"
+            android:hint="내용을 입력해주세요."
             android:inputType="none"
             android:textColor="#000000" />
 
@@ -179,7 +174,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="사진(0/7)"
+                android:text="사진(0/5)"
                 android:textColor="#000000" />
         </LinearLayout>
     </LinearLayout>

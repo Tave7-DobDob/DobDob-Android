@@ -30,7 +30,7 @@ import com.tave7.dobdob.data.UserInfo;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    public static final int POST_REQUEST = 6000;  //requestCode로 사용될 상수(마이페이지)
+    public static final int POST_REQUEST = 6000;    //requestCode로 사용될 상수(마이페이지)
     public static final int MYPAGE_REQUEST = 7000;  //requestCode로 사용될 상수(마이페이지)
 
     UserInfo userInfo = null;
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, PostingActivity.class));    //글쓰기 창으로 화면이 넘어감
+                startActivity(new Intent(MainActivity.this, PostingActivity.class));    //글쓰기 창으로 화면이 넘어감(TODO: startActivityForResult)
             }
         });
     }
