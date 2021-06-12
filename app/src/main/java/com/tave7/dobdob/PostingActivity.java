@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -22,6 +23,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.tave7.dobdob.data.PostInfoSimple;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -31,10 +34,10 @@ public class PostingActivity extends AppCompatActivity {
     private ArrayList<String> tmpTag = null;
     private ArrayList<Bitmap> tmpPhotos = null;
 
+    private com.nex3z.flowlayout.FlowLayout flTags;
+    private EditText etTitle, etContent, etTag;
     private LayoutInflater lInflater;
     private LinearLayout llShowPhotos;
-    private EditText etTag;
-    private com.nex3z.flowlayout.FlowLayout flTags;
     private TextView tvPhotos;
 
     @Override
@@ -42,18 +45,26 @@ public class PostingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_posting);
 
+        boolean isEditingPost = false;
+        PostInfoSimple editPostInfo = null;
+        if (getIntent().hasExtra("isEditingPost")) {     //TODO: 확인해야 함
+            //isEditingPost = true;
+            //editPostInfo = getIntent().getExtras().get
+            Log.i("확인용", "글 작성 페이지 수정중");
+        }
+
         tmpTag = new ArrayList<>();
         tmpPhotos = new ArrayList<>();
         lInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
-        EditText etTitle = (EditText) findViewById(R.id.posting_title);                 //글 제목
-        llShowPhotos = (LinearLayout) findViewById(R.id.posting_showPhotos);            //업로드한 사진들
-        EditText etContent = (EditText) findViewById(R.id.posting_content);             //글 내용
-        etTag = (EditText) findViewById(R.id.posting_etTag);                            //글의 태그 입력칸(TODO: 드롭다운 가능해야 함)
-        flTags = (com.nex3z.flowlayout.FlowLayout) findViewById(R.id.posting_flTags);                        //글의 태그들 추가할 위치
-        tvPhotos = (TextView) findViewById(R.id.posting_photo);                         //글에 첨부할 사진 개수
+        etTitle = (EditText) findViewById(R.id.posting_title);                 //글 제목
+        llShowPhotos = (LinearLayout) findViewById(R.id.posting_showPhotos);   //업로드한 사진들
+        etContent = (EditText) findViewById(R.id.posting_content);             //글 내용
+        etTag = (EditText) findViewById(R.id.posting_etTag);                   //글의 태그 입력칸(TODO: 드롭다운 가능해야 함)
+        flTags = (com.nex3z.flowlayout.FlowLayout) findViewById(R.id.posting_flTags);   //글의 태그들 추가할 위치
+        tvPhotos = (TextView) findViewById(R.id.posting_photo);                //글에 첨부할 사진 개수
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.posting_toolbar);      //툴바 설정
+        Toolbar toolbar = (Toolbar) findViewById(R.id.posting_toolbar);        //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
             actionBar.setDisplayShowCustomEnabled(true);
@@ -69,12 +80,7 @@ public class PostingActivity extends AppCompatActivity {
 
     public void toolbarListener(Toolbar toolbar){
         ImageView ivCancel = (ImageView) toolbar.findViewById(R.id.toolbar_cancel);
-        ivCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();       //다시 메인화면으로 돌아감
-            }
-        });
+        ivCancel.setOnClickListener(v -> finish());
         
         TextView ivComplete = (TextView) toolbar.findViewById(R.id.toolbar_complete);
         ivComplete.setOnClickListener(new View.OnClickListener() {

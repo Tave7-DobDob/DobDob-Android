@@ -58,9 +58,10 @@ public class MyPageActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
 
-        tmpUserInfo = new UserInfo("", "", "");
-        userInfo = (UserInfo) getIntent().getExtras().getSerializable("userInfo");
-        userPostList = (ArrayList<PostInfoSimple>) getIntent().getExtras().getSerializable("userPosts");
+        tmpUserInfo = new UserInfo(null, "", "");
+        userInfo = (UserInfo) getIntent().getExtras().getParcelable("userInfo");
+        userPostList = getIntent().getExtras().getParcelableArrayList("userPosts");
+
 
         isMyPage = getIntent().getExtras().getBoolean("isMyPage");
         if (isMyPage) {   //현재 사용자의 페이지를 보는 경우
@@ -70,7 +71,7 @@ public class MyPageActivity extends AppCompatActivity {
         }
 
         civUserProfile = (CircleImageView) findViewById(R.id.myPage_userProfile);
-        if (userInfo.getUserProfileUrl().length() == 0)
+        if (userInfo.getUserProfileUrl() == null)
             civUserProfile.setImageResource(R.drawable.user_image);
         else {    //TODO: 고쳐야 함(안됨)     //TODO: 해당 user의 이미지로 setImageResource변경
             //user.setUserProfileUrl("https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE");

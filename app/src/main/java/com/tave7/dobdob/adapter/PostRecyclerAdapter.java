@@ -62,6 +62,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
     public void onBindViewHolder(PostViewHolder holder, int position) {
         //holder.writerProfile.setImageURI("");     //TODO: 이미지 URL을 보이게 함
         holder.writerName.setText(postList.get(position).getWriterName());
+        holder.writerTown.setText(postList.get(position).getWriterTown());
         holder.postTime.setText(postList.get(position).getPostTime());
         holder.postTitle.setText(postList.get(position).getPostTitle());
 
@@ -112,8 +113,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                         Intent showContainTagPost = new Intent(context, TagPostActivity.class);
                         Bundle sctBundle = new Bundle();
                         sctBundle.putString("tagName", searchTag);
-                        sctBundle.putSerializable("tagPostLists", searchTagPosts(searchTag));
-                        sctBundle.putSerializable("userInfo", userInfo);
+                        sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));
+                        sctBundle.putParcelable("userInfo", userInfo);
                         showContainTagPost.putExtras(sctBundle);
                         context.startActivity(showContainTagPost);
                     }
@@ -168,7 +169,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
     public class PostViewHolder extends RecyclerView.ViewHolder {
         CircleImageView writerProfile;      //TODO: 사진 받아와서 이 사진으로 설정함
-        TextView writerName, postTime, postTitle, heartNum, commentNum;
+        TextView writerName, writerTown, postTime, postTitle, heartNum, commentNum;
         ImageView ivHeart;
         LinearLayout tags;
         
@@ -176,6 +177,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             super(itemView);
             writerProfile = (CircleImageView) itemView.findViewById(R.id.postrow_profile);
             writerName = (TextView) itemView.findViewById(R.id.postrow_name);
+            writerTown = (TextView) itemView.findViewById(R.id.postrow_town);
             postTime = (TextView) itemView.findViewById(R.id.postrow_time);
             postTitle = (TextView) itemView.findViewById(R.id.postrow_title);
             ivHeart = (ImageView) itemView.findViewById(R.id.postrow_ivHeart);
@@ -191,11 +193,11 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     //TODO: DB에 post 작성자의 이름과 시간을 전달한 후에, 해당 내용을 받아옴
                     Intent showPostPage = new Intent(context, PostActivity.class);
                     Bundle sppBundle = new Bundle();
-                    sppBundle.putSerializable("seeUserInfo", userInfo);
-                    //sppBundle.putSerializable("postInfoDetail", postInfoDetail);        //PostInfoDetail postInfoDetail;
-                    sppBundle.putSerializable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
+                    sppBundle.putParcelable("seeUserInfo", userInfo);
+                    //sppBundle.putParcelable("postInfoDetail", postInfoDetail);        //PostInfoDetail postInfoDetail;
+                    sppBundle.putParcelable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
                     showPostPage.putExtras(sppBundle);
-                    ((MainActivity)context).startActivityForResult(showPostPage, POST_REQUEST);     //해당 글 창으로 넘어감
+                    ((MainActivity)context).startActivityForResult(showPostPage, POST_REQUEST);     //해당 글 창으로 넘어감  -> 안됨!!!!!!!!!!
                 }
             });
         }

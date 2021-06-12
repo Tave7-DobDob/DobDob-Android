@@ -53,8 +53,8 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
     @Override
     public void onBindViewHolder(CommentRecyclerAdapter.CommentViewHolder holder, int position) {
         //holder.commenterProfile.setImageURI("");     //TODO: 이미지 URL을 보이게 함
-        holder.commenterName.setText(commentList.get(position).getCommenterName());
-        holder.commenterTown.setText(commentList.get(position).getCommenterTown());
+        holder.commenterName.setText(commentList.get(position).getCommenterInfo().getUserName());
+        holder.commenterTown.setText(commentList.get(position).getCommenterInfo().getUserTown());
         holder.commentTime.setText(commentList.get(position).getCommentTime());
         holder.comment.setText(commentList.get(position).getContent());
             Spannable span = (Spannable) holder.comment.getText();
@@ -99,7 +99,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             }
             holder.comment.setMovementMethod(LinkMovementMethod.getInstance());
 
-        if (seeUserInfo.getUserName().equals(commentList.get(position).getCommenterName())){
+        if (seeUserInfo.getUserName().equals(commentList.get(position).getCommenterInfo().getUserName())){
             holder.commentDelete.setVisibility(View.VISIBLE);
             holder.commentDelete.setOnClickListener(v -> {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);

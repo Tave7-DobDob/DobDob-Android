@@ -27,8 +27,8 @@ public class TagPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tag_post);
 
-        ArrayList<PostInfoSimple> tagPostLists = (ArrayList<PostInfoSimple>) getIntent().getExtras().getSerializable("tagPostLists");
-        UserInfo userInfo = (UserInfo) getIntent().getExtras().getSerializable("userInfo");
+        ArrayList<PostInfoSimple> tagPostLists = getIntent().getExtras().getParcelableArrayList("tagPostLists");
+        UserInfo userInfo = (UserInfo) getIntent().getExtras().getParcelable("userInfo");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tagPost_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);

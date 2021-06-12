@@ -53,8 +53,8 @@ public class PostActivity extends AppCompatActivity {
     boolean isDeleted = false;      //MainActivity에 전달해야 함(글을 삭제했는 지)
 
     NestedScrollView svEntirePost;
-    EditText etTitle, etContent, etTag;
-    TextView tvAddPhotos, tvHeartNums, tvCommentNums, tvTag;
+    EditText etTitle, etContent;
+    TextView tvAddPhotos, tvHeartNums, tvCommentNums;
     CircleIndicator3 indicator;
     PostPhotosPagerAdapter photoAdapter;
     ImageView ivHeart;
@@ -70,8 +70,8 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        seeUserInfo = (UserInfo) getIntent().getSerializableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
-        postInfo = (PostInfoSimple) getIntent().getSerializableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
+        seeUserInfo = (UserInfo) getIntent().getParcelableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
+        postInfo = (PostInfoSimple) getIntent().getParcelableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
 
         isWriter = seeUserInfo.getUserName().equals(postInfo.getWriterName());
 
@@ -93,10 +93,6 @@ public class PostActivity extends AppCompatActivity {
             tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
         tvCommentNums = findViewById(R.id.post_commentNum);
             tvCommentNums.setText(String.valueOf(postInfo.getCommentNum()));        //TODO: 수정 요망!
-        tvTag = findViewById(R.id.post_tag);
-            tvTag.setVisibility(View.GONE);
-        etTag = findViewById(R.id.post_etTag);
-            etTag.setVisibility(View.GONE);
         llTag = findViewById(R.id.post_LinearTag);
             if (postInfo.getPostTag().size() != 0) {
                 for (String tagName : postInfo.getPostTag()){
@@ -115,8 +111,8 @@ public class PostActivity extends AppCompatActivity {
                         Intent showContainTagPost = new Intent(PostActivity.this, TagPostActivity.class);
                         Bundle sctBundle = new Bundle();
                             sctBundle.putString("tagName", searchTag);
-                            sctBundle.putSerializable("tagPostLists", searchTagPosts(searchTag));       //어떻게?
-                            sctBundle.putSerializable("userInfo", seeUserInfo);
+                            sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));       //어떻게?
+                            sctBundle.putParcelable("userInfo", seeUserInfo);
                         showContainTagPost.putExtras(sctBundle);
                         startActivity(showContainTagPost);
                         finish();
@@ -162,10 +158,10 @@ public class PostActivity extends AppCompatActivity {
 
         //TODO: 임시 commentList 생성(commentList는 Post와 연결되어 있어야 함)
             commentList = new ArrayList<>();
-            commentList.add(new CommentInfo("", "테이비1", "XXX동", "2021.05.16 20:00", "@tave1 첫 번째 댓글입니다!"));
-            commentList.add(new CommentInfo("", "테이비2", "XX동", "2021.05.17 13:00", "두 번째 댓글@tave2 입니다!"));
-            commentList.add(new CommentInfo("", "테이비3", "XXX동", "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
-            commentList.add(new CommentInfo("", "테이비4", "XX동", "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
+            commentList.add(new CommentInfo(new UserInfo(null, "테이비1", "한남동"), "2021.05.16 20:00", "@tave1 첫 번째 댓글입니다!"));
+            commentList.add(new CommentInfo(new UserInfo(null, "테이비2", "신사동"), "2021.05.17 13:00", "두 번째 댓글@tave2 입니다!"));
+            commentList.add(new CommentInfo(new UserInfo(null, "테이비", "XXXX동"), "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
+            commentList.add(new CommentInfo(new UserInfo(null, "테이비3", "XXX동"), "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
 
         rvComments = findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
@@ -251,8 +247,7 @@ public class PostActivity extends AppCompatActivity {
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
                 String date = sdf.format(calendar.getTime());
 
-                commentList.add(new CommentInfo(seeUserInfo.getUserProfileUrl(), seeUserInfo.getUserName(), seeUserInfo.getUserTown(),
-                        date, writeComment));
+                commentList.add(new CommentInfo(seeUserInfo, date, writeComment));
                 commentAdapter.notifyDataSetChanged();
 
                 tvCommentNums.setText(String.valueOf(commentList.size()));      //TODO: 추후에 postInfo와 CommentInfo를 연동해야 함!!
@@ -350,15 +345,11 @@ public class PostActivity extends AppCompatActivity {
 
         if (isEdit) {
             tvAddPhotos.setVisibility(View.VISIBLE);
-            tvTag.setVisibility(View.VISIBLE);
-            etTag.setVisibility(View.VISIBLE);
             rvComments.setVisibility(View.GONE);
             llWriteComment.setVisibility(View.GONE);
         }
         else {
             tvAddPhotos.setVisibility(View.GONE);
-            tvTag.setVisibility(View.GONE);
-            etTag.setVisibility(View.GONE);
             rvComments.setVisibility(View.VISIBLE);
             llWriteComment.setVisibility(View.VISIBLE);
         }
