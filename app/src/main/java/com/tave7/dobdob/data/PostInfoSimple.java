@@ -48,7 +48,7 @@ public class PostInfoSimple implements Parcelable {
     };
 
     public UserInfo getWriterInfo() { return writerInfo; }
-    //public byte[] getWriterProfileUrl() { return writerInfo.getUserProfileUrl(); }
+    public byte[] getWriterProfileUrl() { return writerInfo.getUserProfileUrl(); }
     public String getWriterName() { return writerInfo.getUserName(); }
     public String getWriterTown() { return writerInfo.getUserTown(); }
     public String getPostTime() { return postTime; }

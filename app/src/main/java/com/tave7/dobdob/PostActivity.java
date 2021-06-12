@@ -33,6 +33,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.tave7.dobdob.adapter.CommentRecyclerAdapter;
 import com.tave7.dobdob.adapter.PostPhotosPagerAdapter;
 import com.tave7.dobdob.data.CommentInfo;
+import com.tave7.dobdob.data.PostInfoDetail;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
@@ -46,23 +47,21 @@ import me.relex.circleindicator.CircleIndicator3;
 
 public class PostActivity extends AppCompatActivity {
     UserInfo seeUserInfo;
-    PostInfoSimple postInfo;        //TODO: PostInfoDetail로 변경해야 함!
+    PostInfoDetail postInfoDetail;
     Menu menu;
     boolean isWriter = false;
     boolean isEdit = false, isClickedHeart = false;     //현재 글 수정중인지 || 현재 글에 대해 하트를 눌렀는 지
     boolean isDeleted = false;      //MainActivity에 전달해야 함(글을 삭제했는 지)
 
-    NestedScrollView svEntirePost;
-    EditText etTitle, etContent;
-    TextView tvAddPhotos, tvHeartNums, tvCommentNums;
     CircleIndicator3 indicator;
-    PostPhotosPagerAdapter photoAdapter;
-    ImageView ivHeart;
-    RecyclerView rvComments;
     CommentRecyclerAdapter commentAdapter;
+    EditText etTitle, etContent;
+    ImageView ivHeart;
     LinearLayout llTag, llWriteComment;
-
-    ArrayList<CommentInfo> commentList = null;
+    NestedScrollView svEntirePost;
+    PostPhotosPagerAdapter photoAdapter;
+    RecyclerView rvComments;
+    TextView tvAddPhotos, tvHeartNums, tvCommentNums;
     
     @SuppressLint("SetTextI18n")
     @Override
@@ -71,31 +70,37 @@ public class PostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_post);
 
         seeUserInfo = (UserInfo) getIntent().getParcelableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
-        postInfo = (PostInfoSimple) getIntent().getParcelableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
+        PostInfoSimple postInfo = (PostInfoSimple) getIntent().getParcelableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
+        postInfoDetail = new PostInfoDetail(postInfo, "내용입니다아아앙~~\n...\n...");     //깊은 복사
+        //TODO: DB로부터 해당 post의 내용을 전체 다 받아옴(comment와 content, 사진들 받아야 함!)
 
-        isWriter = seeUserInfo.getUserName().equals(postInfo.getWriterName());
+        isWriter = seeUserInfo.getUserName().equals(postInfoDetail.getPostInfoSimple().getWriterName());
 
         svEntirePost = findViewById(R.id.post_scrollView);
         CircleImageView civWriterProfile = findViewById(R.id.post_writerProfile);
-            //TODO: postInfo.getWriterProfile()를 통해 사진 설정
+            if (postInfoDetail.getPostInfoSimple().getWriterProfileUrl() != null) {
+                //TODO: postInfo.getWriterProfile()를 통해 사진 설정  -> 확인해야 함!!!!!!!!!!!
+                Bitmap writerProfile = BitmapFactory.decodeByteArray(postInfoDetail.getPostInfoSimple().getWriterProfileUrl(), 0, postInfoDetail.getPostInfoSimple().getWriterProfileUrl().length);
+                civWriterProfile.setImageBitmap(writerProfile);
+            }
         TextView tvWriterName = findViewById(R.id.post_writerName);
-            tvWriterName.setText(postInfo.getWriterName());
+            tvWriterName.setText(postInfoDetail.getPostInfoSimple().getWriterName());
         TextView tvWriterTown = findViewById(R.id.post_writerTown);
-            tvWriterTown.setText(postInfo.getWriterTown());
+            tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
         etTitle = findViewById(R.id.post_title);
-            etTitle.setText(postInfo.getPostTitle());
+            etTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
         etContent = findViewById(R.id.post_content);
-            //TODO: etContent에 대해서 저장해야 함
+            etContent.setText(postInfoDetail.getPostContent());
         tvAddPhotos = findViewById(R.id.post_addPhotos);        //사진 추가 버튼
             tvAddPhotos.setVisibility(View.GONE);
         indicator = findViewById(R.id.indicator);
         tvHeartNums = findViewById(R.id.post_heartNum);
-            tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
+            tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
         tvCommentNums = findViewById(R.id.post_commentNum);
-            tvCommentNums.setText(String.valueOf(postInfo.getCommentNum()));        //TODO: 수정 요망!
+            tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));        //TODO: 수정 요망!
         llTag = findViewById(R.id.post_LinearTag);
-            if (postInfo.getPostTag().size() != 0) {
-                for (String tagName : postInfo.getPostTag()){
+            if (postInfoDetail.getPostInfoSimple().getPostTag().size() != 0) {
+                for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
                     TextView tvTag = new TextView(PostActivity.this);
                     tvTag.setText("#"+tagName+" ");
                     tvTag.setTypeface(null, Typeface.BOLD);
@@ -131,7 +136,7 @@ public class PostActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
 
-        //TODO: 임시 photoList생성      ->   postInfo.get()을 통해 사진을 받아와서 Bitmap으로 adapter에 연결함
+        //TODO: 임시 photoList생성      ->   postInfoDetail.get()을 통해 사진을 받아와서 Bitmap으로 adapter에 연결함
         ArrayList<Bitmap> photoList = new ArrayList<>();
             Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.logo);
             photoList.add(icon);
@@ -144,7 +149,7 @@ public class PostActivity extends AppCompatActivity {
         photoAdapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
 
         ivHeart = findViewById(R.id.post_ivHeart);
-        for (String user: postInfo.getHeartUsers()) {
+        for (String user: postInfoDetail.getPostInfoSimple().getHeartUsers()) {
             if (user.equals(seeUserInfo.getUserName())) {
                 isClickedHeart = true;
                 break;
@@ -156,17 +161,16 @@ public class PostActivity extends AppCompatActivity {
             ivHeart.setImageResource(R.drawable.heart_empty);
         
 
-        //TODO: 임시 commentList 생성(commentList는 Post와 연결되어 있어야 함)
-            commentList = new ArrayList<>();
-            commentList.add(new CommentInfo(new UserInfo(null, "테이비1", "한남동"), "2021.05.16 20:00", "@tave1 첫 번째 댓글입니다!"));
-            commentList.add(new CommentInfo(new UserInfo(null, "테이비2", "신사동"), "2021.05.17 13:00", "두 번째 댓글@tave2 입니다!"));
-            commentList.add(new CommentInfo(new UserInfo(null, "테이비", "XXXX동"), "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
-            commentList.add(new CommentInfo(new UserInfo(null, "테이비3", "XXX동"), "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
+        //TODO: 임시 comment들 생성
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(null, "테이비1", "한남동"), "2021.05.16 20:00", "@tave1 첫 번째 댓글입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(null, "테이비2", "신사동"), "2021.05.17 13:00", "두 번째 댓글@tave2 입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(null, "테이비", "XXXX동"), "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(null, "테이비3", "XXX동"), "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
 
         rvComments = findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvComments.setLayoutManager(manager);
-        commentAdapter = new CommentRecyclerAdapter(commentList, seeUserInfo);
+        commentAdapter = new CommentRecyclerAdapter(postInfoDetail.getComments(), seeUserInfo);
         rvComments.setAdapter(commentAdapter);      //어댑터 등록
         rvComments.addItemDecoration(new DividerItemDecoration(PostActivity.this, 1));
 
@@ -206,15 +210,15 @@ public class PostActivity extends AppCompatActivity {
 
             if (isClickedHeart) {
                 ivHeart.setImageResource(R.drawable.heart_full);
-                postInfo.getHeartUsers().add(seeUserInfo.getUserName());
-                tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
+                postInfoDetail.getPostInfoSimple().getHeartUsers().add(seeUserInfo.getUserName());
+                tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
 
                 //TODO: DB에 저장하고 수정 + MainActivity에서도 변경된 값을 갖고 있도록 해야함!
             }
             else {
                 ivHeart.setImageResource(R.drawable.heart_empty);
-                postInfo.getHeartUsers().remove(seeUserInfo.getUserName());
-                tvHeartNums.setText(String.valueOf(postInfo.getHeartUsers().size()));
+                postInfoDetail.getPostInfoSimple().getHeartUsers().remove(seeUserInfo.getUserName());
+                tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
 
                 //TODO: DB에 저장하고 수정
             }
@@ -247,10 +251,10 @@ public class PostActivity extends AppCompatActivity {
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
                 String date = sdf.format(calendar.getTime());
 
-                commentList.add(new CommentInfo(seeUserInfo, date, writeComment));
+                postInfoDetail.getComments().add(new CommentInfo(seeUserInfo, date, writeComment));
                 commentAdapter.notifyDataSetChanged();
 
-                tvCommentNums.setText(String.valueOf(commentList.size()));      //TODO: 추후에 postInfo와 CommentInfo를 연동해야 함!!
+                tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
                 etWriteComment.setText("");
 
                 svEntirePost.post(() -> {
