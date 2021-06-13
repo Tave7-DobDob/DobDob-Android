@@ -15,7 +15,7 @@ public class PostInfoDetail implements Parcelable {
         this.postInfoSimple = postInfoSimple;
         this.postContent = postContent;
 
-        postPhotos = new ArrayList<byte[]>();       //TODO: 넘어가나 확인 요망!!
+        postPhotos = new ArrayList<byte[]>();
         comments = new ArrayList<CommentInfo>();
         //this.comments = comments;
     }
@@ -26,7 +26,7 @@ public class PostInfoDetail implements Parcelable {
         postPhotos = new ArrayList<byte[]>();
         postPhotos = (ArrayList<byte[]>) in.readSerializable();
         comments = new ArrayList<CommentInfo>();
-        in.readTypedList(comments, CommentInfo.CREATOR);        //Comment확인 요망!!
+        in.readTypedList(comments, CommentInfo.CREATOR);
     }
 
 
@@ -46,6 +46,8 @@ public class PostInfoDetail implements Parcelable {
     public String getPostContent() { return postContent; }
     public ArrayList<byte[]> getPostPhotos() { return postPhotos; }
     public ArrayList<CommentInfo> getComments() { return comments; }
+
+    public void setPostContent(String postContent) { this.postContent = postContent; }
 
     @Override
     public int describeContents() { return 0; }

@@ -25,6 +25,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.tave7.dobdob.data.PostInfoDetail;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -34,7 +35,7 @@ public class PostingActivity extends AppCompatActivity {
 
     private ArrayList<String> tmpTag = null;    //글 작성 페이지일 때
     private ArrayList<Bitmap> tmpPhotos = null; //수정하는 페이지인 경우에도 사용
-    private boolean isEditingPost = false;      //현재 페이지가 글 수정 페이지인 지 여부
+    private boolean isEditingPost = false, isCompleted = false, isChangedPhoto = false;
     private PostInfoDetail editPostInfo = null;
 
     private com.nex3z.flowlayout.FlowLayout flTags;
@@ -43,6 +44,7 @@ public class PostingActivity extends AppCompatActivity {
     private LinearLayout llShowPhotos, llTown, llPhotos;
     private TextView tvPhotos, tvTown;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,8 +84,9 @@ public class PostingActivity extends AppCompatActivity {
             if (editPostInfo.getPostPhotos().size() > 0)
                 llShowPhotos.setVisibility(View.VISIBLE);
             for (byte[] photo : editPostInfo.getPostPhotos()) {
-                Bitmap bmp = BitmapFactory.decodeByteArray(photo, 0, photo.length);
-                tmpPhotos.add(bmp);     //tmpPhotos에 일시저장
+                //TODO: DB 사진 서버로 갔다 와야함!!!!(서버 경로로 저장해야 함!!!!)
+                Bitmap bmp = BitmapFactory.decodeByteArray(photo, 0, photo.length);     //byte[]를 bitmap으로 변환
+                tmpPhotos.add(bmp);
                 @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_photo, null);
                 ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()),
                         (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
@@ -93,8 +96,10 @@ public class PostingActivity extends AppCompatActivity {
                 ivPhoto.setImageBitmap(bmp);
                 ImageView ivCancel = (ImageView) view.findViewById(R.id.photo_cancel);
                 ivCancel.setOnClickListener(v -> {
+                    isChangedPhoto = true;
+
                     llShowPhotos.removeView((View) v.getParent());
-                    tmpPhotos.remove(bmp);      //TODO: 해당 사진이 삭제되는 지 확인해야함!!!!!
+                    tmpPhotos.remove(bmp);
                     tvPhotos.setText("사진("+tmpPhotos.size()+"/5)");
 
                     if (tmpPhotos.size() == 0)
@@ -127,21 +132,53 @@ public class PostingActivity extends AppCompatActivity {
         ivCancel.setOnClickListener(v -> finish());
         
         TextView ivComplete = (TextView) toolbar.findViewById(R.id.toolbar_complete);
-        ivComplete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO: 글쓰기 완료버튼과 같은 기능을 해야 함(제목과 content가 있는지 확인, 위치를 저장했는지 확인) -> DB에 전달
-                //사진, 태그는 없어도 됨
-                if (isEditingPost) {
-                    //글 수정 완료
-                    //TODO: tmpPhotos의 모든 사진들을 BitmapToByte를 통해 변환해 다시 editPostInfo에 저장함
-                    // (이후에 finish()하기 전에 intent를 통해 editPostInfo가 반환되도록)
+        ivComplete.setOnClickListener(v -> {
+            //TODO: 글쓰기 완료버튼과 같은 기능을 해야 함(제목과 content가 있는지 확인, 위치를 저장했는지 확인) -> DB에 전달
+            //사진, 태그는 없어도 됨
+            if (isEditingPost) {    //글 수정 완료
+                isCompleted = true;
+
+                editPostInfo.getPostInfoSimple().setPostTitle(etTitle.getText().toString());    //제목 변경
+                if (isChangedPhoto) {                                                           //사진 변경 -> 서버로 저장된 Uri를 저장해야 함!
+                    editPostInfo.getPostPhotos().clear();
+
+                    for (Bitmap bitmap : tmpPhotos) {
+                        editPostInfo.getPostPhotos().add(bitmapToByte(bitmap));
+                    }
                 }
-                else {
-                    //글쓰기 완료버튼과 같음
-                }
+                editPostInfo.setPostContent(etContent.getText().toString());                    //내용 변경
+                editPostInfo.getPostInfoSimple().setWriterTown(tvTown.getText().toString());    //동네 변경
+                //TODO: DB에 바뀐 내용을 저장해야 함 -> 제목,내용,사진추가 등
+                //TODO: DB에 전달함!!!
+
+                finish();
+            }
+            else {
+                isCompleted = true;
+
+                //TODO: 글쓰기 완료버튼과 같음 -> DB에 값을 전달함 -> 저장되어야 함!(MainActivity에 DB로부터 최신 정보를 받아옴)
+                finish();
             }
         });
+    }
+
+    @Override
+    public void finish() {
+        if (isCompleted) {
+            Intent intentComplete = new Intent();
+            if (isEditingPost) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("postInfo", editPostInfo);
+                intentComplete.putExtras(bundle);
+            }
+            setResult(RESULT_OK, intentComplete);
+        }
+        else {
+            Intent returnIntent = new Intent();
+            setResult(RESULT_CANCELED, returnIntent);
+        }
+
+        super.finish();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -155,11 +192,8 @@ public class PostingActivity extends AppCompatActivity {
         });
 
         //TODO: 동 내용(tvTown) 클릭
-        llTown.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO: 위치 지정 혹은 선택 위치 지정
-            }
+        llTown.setOnClickListener(v -> {
+            //TODO: 위치 지정 혹은 선택 위치 지정
         });
 
         llPhotos.setOnClickListener(v -> {
@@ -183,25 +217,35 @@ public class PostingActivity extends AppCompatActivity {
                 if (s.length()>0 && s.charAt(s.length()-1)==' ') {
                     String tag = s.toString().trim();   //앞뒤 공백 제거
                     if (tag.length() > 0) {
-                        //TODO: 중복시에는 추가되지 않게 해줘야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        if (isEditingPost)
-                            editPostInfo.getPostInfoSimple().getPostTag().add(tag);
-                        else
-                            tmpTag.add(tag);
+                        boolean canAddTag = false;
+                        if (isEditingPost) {
+                            if (!editPostInfo.getPostInfoSimple().getPostTag().contains(tag)) {
+                                canAddTag = true;
+                                editPostInfo.getPostInfoSimple().getPostTag().add(tag);
+                            }
+                        }
+                        else {
+                            if (!tmpTag.contains(tag)) {
+                                canAddTag = true;
+                                tmpTag.add(tag);
+                            }
+                        }
 
-                        @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_tag, null);
-                        TextView tvTag = (TextView) view.findViewById(R.id.tag_tagName);
-                        tvTag.setText(tag);
-                        ImageView ivCancel = (ImageView) view.findViewById(R.id.tag_cancel);
-                        ivCancel.setOnClickListener(v -> {
-                            flTags.removeView((View) v.getParent());
+                        if (canAddTag) {
+                            @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_tag, null);
+                            TextView tvTag = (TextView) view.findViewById(R.id.tag_tagName);
+                            tvTag.setText(tag);
+                            ImageView ivCancel = (ImageView) view.findViewById(R.id.tag_cancel);
+                            ivCancel.setOnClickListener(v -> {
+                                flTags.removeView((View) v.getParent());
 
-                            if (isEditingPost)
-                                editPostInfo.getPostInfoSimple().getPostTag().remove(tag);
-                            else
-                                tmpTag.remove(tag);
-                        });
-                        flTags.addView(view);
+                                if (isEditingPost)
+                                    editPostInfo.getPostInfoSimple().getPostTag().remove(tag);
+                                else
+                                    tmpTag.remove(tag);
+                            });
+                            flTags.addView(view);
+                        }
 
                         etTag.setText("");
                     }
@@ -215,14 +259,23 @@ public class PostingActivity extends AppCompatActivity {
         });
     }
 
+    public byte[] bitmapToByte(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK){
             try {
-                InputStream is = getContentResolver().openInputStream(data.getData());
+                InputStream is = getContentResolver().openInputStream(Objects.requireNonNull(data).getData());
                 Bitmap photo = BitmapFactory.decodeStream(is);
                 is.close();
+
+                isChangedPhoto = true;
 
                 tmpPhotos.add(photo);
                 tvPhotos.setText("사진("+tmpPhotos.size()+"/5)");

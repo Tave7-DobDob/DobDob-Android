@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -62,7 +63,7 @@ public class PostActivity extends AppCompatActivity {
     NestedScrollView svEntirePost;
     PostPhotosPagerAdapter photoAdapter;
     RecyclerView rvComments;
-    TextView tvHeartNums, tvCommentNums;
+    TextView tvWriterTown, tvTitle, tvContent, tvHeartNums, tvCommentNums;
     
     @SuppressLint("SetTextI18n")
     @Override
@@ -72,7 +73,7 @@ public class PostActivity extends AppCompatActivity {
 
         seeUserInfo = (UserInfo) getIntent().getParcelableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
         PostInfoSimple postInfo = (PostInfoSimple) getIntent().getParcelableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
-        postInfoDetail = new PostInfoDetail(postInfo, "내용입니다아아앙~~\n...\n...");     //깊은 복사
+        postInfoDetail = new PostInfoDetail(postInfo, "내용입니다아아앙~~\n...\n...");     //얕은 복사
 
         //*********************************예시로 쓰는 사진들**************************************************
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -95,11 +96,11 @@ public class PostActivity extends AppCompatActivity {
             }
         TextView tvWriterName = findViewById(R.id.post_writerName);
             tvWriterName.setText(postInfoDetail.getPostInfoSimple().getWriterName());
-        TextView tvWriterTown = findViewById(R.id.post_writerTown);
+        tvWriterTown = findViewById(R.id.post_writerTown);
             tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
-        TextView tvTitle = findViewById(R.id.post_title);
+        tvTitle = findViewById(R.id.post_title);
             tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
-        TextView tvContent = findViewById(R.id.post_content);
+        tvContent = findViewById(R.id.post_content);
             tvContent.setText(postInfoDetail.getPostContent());
         indicator = findViewById(R.id.indicator);
         tvHeartNums = findViewById(R.id.post_heartNum);
@@ -107,32 +108,8 @@ public class PostActivity extends AppCompatActivity {
         tvCommentNums = findViewById(R.id.post_commentNum);
             tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
         llTag = findViewById(R.id.post_LinearTag);
-            if (postInfoDetail.getPostInfoSimple().getPostTag().size() != 0) {
-                for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
-                    TextView tvTag = new TextView(PostActivity.this);
-                    tvTag.setText("#"+tagName+" ");
-                    tvTag.setTypeface(null, Typeface.BOLD);
-                    tvTag.setTextColor(Color.parseColor("#5AAEFF"));
-                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                    tvTag.setLayoutParams(layoutParams);
-                    llTag.addView(tvTag);
-
-                    /*  TODO: 태그 검색이 가능하게 할 것인가?!
-                    tvTag.setOnClickListener(v -> {
-                        String searchTag = tvTag.getText().toString().substring(1, tvTag.getText().length()-1);
-
-                        Intent showContainTagPost = new Intent(PostActivity.this, TagPostActivity.class);
-                        Bundle sctBundle = new Bundle();
-                            sctBundle.putString("tagName", searchTag);
-                            sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));       //어떻게?
-                            sctBundle.putParcelable("userInfo", seeUserInfo);
-                        showContainTagPost.putExtras(sctBundle);
-                        startActivity(showContainTagPost);
-                        finish();
-                    });
-                     */
-                }
-            }
+            if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0)
+                SettingTags();
             else
                 llTag.setVisibility(View.GONE);
         llWriteComment = findViewById(R.id.post_writeCommentL);
@@ -157,7 +134,7 @@ public class PostActivity extends AppCompatActivity {
                 break;
             }
         }
-        if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우(TODO: 사용자 설정해야함)
+        if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
             ivHeart.setImageResource(R.drawable.heart_full);
         else
             ivHeart.setImageResource(R.drawable.heart_empty);
@@ -262,9 +239,36 @@ public class PostActivity extends AppCompatActivity {
         });
     }
 
+    public void SettingTags() {
+        for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
+            TextView tvTag = new TextView(PostActivity.this);
+            tvTag.setText("#"+tagName+" ");
+            tvTag.setTypeface(null, Typeface.BOLD);
+            tvTag.setTextColor(Color.parseColor("#5AAEFF"));
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            tvTag.setLayoutParams(layoutParams);
+            llTag.addView(tvTag);
+
+            /*  TODO: 태그 검색이 가능하게 할 것인가?!
+            tvTag.setOnClickListener(v -> {
+                String searchTag = tvTag.getText().toString().substring(1, tvTag.getText().length()-1);
+
+                Intent showContainTagPost = new Intent(PostActivity.this, TagPostActivity.class);
+                Bundle sctBundle = new Bundle();
+                    sctBundle.putString("tagName", searchTag);
+                    sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));       //어떻게?
+                    sctBundle.putParcelable("userInfo", seeUserInfo);
+                showContainTagPost.putExtras(sctBundle);
+                startActivity(showContainTagPost);
+                finish();
+            });
+             */
+        }
+    }
+
     @Override
     public void finish() {
-        //변경 내용이 있다면 보내줌(있으면 true 전달, 없으면 false 전달 -> Main에서 처리하게 함!)
+        //변경 내용이 있다면 보내줌(있으면 true 전달, 없으면 false 전달 -> Main에서 처리하게 함!, MyPage에서 처리!)
         //if (isDeleted)        //글을 삭제했다고 Main에 전달해야 함!!(메인의 postList를 갱신해야 함)
 
         super.finish();
@@ -294,8 +298,8 @@ public class PostActivity extends AppCompatActivity {
             case R.id.postEdit: {
                 Intent editPost = new Intent(PostActivity.this, PostingActivity.class);
                 Bundle epBundle = new Bundle();
-                epBundle.putBoolean("isEditingPost", true);
-                epBundle.putParcelable("postInfo", postInfoDetail);
+                    epBundle.putBoolean("isEditingPost", true);
+                    epBundle.putParcelable("postInfo", postInfoDetail);
                 editPost.putExtras(epBundle);
                 startActivityForResult(editPost, POST_EDIT_REQUEST);        //PostingActivity 화면으로 넘어감!
 
@@ -320,6 +324,27 @@ public class PostActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    //TODO: 수정을 했다면 Posting으로부터 수정 내용을 받아옴!!!!!
-    //TODO: DB에 바뀐 내용을 저장해야 함 -> 제목,내용,사진추가 등
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == POST_EDIT_REQUEST && resultCode == RESULT_OK) {
+            postInfoDetail = data.getExtras().getParcelable("postInfo");
+            tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
+            tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
+            tvContent.setText(postInfoDetail.getPostContent());
+            photoAdapter.changePhotoList(postInfoDetail.getPostPhotos());    //List의 주소가 변경됐으므로 이 주소로 설정해야 함!
+            photoAdapter.notifyDataSetChanged();
+            commentAdapter.changeCommentList(postInfoDetail.getComments());
+            commentAdapter.notifyDataSetChanged();
+            if (postInfoDetail.getPostInfoSimple().getPostTag().size() == 0)
+                llTag.setVisibility(View.GONE);
+            else {
+                llTag.setVisibility(View.VISIBLE);
+                llTag.removeAllViews();     //태그들 모두 초기화
+                SettingTags();
+            }
+        }
+    }
 }

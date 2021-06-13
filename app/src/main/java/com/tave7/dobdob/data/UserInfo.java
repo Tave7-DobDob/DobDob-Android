@@ -4,9 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class UserInfo implements Parcelable {
-    private byte[] userProfileUrl;
+    private byte[] userProfileUrl; //TODO: 추후에 Uri로 변경해야 함!
     private String userName;
-    private String userTown;       //XX동
+    private String userTown;       //XX동 -> 마이페이지 설정 town 혹은 실제 writerTown이 저장될 수 있음
 
     public UserInfo(byte[] userProfileUrl, String userName, String userTown) {
         this.userProfileUrl = userProfileUrl;       //userProfileUrl값이 null이라면 기본 R.drawable.user_image 사용해야 함

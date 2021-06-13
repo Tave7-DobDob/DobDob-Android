@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            else if (requestCode == POST_REQUEST){
+            else if (requestCode == POST_REQUEST) {
                 Log.i("확인용", "post_request");
             }
         }

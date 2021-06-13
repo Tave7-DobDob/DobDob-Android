@@ -112,9 +112,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
                         Intent showContainTagPost = new Intent(context, TagPostActivity.class);
                         Bundle sctBundle = new Bundle();
-                        sctBundle.putString("tagName", searchTag);
-                        sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));
-                        sctBundle.putParcelable("userInfo", userInfo);
+                            sctBundle.putString("tagName", searchTag);
+                            sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));
+                            sctBundle.putParcelable("userInfo", userInfo);
                         showContainTagPost.putExtras(sctBundle);
                         context.startActivity(showContainTagPost);
                     }
@@ -193,9 +193,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     //TODO: DB에 post 작성자의 이름과 시간을 전달한 후에, 해당 내용을 받아옴
                     Intent showPostPage = new Intent(context, PostActivity.class);
                     Bundle sppBundle = new Bundle();
-                    sppBundle.putParcelable("seeUserInfo", userInfo);
-                    //sppBundle.putParcelable("postInfoDetail", postInfoDetail);        //PostInfoDetail postInfoDetail;
-                    sppBundle.putParcelable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
+                        sppBundle.putParcelable("seeUserInfo", userInfo);
+                        //sppBundle.putParcelable("postInfoDetail", postInfoDetail);        //PostInfoDetail postInfoDetail;
+                        sppBundle.putParcelable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
                     showPostPage.putExtras(sppBundle);
                     ((MainActivity)context).startActivityForResult(showPostPage, POST_REQUEST);     //해당 글 창으로 넘어감  -> 안됨!!!!!!!!!!
                 }

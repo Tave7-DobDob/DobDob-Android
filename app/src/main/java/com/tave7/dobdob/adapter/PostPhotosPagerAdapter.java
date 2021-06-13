@@ -1,6 +1,5 @@
 package com.tave7.dobdob.adapter;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.BitmapFactory;
@@ -9,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,11 +18,13 @@ import java.util.ArrayList;
 
 public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPagerAdapter.PhotosViewHolder> {
     private Context context;
-    private final ArrayList<byte[]> photoList;     //photo의 url이 변환된 byte[]형태로 저장돼있음
-    private boolean isEditable = false;
+    private ArrayList<byte[]> photoList;     //photo의 url이 변환된 byte[]형태로 저장돼있음 -> TODO: 추후에 Uri를 받도록 변경해야 함!
 
     public PostPhotosPagerAdapter(ArrayList<byte[]> photoList) { this.photoList = photoList; }
 
+    public void changePhotoList(ArrayList<byte[]> photoList) {
+        this.photoList = photoList;
+    }
     @NonNull
     @Override
     public PostPhotosPagerAdapter.PhotosViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -39,55 +39,24 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
 
     @Override
     public void onBindViewHolder(PostPhotosPagerAdapter.PhotosViewHolder holder, int position) {
+        //TODO: Uri를 Bitmap으로 변경해서 setImageBitmap을 해야 함!
         holder.ivPhoto.setImageBitmap(BitmapFactory.decodeByteArray(photoList.get(position), 0, photoList.get(position).length));
-
-        if (isEditable)
-            holder.tvPhotoDelete.setVisibility(View.VISIBLE);
-        else
-            holder.tvPhotoDelete.setVisibility(View.GONE);
     }
 
     @Override
     public int getItemCount() { return photoList.size(); }
 
-    public void changeIsEditable() {
-        isEditable = !isEditable;
-    }
-
     public class PhotosViewHolder extends RecyclerView.ViewHolder {
-        TextView tvPhotoDelete;
         ImageView ivPhoto;
 
         PhotosViewHolder(final View itemView) {
             super(itemView);
-            //TODO: 권한이 있고 수정상태여야 삭제 텍스트가 보임
-            tvPhotoDelete = (TextView) itemView.findViewById(R.id.tvPhotoDelete);
-            tvPhotoDelete.setOnClickListener(v -> {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("사진 삭제").setMessage("선택한 사진을 삭제하시겠습니까?");
-                builder.setPositiveButton("삭제", (dialog, which) -> {
-                    //TODO: DB에서 사진을 삭제한 것을 반영할 수 있게 해야 함
-                    int pos = getAdapterPosition();
-                    if (pos != RecyclerView.NO_POSITION) {
-                        photoList.remove(pos);
-                        notifyDataSetChanged();
-                    }
-                });
-                builder.setNegativeButton("취소", (dialog, id) -> {
-                    dialog.cancel();    //삭제가 되지 않음
-                });
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-            });
 
             ivPhoto = (ImageView) itemView.findViewById(R.id.ivPostPhoto);
-            //사진을 클릭했을 시
-            ivPhoto.setOnClickListener(v -> {
+            ivPhoto.setOnClickListener(v -> {   //사진을 클릭했을 시
                 //다이얼로그로 원본 사진을 보여줌
                 Dialog dialog = new Dialog(context);
                 dialog.setContentView(R.layout.item_photo_pager);
-                TextView photoDelete = (TextView) dialog.findViewById(R.id.tvPhotoDelete);
-                    photoDelete.setVisibility(View.GONE);
                 ImageView photo = (ImageView) dialog.findViewById(R.id.ivPostPhoto);
                     FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                     photo.setLayoutParams(param);

@@ -58,6 +58,8 @@ public class PostInfoSimple implements Parcelable {
     public ArrayList<String> getPostTag() { return postTag; }
 
     public void setWriterName(String writerName) { this.writerInfo.setUserName(writerName); }
+    public void setWriterTown(String writerTown) { this.writerInfo.setUserTown(writerTown); }
+    public void setPostTitle(String postTitle) { this.postTitle = postTitle; }
 
     @Override
     public int describeContents() { return 0; }

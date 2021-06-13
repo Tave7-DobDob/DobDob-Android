@@ -38,6 +38,10 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         this.seeUserInfo = seeUserInfo;
     }
 
+    public void changeCommentList(ArrayList<CommentInfo> commentList) {
+        this.commentList = commentList;
+    }
+
     @NonNull
     @Override
     public CommentRecyclerAdapter.CommentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

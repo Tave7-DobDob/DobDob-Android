@@ -30,7 +30,7 @@
         <activity android:name=".MainActivity"/>
         <activity android:name=".TagPostActivity"/>
         <activity android:name=".PostingActivity"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".PostActivity"/>
         <activity android:name=".MyPageActivity"/>
     </application>
