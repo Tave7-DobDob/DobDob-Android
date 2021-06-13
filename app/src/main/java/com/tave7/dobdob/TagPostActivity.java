@@ -37,7 +37,7 @@ public class TagPostActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        View customView = LayoutInflater.from(this).inflate(R.layout.main_actionbar, null);
+        View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
         actionBar.setCustomView(customView);
         ImageView ivGPS = (ImageView) toolbar.findViewById(R.id.toolbar_gpspointer);
             ivGPS.setVisibility(View.GONE);

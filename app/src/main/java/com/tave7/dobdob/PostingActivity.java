@@ -72,7 +72,7 @@ public class PostingActivity extends AppCompatActivity {
             Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
 
-        @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.posting_actionbar, null);
+        @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_posting, null);
         actionBar.setCustomView(customView);
         toolbarListener(toolbar);
 

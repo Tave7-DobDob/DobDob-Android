@@ -33,6 +33,7 @@
             android:windowSoftInputMode="adjustResize" />
         <activity android:name=".PostActivity"/>
         <activity android:name=".MyPageActivity"/>
+        <activity android:name=".ModifyProfileActivity"/>
     </application>
 
 </manifest>

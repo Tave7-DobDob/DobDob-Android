@@ -28,17 +28,16 @@
         app:layout_constraintLeft_toLeftOf="parent">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
 
             <LinearLayout
+                android:id="@+id/myPage_llUserInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="5dp"
-                android:focusable="true"
-                android:focusableInTouchMode="true">
+                android:padding="5dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -46,63 +45,32 @@
                     android:gravity="center_vertical"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal" >
-                    <LinearLayout
-                        android:layout_width="wrap_content"
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/myPage_userProfile"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:src="@drawable/user_image"
+                        app:civ_border_width="1dp"
+                        app:civ_border_color="#AAAAAA" />
+
+                    <View
+                        android:id="@+id/myPage_view"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
-                        <de.hdodenhof.circleimageview.CircleImageView
-                            android:id="@+id/myPage_userProfile"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:src="@drawable/user_image"
-                            app:civ_border_width="1dp"
-                            app:civ_border_color="#AAAAAA" />
-                        <TextView
-                            android:id="@+id/myPage_tvChangeProfile"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:text="프로필 사진 변경"
-                            android:textColor="#5CDCC9"/>
-                    </LinearLayout>
+                        android:layout_width="40dp"/>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="45dp"
-                        android:layout_marginEnd="45dp"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
+                        android:layout_marginEnd="40dp"
                         android:orientation="vertical" >
-
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/myPage_userName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-                            <TextView
-                                android:id="@+id/myPage_userName"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="닉네임"
-                                android:textSize="20sp"
-                                android:textStyle="bold"
-                                android:textColor="#000000"/>
-                            <androidx.appcompat.widget.AppCompatButton
-                                android:id="@+id/myPage_btCheckName"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="25dp"
-                                android:background="@drawable/bg_roundcorner"
-                                android:minHeight="0dp"
-                                android:minWidth="0dp"
-                                android:paddingTop="5dp"
-                                android:paddingBottom="5dp"
-                                android:paddingLeft="10dp"
-                                android:paddingRight="10dp"
-                                android:text="중복 확인"/>
-                        </LinearLayout>
+                            android:text="닉네임"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="#000000"/>
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -122,70 +90,40 @@
                                 android:layout_marginStart="5dp"
                                 android:text="XX동"
                                 android:textColor="#666666"/>
-                            <androidx.appcompat.widget.AppCompatButton
-                                android:id="@+id/myPage_btChangeTown"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="25dp"
-                                android:background="@drawable/bg_roundcorner"
-                                android:minHeight="0dp"
-                                android:minWidth="0dp"
-                                android:paddingTop="5dp"
-                                android:paddingBottom="5dp"
-                                android:paddingLeft="15dp"
-                                android:paddingRight="15dp"
-                                android:text="동네 재설정"/>
                         </LinearLayout>
-                        <TextView
-                            android:id="@+id/myPage_tvFullAddress"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:background="@drawable/bg_position_border"
-                            android:text="경기도 성남시 분당구 판교역로 지하160(백현동)"
-                            android:textColor="#999999"
-                            android:textSize="11sp"/>
                     </LinearLayout>
                 </LinearLayout>
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/myPage_btComplete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="25dp"
-                    android:background="@drawable/bg_roundcorner"
-                    android:minHeight="0dp"
-                    android:minWidth="0dp"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
-                    android:paddingLeft="20dp"
-                    android:paddingRight="20dp"
-                    android:text="완료"/>
+            </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:orientation="vertical">
                 <TextView
                     android:id="@+id/myPage_tvUserPost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="35dp"
+                    android:layout_gravity="center"
                     android:text="닉네임님이 작성한 글"
                     android:textStyle="bold"
                     android:textColor="#000000"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="#BCBCBC"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/myPagePosts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"/>
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:background="#BCBCBC"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/myPagePosts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"/>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

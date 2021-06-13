@@ -227,7 +227,6 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:background="@android:color/transparent"
-            android:bufferType="spannable"
             android:hint="댓글 달기.."
             android:inputType="text"
             android:textSize="15sp"

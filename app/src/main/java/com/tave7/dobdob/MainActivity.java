@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);    //기본 제목을 없앰
-        View customView = LayoutInflater.from(this).inflate(R.layout.main_actionbar, null);
+        View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
         actionBar.setCustomView(customView);
         toolbarListener(toolbar);
 
@@ -221,12 +221,15 @@ public class MainActivity extends AppCompatActivity {
                 if (data.getExtras().getString("userProfile").length()>0)
                     userInfo.setUserProfileUrl(data.getExtras().getString("userProfile"));
                  */
-                if (data.getExtras().getString("userName").length()>0)
+                if (data != null && data.hasExtra("userName")) {
                     userInfo.setUserName(data.getExtras().getString("userName"));
-                if (data.getExtras().getString("userTown").length()>0) {
-                    tvTown.setText(data.getExtras().getString("userTown"));
-                        //TODO: 동네에 대한 post가 바뀌어야 함
+                    //TODO: 동네에 대한 post가 갱신되어야 함(혹은 자기 이름의 post를 찾아 이름 변경!)
+                }
+                if (data != null && data.hasExtra("userTown")) {
                     userInfo.setUserTown(data.getExtras().getString("userTown"));
+                    tvTown.setText(userInfo.getUserTown());
+
+                    //TODO: 동네에 대한 post가 갱신되어야 함
                 }
             }
 
