@@ -7,19 +7,21 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.kakao.auth.AuthType;
-import com.kakao.auth.Session;
+import com.kakao.sdk.auth.model.OAuthToken;
+import com.kakao.sdk.user.UserApiClient;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 public class LoginActivity extends AppCompatActivity {
     Button kakaoLogin;
-    private SessionCallback sessionCallback = new SessionCallback();
-    Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,34 +48,59 @@ public class LoginActivity extends AppCompatActivity {
         }
          */
 
-        session = Session.getCurrentSession();
-        session.addCallback(sessionCallback);
+        /*
+        UserApiClient.getInstance().accessTokenInfo(new Function2<AccessTokenInfo, Throwable, Unit>() {     //토큰이 있을 시 자동로그인 가능
+            @Override
+            public Unit invoke(AccessTokenInfo accessTokenInfo, Throwable throwable) {
+                if (accessTokenInfo != null) {
+                    Log.i("확인용", "자동 로그인 가능!");
+                } else if (throwable != null) {
+                    Log.e("No Token", "Message : " + throwable.getLocalizedMessage());
+                }
+
+                return null;
+            }
+        });
+         */
 
         kakaoLogin = (Button) findViewById(R.id.btLogin);
         kakaoLogin.setOnClickListener(v -> {
-            sessionCallback.giveContext(LoginActivity.this);
-
-            if (Session.getCurrentSession().checkAndImplicitOpen()) {
-                Log.d("kakao", "onClick: 로그인 세션 살아있음");
-
-                //sessionCallback.requestMe();   TODO: 없어야 됨! 아니면 중복됨!! 추후에 확인!! -> SessionCallback을 그냥 호출함(onSuccess)
-            }
-            else {
-                Log.d("kakao", "onClick: 로그인 세션 끝남");
-
-                session.open(AuthType.KAKAO_LOGIN_ALL, LoginActivity.this);     //카카오 웹뷰가 보임
+            if (UserApiClient.getInstance().isKakaoTalkLoginAvailable(this)) {
+                UserApiClient.getInstance().loginWithKakaoTalk(this, kakaoCallback);
+            } else {
+                UserApiClient.getInstance().loginWithKakaoAccount(this, kakaoCallback);
             }
         });
 
         checkDangerousPermissions();
     }
 
-    @Override
-    protected void onDestroy() {
-        Session.getCurrentSession().removeCallback(sessionCallback);        //세션 콜백 삭제(TODO: 추후에 로그아웃 시 사용)
+    //카카오 로그인 콜백
+    Function2<OAuthToken, Throwable, Unit> kakaoCallback = (oAuthToken, throwable) -> {
+        if (oAuthToken != null) {
+            //TODO: DB에 토큰을 전달함
+            Log.i("확인용 기본 토큰", oAuthToken.toString());
 
-        super.onDestroy();
-    }
+            //TODO: 토큰을 먼저 만료되었는지 검사하고, 만료되었다면 토큰을 다시 전달해야 함
+
+
+            /*
+            PreferenceManager.setBoolean(this, "isDidLogin", true);
+            startActivity(new Intent(this, InitialSettingActivity.class));
+            finish();
+             */
+
+            //TODO: 이후에 삭제해야 하는 부분!!! 화면 보기 위해 추가된 코드!!
+            startActivity(new Intent(this, InitialSettingActivity.class));
+            finish();
+        }
+        else if (throwable != null) {
+            Toast.makeText(LoginActivity.this, "다시 한번 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+            Log.e("Login Error", "Message : " + throwable.getLocalizedMessage());
+        }
+
+        return null;
+    };
 
     private void checkDangerousPermissions() {      //권한 체크
         String temp = "";
