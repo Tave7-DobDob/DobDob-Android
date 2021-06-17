@@ -14,11 +14,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.gson.JsonObject;
 import com.kakao.sdk.auth.model.OAuthToken;
 import com.kakao.sdk.user.UserApiClient;
+import com.kakao.sdk.user.model.AccessTokenInfo;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function2;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
     Button kakaoLogin;
@@ -27,6 +35,9 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        kakaoLogin = (Button) findViewById(R.id.btLogin);
+        kakaoLogin.setEnabled(false);
 
         //TODO: DB로부터 사용자의 로그인 정보를 받아와 PreferenceManger를 통해 SharedPreferences 값을 업데이트함(userProfile, userName, userTown!)
         //TODO: InitialSettingActivity를 한 사용자 혹은 웹에서 회원가임 폼을 작성한 사용자라면 MainActivity가 바로 보일 수 있도록 함!
@@ -48,22 +59,24 @@ public class LoginActivity extends AppCompatActivity {
         }
          */
 
-        /*
+        //TODO: 유저 정보 SharedPreferences에 저장해야 함 -> getId()를 통해 회원 id를
         UserApiClient.getInstance().accessTokenInfo(new Function2<AccessTokenInfo, Throwable, Unit>() {     //토큰이 있을 시 자동로그인 가능
             @Override
             public Unit invoke(AccessTokenInfo accessTokenInfo, Throwable throwable) {
                 if (accessTokenInfo != null) {
                     Log.i("확인용", "자동 로그인 가능!");
+                    //TODO: 자동 로그인 되도록 하자!!!
+                    PreferenceManager.setLong(LoginActivity.this, "userID", accessTokenInfo.getId());   //회원 정보 저장
+                    Log.i("확인용ID", String.valueOf(accessTokenInfo.getId()));    //TODO 서버에서 이거로 로그인한 것이 식별 가능함!!
+                    //TODO: 서버로부터 로그인 정보를 받아옴
                 } else if (throwable != null) {
                     Log.e("No Token", "Message : " + throwable.getLocalizedMessage());
                 }
-
+                kakaoLogin.setEnabled(true);
                 return null;
             }
         });
-         */
 
-        kakaoLogin = (Button) findViewById(R.id.btLogin);
         kakaoLogin.setOnClickListener(v -> {
             if (UserApiClient.getInstance().isKakaoTalkLoginAvailable(this)) {
                 UserApiClient.getInstance().loginWithKakaoTalk(this, kakaoCallback);
@@ -78,10 +91,34 @@ public class LoginActivity extends AppCompatActivity {
     //카카오 로그인 콜백
     Function2<OAuthToken, Throwable, Unit> kakaoCallback = (oAuthToken, throwable) -> {
         if (oAuthToken != null) {
-            //TODO: DB에 토큰을 전달함
             Log.i("확인용 기본 토큰", oAuthToken.toString());
 
+            String scope = "";
+            JsonObject sendToken = new JsonObject();
+            sendToken.addProperty("access_token", oAuthToken.getAccessToken());
+            sendToken.addProperty("refresh_token", oAuthToken.getRefreshToken());
+            KakaoToken kakaoToken = new KakaoToken(sendToken);
+
             //TODO: 토큰을 먼저 만료되었는지 검사하고, 만료되었다면 토큰을 다시 전달해야 함
+            Call<String> postToken = RetrofitClient.getApiService().postKakaoToken(kakaoToken);
+            postToken.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    Log.i("확인용 연결성공1", response.toString());
+                    Log.i("확인용 연결성공2", response.body());
+                    if (response.code() == 201) {
+                        //TODO: 연결 성공 시 Initial로 감!! -> 웹이랑 연결???!?!!?!
+                    }
+                    else {
+                        //오류 처리
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.i("확인용 연결실패", t.getMessage());
+                }
+            });
 
 
             /*
@@ -89,18 +126,29 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(this, InitialSettingActivity.class));
             finish();
              */
-
+            /*
             //TODO: 이후에 삭제해야 하는 부분!!! 화면 보기 위해 추가된 코드!!
             startActivity(new Intent(this, InitialSettingActivity.class));
             finish();
+
+             */
         }
         else if (throwable != null) {
-            Toast.makeText(LoginActivity.this, "다시 한번 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
-            Log.e("Login Error", "Message : " + throwable.getLocalizedMessage());
+            Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
         }
 
         return null;
     };
+
+    public class KakaoToken {
+        JsonObject kakaoToken;
+
+        public KakaoToken(JsonObject kakaoToken) {
+            this.kakaoToken = kakaoToken;
+        }
+
+        public JsonObject getKakaoToken() { return kakaoToken; }
+    }
 
     private void checkDangerousPermissions() {      //권한 체크
         String temp = "";
