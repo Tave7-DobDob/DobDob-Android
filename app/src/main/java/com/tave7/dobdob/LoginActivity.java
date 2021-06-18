@@ -66,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (accessTokenInfo != null) {
                     Log.i("확인용", "자동 로그인 가능!");
                     //TODO: 자동 로그인 되도록 하자!!!
-                    PreferenceManager.setLong(LoginActivity.this, "userID", accessTokenInfo.getId());   //회원 정보 저장
+                    PreferenceManager.setLong(LoginActivity.this, "userID", accessTokenInfo.getId());   //회원 정보 저장->그럼 어디서 get하는가?
                     Log.i("확인용ID", String.valueOf(accessTokenInfo.getId()));    //TODO 서버에서 이거로 로그인한 것이 식별 가능함!!
                     //TODO: 서버로부터 로그인 정보를 받아옴
                 } else if (throwable != null) {
@@ -93,13 +93,11 @@ public class LoginActivity extends AppCompatActivity {
         if (oAuthToken != null) {
             Log.i("확인용 기본 토큰", oAuthToken.toString());
 
-            String scope = "";
             JsonObject sendToken = new JsonObject();
             sendToken.addProperty("access_token", oAuthToken.getAccessToken());
             sendToken.addProperty("refresh_token", oAuthToken.getRefreshToken());
             KakaoToken kakaoToken = new KakaoToken(sendToken);
 
-            //TODO: 토큰을 먼저 만료되었는지 검사하고, 만료되었다면 토큰을 다시 전달해야 함
             Call<String> postToken = RetrofitClient.getApiService().postKakaoToken(kakaoToken);
             postToken.enqueue(new Callback<String>() {
                 @Override
@@ -126,12 +124,10 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(this, InitialSettingActivity.class));
             finish();
              */
-            /*
+
             //TODO: 이후에 삭제해야 하는 부분!!! 화면 보기 위해 추가된 코드!!
             startActivity(new Intent(this, InitialSettingActivity.class));
             finish();
-
-             */
         }
         else if (throwable != null) {
             Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();

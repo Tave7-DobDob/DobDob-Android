@@ -2,11 +2,16 @@ package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,25 +22,41 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.tave7.dobdob.data.PhotoInfo;
 import com.tave7.dobdob.data.PostInfoDetail;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PostingActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
 
+    //TODO: File과 Bitmap을 같이 저장해야함! file->name을 받아와야 하기 때문에!
     private ArrayList<String> tmpTag = null;    //글 작성 페이지일 때
-    private ArrayList<Bitmap> tmpPhotos = null; //수정하는 페이지인 경우에도 사용
-    private boolean isEditingPost = false, isCompleted = false, isChangedPhoto = false;
+    private ArrayList<PhotoInfo> tmpPhotos = null; //수정하는 페이지인 경우에도 사용(boolean, File, Bitmap)
+    private boolean isEditingPost = false, isCompleted = false;
     private PostInfoDetail editPostInfo = null;
 
     private com.nex3z.flowlayout.FlowLayout flTags;
@@ -84,9 +105,10 @@ public class PostingActivity extends AppCompatActivity {
             if (editPostInfo.getPostPhotos().size() > 0)
                 llShowPhotos.setVisibility(View.VISIBLE);
             for (byte[] photo : editPostInfo.getPostPhotos()) {
-                //TODO: DB 사진 서버로 갔다 와야함!!!!(서버 경로로 저장해야 함!!!!)
+                //TODO: DB 사진 서버로 갔다 와야함!!!!(서버 경로로 저장해야 함!!!!) --> 파일 한꺼번에 전달해야 함
                 Bitmap bmp = BitmapFactory.decodeByteArray(photo, 0, photo.length);     //byte[]를 bitmap으로 변환
-                tmpPhotos.add(bmp);
+                PhotoInfo tmpPhoto = new PhotoInfo(bmp);
+                tmpPhotos.add(tmpPhoto);
                 @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_photo, null);
                 ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()),
                         (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
@@ -96,10 +118,8 @@ public class PostingActivity extends AppCompatActivity {
                 ivPhoto.setImageBitmap(bmp);
                 ImageView ivCancel = (ImageView) view.findViewById(R.id.photo_cancel);
                 ivCancel.setOnClickListener(v -> {
-                    isChangedPhoto = true;
-
                     llShowPhotos.removeView((View) v.getParent());
-                    tmpPhotos.remove(bmp);
+                    tmpPhotos.remove(tmpPhoto);
                     tvPhotos.setText("사진("+tmpPhotos.size()+"/5)");
 
                     if (tmpPhotos.size() == 0)
@@ -133,30 +153,78 @@ public class PostingActivity extends AppCompatActivity {
         
         TextView ivComplete = (TextView) toolbar.findViewById(R.id.toolbar_complete);
         ivComplete.setOnClickListener(v -> {
-            //TODO: 글쓰기 완료버튼과 같은 기능을 해야 함(제목과 content가 있는지 확인, 위치를 저장했는지 확인) -> DB에 전달
-            //사진, 태그는 없어도 됨
-            if (isEditingPost) {    //글 수정 완료
-                isCompleted = true;
-
-                editPostInfo.getPostInfoSimple().setPostTitle(etTitle.getText().toString());    //제목 변경
-                if (isChangedPhoto) {                                                           //사진 변경 -> 서버로 저장된 Uri를 저장해야 함!
-                    editPostInfo.getPostPhotos().clear();
-
-                    for (Bitmap bitmap : tmpPhotos) {
-                        editPostInfo.getPostPhotos().add(bitmapToByte(bitmap));
-                    }
-                }
-                editPostInfo.setPostContent(etContent.getText().toString());                    //내용 변경
-                editPostInfo.getPostInfoSimple().setWriterTown(tvTown.getText().toString());    //동네 변경
-                //TODO: DB에 바뀐 내용을 저장해야 함 -> 제목,내용,사진추가 등
-                //TODO: DB에 전달함!!!
-
-                finish();
+            if (etTitle.getText().toString().trim().length() == 0) {
+                Toast.makeText(getApplicationContext(), "글 제목을 입력해 주세요:)", Toast.LENGTH_SHORT).show();
             }
+            else if (etContent.getText().toString().trim().length() == 0) {
+                Toast.makeText(getApplicationContext(), "글의 내용을 입력해 주세요:)", Toast.LENGTH_SHORT).show();
+            }
+            //else if (tvTown.getText().toString().equals("동네 설정")) {
+                //Toast.makeText(getApplicationContext(), "동네를 설정해 주세요:)", Toast.LENGTH_SHORT).show();
+            //}
             else {
-                isCompleted = true;
+                if (isEditingPost) {    //글 수정 완료
+                    isCompleted = true;
 
-                //TODO: 글쓰기 완료버튼과 같음 -> DB에 값을 전달함 -> 저장되어야 함!(MainActivity에 DB로부터 최신 정보를 받아옴)
+                    editPostInfo.getPostInfoSimple().setPostTitle(etTitle.getText().toString().trim());    //제목 변경
+                    boolean isChangedPhoto = false;     //새로 추가한 사진이 있는 경우
+                    for (PhotoInfo photo : tmpPhotos) {
+                        if (photo.getIsNew()) {
+                            isChangedPhoto = true;
+                            break;
+                        }
+                    }
+                    if (isChangedPhoto) {                                                           //사진 변경 -> 서버로 저장된 Uri를 저장해야 함!
+                        editPostInfo.getPostPhotos().clear();
+
+                        for (PhotoInfo photo : tmpPhotos) {
+                            editPostInfo.getPostPhotos().add(bitmapToByte(photo.getPhotoBM()));
+                        }
+                    }
+                    editPostInfo.setPostContent(etContent.getText().toString());                    //내용 변경
+                    editPostInfo.getPostInfoSimple().setWriterTown(tvTown.getText().toString());    //동네 변경
+                    //TODO: DB에 바뀐 내용을 저장해야 함 -> 제목,내용,사진추가 등
+                    //TODO: DB에 전달함!!!
+                }
+                else {      //글쓰기 완료
+                    isCompleted = true;
+
+                    //TODO: 사진 확인해봐야함!!!
+                    ArrayList<MultipartBody.Part> postImage = new ArrayList<>();
+                    for (PhotoInfo photo : tmpPhotos) {
+                        postImage.add(MultipartBody.Part.createFormData("postImage", photo.getPhotoFile().getName(), RequestBody.create(MediaType.parse("image/*"), photo.getPhotoFile())));
+                    }
+                    Map<String, RequestBody> dataMap = new HashMap<>();
+                    dataMap.put("userId", RequestBody.create(MediaType.parse("text/plain"), "1"));
+                    JsonObject jLocation = new JsonObject();
+                        //TODO: location생길 시에 변경 요망!!!
+                        jLocation.addProperty("si", "성남시");
+                        jLocation.addProperty("gu", "분당구");
+                        jLocation.addProperty("dong", "판교동");
+                    dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(jLocation)));
+                    dataMap.put("title", RequestBody.create(MediaType.parse("text/plain"), etTitle.getText().toString()));
+                    dataMap.put("content", RequestBody.create(MediaType.parse("text/plain"), etContent.getText().toString()));
+                    dataMap.put("createdAt", RequestBody.create(MediaType.parse("text/plain"), String.valueOf(new Date(System.currentTimeMillis()))));
+                    dataMap.put("tags", RequestBody.create(MediaType.parse("multipart/form-data"), new Gson().toJson(tmpTag)));
+
+                    Call<String> postNewPost = RetrofitClient.getApiService().postNewPost(postImage, dataMap);
+                    postNewPost.enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                            Log.i("Posting 연결성공1", response.toString());
+                            Log.i("Posting 연결성공1", response.body());
+                            if (response.code() == 201) {
+                                //TODO: DB에 글 업로드 완료:)라는 의미임
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                            Log.i("Posting 연결실패", t.getMessage());
+                        }
+                    });
+                }
+
                 finish();
             }
         });
@@ -164,7 +232,7 @@ public class PostingActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        if (isCompleted) {
+        if (isCompleted) {      //글 추가를 한 것이므로 새로고침 해야 함!
             Intent intentComplete = new Intent();
             if (isEditingPost) {
                 Bundle bundle = new Bundle();
@@ -271,12 +339,15 @@ public class PostingActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK){
             try {
+                Uri uri = Objects.requireNonNull(data).getData();
+                String photoPath = getRealPathFromURI(uri);
+
+                File file = new File(Objects.requireNonNull(photoPath));     //갤러리에서 선택한 파일
                 InputStream is = getContentResolver().openInputStream(Objects.requireNonNull(data).getData());
-                Bitmap photo = BitmapFactory.decodeStream(is);
+                Bitmap photoBM = BitmapFactory.decodeStream(is);
                 is.close();
 
-                isChangedPhoto = true;
-
+                PhotoInfo photo = new PhotoInfo(file, photoBM);
                 tmpPhotos.add(photo);
                 tvPhotos.setText("사진("+tmpPhotos.size()+"/5)");
 
@@ -289,7 +360,7 @@ public class PostingActivity extends AppCompatActivity {
                 params.rightMargin = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
                 view.setLayoutParams(params);
                 ImageView ivPhoto = (ImageView) view.findViewById(R.id.photo_iv);
-                    ivPhoto.setImageBitmap(photo);
+                    ivPhoto.setImageBitmap(photoBM);
                 ImageView ivCancel = (ImageView) view.findViewById(R.id.photo_cancel);
                 ivCancel.setOnClickListener(v -> {
                     llShowPhotos.removeView((View) v.getParent());
@@ -305,5 +376,22 @@ public class PostingActivity extends AppCompatActivity {
         } else if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED){
             Toast.makeText(this,"사진 선택 취소", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    //갤러리에서 선택한 사진의 절대경로를 반환함
+    private String getRealPathFromURI(Uri contentUri) {
+        if (contentUri.getPath().startsWith("/storage")) {
+            return contentUri.getPath();
+        }
+        String id = DocumentsContract.getDocumentId(contentUri).split(":")[1];
+        String[] columns = { MediaStore.Files.FileColumns.DATA };
+        String selection = MediaStore.Files.FileColumns._ID + " = " + id;
+        try (Cursor cursor = getContentResolver().query(MediaStore.Files.getContentUri("external"), columns, selection, null, null)) {
+            int columnIndex = cursor.getColumnIndex(columns[0]);
+            if (cursor.moveToFirst()) {
+                return cursor.getString(columnIndex);
+            }
+        }
+        return null;
     }
 }

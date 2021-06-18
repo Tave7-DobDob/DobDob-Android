@@ -146,12 +146,13 @@
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
                 android:contentDescription="🧭GPS"/>
+
             <TextView
                 android:id="@+id/posting_town"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="20dp"
                 android:layout_marginStart="3dp"
-                android:text="XX동"
+                android:text="동네 설정"
                 android:textColor="#000000" />
         </LinearLayout>
 
