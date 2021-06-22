@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="3dp">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/commentrow_profile"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/user"
+            app:civ_border_width="2dp"
+            app:civ_border_color="#AAAAAA" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/commentrow_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="닉네임"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:src="@drawable/pin_gray"
+                    android:scaleType="fitCenter"
+                    android:layout_marginRight="2dp"
+                    android:adjustViewBounds="true" />
+                <TextView
+                    android:id="@+id/commentrow_town"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="상도동"
+                    android:textColor="#A3A3A3"
+                    android:textSize="12dp"/>
+
+                <TextView
+                    android:id="@+id/commentrow_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2021.05.16 20:00"
+                    android:textColor="#A3A3A3"
+                    android:textSize="12dp"/>
+            </LinearLayout>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/commentrow_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginRight="10dp"
+            android:textSize="12dp"
+            android:text="삭제"
+            android:textColor="@color/gray"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/commentrow_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:bufferType="spannable"
+        android:text="댓글 내용입니다!"
+        android:textColor="#000000"/>
+</LinearLayout>

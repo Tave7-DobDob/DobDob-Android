@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_downbar" >
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/modify_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_downbar"
+        android:padding="10dp"
+        app:contentInsetStart="0dp"
+        app:layout_constraintTop_toTopOf="parent">
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="100dp"
+        app:layout_constraintTop_toBottomOf="@id/modify_toolbar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/modify_userProfile"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:src="@drawable/user"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#AAAAAA" />
+            <TextView
+                android:id="@+id/modify_tvChangeProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="프로필 사진 변경"
+                android:textColor="#5CDCC9"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="35dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="닉네임"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/modify_userName"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edittext"
+                android:padding="8dp"
+                android:inputType="text"
+                android:textColor="#000000"
+                android:textSize="15sp"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/modify_btCheckName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:background="@drawable/bg_roundcorner"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="중복 확인"
+                android:textSize="12dp"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/modify_tvNameCheckInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:layout_marginStart="90dp"
+            android:text="닉네임 중복 확인해 주세요."
+            android:textSize="11sp"
+            android:textColor="#FF0000"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp">
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:text="나의 동네"
+                android:textSize="15sp"
+                android:textColor="#000000"
+                android:textStyle="bold"/>
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/pin"
+                android:contentDescription="닉네임 수정"/>
+            <TextView
+                android:id="@+id/modify_userTown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="XX동"
+                android:textColor="@color/yellow"
+                android:textSize="18dp"
+                android:textStyle="bold"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/modify_btChangeTown"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:background="@drawable/bg_roundcorner"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:textSize="12dp"
+                android:text="동네 재설정"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/modify_tvFullAddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_position_border"
+            android:text="경기도 성남시 분당구 판교역로 지하160(백현동)"
+            android:textColor="#999999"
+            android:textSize="11sp"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
