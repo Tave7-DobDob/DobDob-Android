@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tave7.dobdob.MainActivity;
@@ -46,6 +47,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         this.userInfo = userInfo;
     }
 
+    @NonNull
     @Override
     public PostViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context = parent.getContext();
@@ -74,9 +76,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             }
         }
         if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
-            holder.ivHeart.setImageResource(R.drawable.heart_full);
+            holder.ivHeart.setImageResource(R.drawable.heart_click);
         else
-            holder.ivHeart.setImageResource(R.drawable.heart_empty);
+            holder.ivHeart.setImageResource(R.drawable.heart);
 
         boolean IsHeartFull = isClickedHeart;
         holder.ivHeart.setOnClickListener(v -> {
@@ -100,8 +102,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             for (String tagName : postList.get(position).getPostTag()){
                 TextView tvTag = new TextView(context);
                 tvTag.setText("#"+tagName+" ");
-                tvTag.setTypeface(null, Typeface.BOLD);
-                tvTag.setTextColor(Color.parseColor("#5AAEFF"));
+                tvTag.setTypeface(null, Typeface.NORMAL);
+                tvTag.setTextColor(Color.parseColor("#1b73d8"));
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 tvTag.setLayoutParams(layoutParams);
                 holder.tags.addView(tvTag);

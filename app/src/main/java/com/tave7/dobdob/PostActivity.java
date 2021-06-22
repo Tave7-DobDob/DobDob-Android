@@ -105,11 +105,11 @@ public class PostActivity extends AppCompatActivity {
 
         //*********************************예시로 쓰는 사진들**************************************************
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Bitmap sendBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo);
+        Bitmap sendBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo3);
             sendBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         postInfoDetail.getPostPhotos().add(stream.toByteArray());
         ByteArrayOutputStream stream2 = new ByteArrayOutputStream();
-        Bitmap icon2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.user_image);
+        Bitmap icon2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.user);
             icon2.compress(Bitmap.CompressFormat.JPEG, 100, stream2);
         postInfoDetail.getPostPhotos().add(stream2.toByteArray());
 
@@ -163,9 +163,9 @@ public class PostActivity extends AppCompatActivity {
             }
         }
         if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
-            ivHeart.setImageResource(R.drawable.heart_full);
+            ivHeart.setImageResource(R.drawable.heart_click);
         else
-            ivHeart.setImageResource(R.drawable.heart_empty);
+            ivHeart.setImageResource(R.drawable.heart);
         
 
         //TODO: 임시 comment들 생성
@@ -210,14 +210,14 @@ public class PostActivity extends AppCompatActivity {
             isClickedHeart = !isClickedHeart;
 
             if (isClickedHeart) {
-                ivHeart.setImageResource(R.drawable.heart_full);
+                ivHeart.setImageResource(R.drawable.heart_click);
                 postInfoDetail.getPostInfoSimple().getHeartUsers().add(seeUserInfo.getUserName());
                 tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
 
                 //TODO: DB에 저장하고 수정 + MainActivity에서도 변경된 값을 갖고 있도록 해야함!
             }
             else {
-                ivHeart.setImageResource(R.drawable.heart_empty);
+                ivHeart.setImageResource(R.drawable.heart);
                 postInfoDetail.getPostInfoSimple().getHeartUsers().remove(seeUserInfo.getUserName());
                 tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
 
@@ -272,8 +272,8 @@ public class PostActivity extends AppCompatActivity {
         for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
             TextView tvTag = new TextView(PostActivity.this);
             tvTag.setText("#"+tagName+" ");
-            tvTag.setTypeface(null, Typeface.BOLD);
-            tvTag.setTextColor(Color.parseColor("#5AAEFF"));
+            tvTag.setTypeface(null, Typeface.NORMAL);
+            tvTag.setTextColor(Color.parseColor("#1b73d8"));
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             tvTag.setLayoutParams(layoutParams);
             llTag.addView(tvTag);

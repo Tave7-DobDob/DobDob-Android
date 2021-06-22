@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,7 +54,7 @@ public class MyPageActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
 
-        userInfo = (UserInfo) getIntent().getExtras().getParcelable("userInfo");
+        userInfo = getIntent().getExtras().getParcelable("userInfo");
         userPostList = getIntent().getExtras().getParcelableArrayList("userPosts");
 
 
@@ -64,9 +65,9 @@ public class MyPageActivity extends AppCompatActivity {
             toolbarListener(toolbar);
         }
 
-        civUserProfile = (CircleImageView) findViewById(R.id.myPage_userProfile);
+        civUserProfile = findViewById(R.id.myPage_userProfile);
         if (userInfo.getUserProfileUrl() == null)
-            civUserProfile.setImageResource(R.drawable.user_image);
+            civUserProfile.setImageResource(R.drawable.user);
         else {    //TODO: 고쳐야 함(안됨)     //TODO: 해당 user의 이미지로 setImageResource변경
             //user.setUserProfileUrl("https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE");
             //civUserProfile.setImageBitmap(user.getBitmapProfile());
@@ -83,7 +84,9 @@ public class MyPageActivity extends AppCompatActivity {
         rvMyPagePosts.setLayoutManager(manager);
         adapter = new PostRecyclerAdapter(userPostList, userInfo);
         rvMyPagePosts.setAdapter(adapter);      //어댑터 등록
-        rvMyPagePosts.addItemDecoration(new DividerItemDecoration(MyPageActivity.this, 1)); //리스트 사이의 구분선 설정
+        DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
+        devider.setDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null));
+        rvMyPagePosts.addItemDecoration(devider); //리스트 사이의 구분선 설정
     }
 
     public void toolbarListener(Toolbar toolbar){

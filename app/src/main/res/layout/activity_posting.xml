@@ -14,17 +14,13 @@
         android:padding="10dp"
         android:background="@drawable/bg_downbar"
         app:contentInsetStart="0dp"
-        app:layout_constraintTop_toTopOf="parent">
-    </androidx.appcompat.widget.Toolbar>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/posting_llWrite"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
         app:layout_constraintVertical_weight="1"
@@ -35,16 +31,18 @@
 
         <EditText
             android:id="@+id/posting_title"
+            android:background="@drawable/bg_edittext2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:background="@drawable/bg_edittext"
+            android:padding="15dp"
             android:hint="제목"
             android:inputType="text"
             android:textStyle="bold"
-            android:textColor="#000000"
-            android:importantForAutofill="no" />
-
+            android:textColor="#000000"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.6dp"
+            android:background="#BCBCBC"/>
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,30 +57,24 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:background="#BCBCBC"/>
-
         <EditText
             android:id="@+id/posting_content"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="top"
-            android:padding="10dp"
+            android:padding="15dp"
             android:layout_marginTop="10dp"
             android:background="@android:color/transparent"
             android:scrollHorizontally="false"
             android:hint="내용을 입력해주세요."
+            android:textSize="15dp"
             android:inputType="none"
-            android:textColor="#000000"
-            android:importantForAutofill="no" />
+            android:textColor="#000000" />
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="0.6dp"
             android:layout_marginTop="10dp"
             android:background="#BCBCBC"/>
 
@@ -90,6 +82,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
+            android:layout_marginLeft="10dp"
             android:gravity="center_vertical"
             android:orientation="horizontal" >
             <TextView
@@ -97,17 +90,17 @@
                 android:layout_height="wrap_content"
                 android:text="#"
                 android:textColor="#5AAEFF"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textSize="15dp"/>
             <EditText
                 android:id="@+id/posting_etTag"
+                android:background="@drawable/bg_edittext2"
                 android:layout_width="110dp"
                 android:layout_height="wrap_content"
-                android:hint="태그입력"
+                android:hint="태그 입력"
                 android:inputType="text"
                 android:textColor="#000000"
-                android:textSize="15sp"
-                android:importantForAutofill="no" />
-            <!--태그들이 추가됨-->
+                android:textSize="15sp" />
             <ScrollView
                 android:layout_width="0dp"
                 android:layout_height="50dp"
@@ -117,7 +110,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:flChildSpacing="5dp"
-                    app:flRowSpacing="5dp" />
+                    app:flRowSpacing="10dp"
+                    android:layout_gravity="center_vertical"/>
             </ScrollView>
         </LinearLayout>
 
@@ -126,10 +120,10 @@
     <LinearLayout
         android:id="@+id/posting_llAttach"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="10dp"
+        android:padding="15dp"
         android:layout_marginBottom="1dp"
         android:background="@drawable/bt_upbar"
         app:layout_constraintTop_toBottomOf="@id/posting_llWrite"
@@ -145,18 +139,19 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/gps_pointer"
+                android:src="@drawable/pin"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
                 android:contentDescription="🧭GPS"/>
-
             <TextView
                 android:id="@+id/posting_town"
                 android:layout_width="wrap_content"
-                android:layout_height="20dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="3dp"
-                android:text="동네 설정"
-                android:textColor="#000000" />
+                android:text="XX동"
+                android:textStyle="bold"
+                android:textSize="15dp"
+                android:textColor="@color/yellow" />
         </LinearLayout>
 
         <LinearLayout
@@ -169,7 +164,7 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/photo"
+                android:src="@drawable/photos"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
                 android:contentDescription="🧭GPS"/>
@@ -179,8 +174,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:text="사진(0/5)"
-                android:textColor="#000000" />
+                android:textSize="15dp"
+                android:textColor="@color/yellow"
+                android:textStyle="bold"/>
         </LinearLayout>
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

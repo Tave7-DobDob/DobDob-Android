@@ -14,8 +14,7 @@
         android:background="@drawable/bg_downbar"
         android:padding="10dp"
         app:contentInsetStart="0dp"
-        app:layout_constraintTop_toTopOf="parent">
-    </androidx.appcompat.widget.Toolbar>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/post_scrollView"
@@ -39,19 +38,18 @@
                 android:layout_margin="10dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true">
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
+                    android:orientation="horizontal"
+                    android:padding="3dp">
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/post_writerProfile"
                         android:layout_width="45dp"
                         android:layout_height="45dp"
-                        android:src="@drawable/user_image"
-                        app:civ_border_width="1dp"
+                        android:src="@drawable/user"
+                        app:civ_border_width="2dp"
                         app:civ_border_color="#AAAAAA" />
 
                     <LinearLayout
@@ -68,20 +66,36 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_vertical"
                             android:text="닉네임"
-                            android:textSize="15sp"
+                            android:textSize="13sp"
                             android:textStyle="bold"
-                            android:textColor="#000000"/>
+                            android:textColor="@color/black"/>
 
-                        <TextView
-                            android:id="@+id/post_writerTown"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="3dp"
-                            android:text="XX동"
-                            android:textColor="#666666"/>
+                            android:layout_marginTop="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+                            <ImageView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:src="@drawable/pin_gray"
+                                android:scaleType="fitCenter"
+                                android:layout_marginRight="2dp"
+                                android:adjustViewBounds="true" />
+                            <TextView
+                                android:id="@+id/post_writerTown"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="10dp"
+                                android:text="상도동"
+                                android:textColor="#A3A3A3"
+                                android:textSize="12dp"/>
+
+
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-
                 <TextView
                     android:id="@+id/post_title"
                     android:layout_width="match_parent"
@@ -100,7 +114,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
+                    android:layout_marginTop="10dp"
                     android:text="2021.05.16 20:00"
+                    android:textSize="12dp"
                     android:textColor="#666666"/>
 
                 <TextView
@@ -108,7 +124,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top"
-                    android:padding="10dp"
+                    android:lineHeight="20dp"
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="20dp"
                     android:layout_marginLeft="5dp"
@@ -135,64 +151,73 @@
                         app:ci_width="6dp"
                         app:ci_margin="4dp"/>
                 </FrameLayout>
-
+                <LinearLayout
+                    android:id="@+id/post_LinearTag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:orientation="horizontal">
+                    <!--각 태그들이 나열됨-->
+                </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:paddingLeft="3dp"
+                    android:paddingBottom="5dp">
+
                     <ImageView
                         android:id="@+id/post_ivHeart"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/heart_full"
-                        android:contentDescription="하트수"/>
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="하트수"
+                        android:src="@drawable/heart" />
+
                     <TextView
                         android:id="@+id/post_heartNum"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
+                        android:layout_marginTop="3dp"
                         android:text="12"
-                        android:textColor="#000000"/>
+                        android:textColor="#000000"
+                        android:textSize="12dp" />
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginStart="15dp"
-                        android:src="@drawable/comment"
-                        android:contentDescription="댓글수"/>
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="10dp"
+                        android:contentDescription="댓글수"
+                        android:src="@drawable/comment_icon" />
+
                     <TextView
                         android:id="@+id/post_commentNum"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
+                        android:layout_marginTop="3dp"
                         android:text="3"
-                        android:textColor="#000000"/>
+                        android:textColor="#000000"
+                        android:textSize="12dp" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/post_LinearTag"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
-                    <!--각 태그들이 나열됨-->
-                </LinearLayout>
+
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="5dp"
                 android:layout_marginTop="10dp"
-                android:background="#BCBCBC"/>
+                android:background="#D8D8D8"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/postComments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:padding="10dp"/>
+                android:paddingTop="10dp"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -215,7 +240,7 @@
             android:id="@+id/post_commenterProfile"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/user_image"
+            android:src="@drawable/user"
             app:civ_border_width="1dp"
             app:civ_border_color="#AAAAAA" />
 
@@ -236,11 +261,10 @@
             android:id="@+id/post_postComment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
+            android:layout_margin="5dp"
             android:text="게시"
             android:textStyle="bold"
-            android:textSize="15sp"
-            android:textColor="#4374D9" />
+            android:textSize="12sp"
+            android:textColor="@color/yellow" />
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

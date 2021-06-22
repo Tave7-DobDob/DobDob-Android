@@ -56,7 +56,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
         civUserProfile = (CircleImageView) findViewById(R.id.modify_userProfile);
         if (userInfo.getUserProfileUrl() == null)
-            civUserProfile.setImageResource(R.drawable.user_image);
+            civUserProfile.setImageResource(R.drawable.user);
         else {    //TODO: 고쳐야 함(안됨)     //TODO: 해당 user의 이미지로 setImageResource변경
             //user.setUserProfileUrl("https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE");
             //civUserProfile.setImageBitmap(user.getBitmapProfile());

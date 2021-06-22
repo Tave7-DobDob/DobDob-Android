@@ -9,11 +9,11 @@
         android:layout_height="20dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginStart="20dp"
-        android:src="@drawable/cancel"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/close"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:contentDescription="글쓰기취소" /> <!--수정버튼 눌렀을 시-->
+        android:contentDescription="글쓰기 취소" />
 
     <TextView
         android:id="@+id/toolbar_complete"
@@ -21,10 +21,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="10dp"
         android:text="완료"
+        android:textColor="@color/yellow"
         android:textSize="17sp"
-        android:textStyle="bold"
-        android:textColor="#000000" />
+        android:textStyle="bold" />
 
 </RelativeLayout>

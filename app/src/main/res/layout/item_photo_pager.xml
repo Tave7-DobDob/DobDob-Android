@@ -8,10 +8,8 @@
         android:id="@+id/ivPostPhoto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/logo"
+        android:src="@drawable/logo2"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
         android:contentDescription="첨부사진"/>
-    <!--    android:scaleType="fitXY"
-    android:scaleType="fitCenter"와 android:adjustViewBounds="true" 하면 비율 유지-->
 </FrameLayout>

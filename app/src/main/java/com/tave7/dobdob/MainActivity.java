@@ -6,6 +6,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -125,7 +126,9 @@ public class MainActivity extends AppCompatActivity {
         rvPost.setLayoutManager(manager);
         adapter = new PostRecyclerAdapter(postList, totalPostList, userInfo);
         rvPost.setAdapter(adapter);      //어댑터 등록
-        rvPost.addItemDecoration(new DividerItemDecoration(MainActivity.this, 1)); //리스트 사이의 구분선 설정
+        DividerItemDecoration devider=new DividerItemDecoration(MainActivity.this, 1);
+        devider.setDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null));
+        rvPost.addItemDecoration(devider); //리스트 사이의 구분선 설정
 
         FloatingActionButton fabAddPost = findViewById(R.id.mainFabAddPost);
         fabAddPost.setOnClickListener(v -> {

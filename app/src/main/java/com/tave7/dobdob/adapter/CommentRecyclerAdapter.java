@@ -78,7 +78,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                 @Override
                 public void updateDrawState(TextPaint ds) {
                     super.updateDrawState(ds);
-                    ds.setColor(Color.parseColor("#5C1DB5"));
+                    ds.setColor(Color.parseColor("#1b73d8"));
                     ds.setUnderlineText(false);
                 }
             };

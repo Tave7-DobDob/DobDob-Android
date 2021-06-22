@@ -2,15 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="65dp">
+
     <ImageView
         android:id="@+id/toolbar_edit"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="5dp"
-        android:src="@drawable/edit"
-        android:scaleType="fitCenter"
+        android:layout_marginEnd="10dp"
         android:adjustViewBounds="true"
-        android:contentDescription="🔍수정" />
+        android:contentDescription="🔍수정"
+        android:scaleType="fitCenter"
+        android:src="@drawable/edit_pen" />
+
 </RelativeLayout>

@@ -5,20 +5,18 @@
     android:layout_height="wrap_content"
     android:padding="5dp"
     android:orientation="vertical">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp">
+        android:padding="3dp">
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/commentrow_profile"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:src="@drawable/user_image"
-            app:civ_border_width="1dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/user"
+            app:civ_border_width="2dp"
             app:civ_border_color="#AAAAAA" />
 
         <LinearLayout
@@ -28,52 +26,57 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:orientation="vertical" >
+
             <TextView
                 android:id="@+id/commentrow_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="닉네임"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#000000"/>
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
                 <ImageView
                     android:layout_width="13dp"
-                    android:layout_height="12dp"
-                    android:layout_marginStart="5dp"
-                    android:src="@drawable/gps_pointer"
+                    android:layout_height="13dp"
+                    android:src="@drawable/pin_gray"
                     android:scaleType="fitCenter"
+                    android:layout_marginRight="2dp"
                     android:adjustViewBounds="true" />
                 <TextView
                     android:id="@+id/commentrow_town"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:text="XX동"
-                    android:textColor="#666666"/>
+                    android:text="상도동"
+                    android:textColor="#A3A3A3"
+                    android:textSize="12dp"/>
 
                 <TextView
                     android:id="@+id/commentrow_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="2021.05.16 20:00"
-                    android:textColor="#666666"/>
+                    android:textColor="#A3A3A3"
+                    android:textSize="12dp"/>
             </LinearLayout>
         </LinearLayout>
         <TextView
             android:id="@+id/commentrow_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
+            android:layout_gravity="center"
             android:layout_marginRight="10dp"
-            android:text="삭제"/>
+            android:textSize="12dp"
+            android:text="삭제"
+            android:textColor="@color/gray"/>
     </LinearLayout>
 
     <TextView
