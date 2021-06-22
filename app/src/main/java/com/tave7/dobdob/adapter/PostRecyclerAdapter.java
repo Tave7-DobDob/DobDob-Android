@@ -30,7 +30,7 @@ import static com.tave7.dobdob.MainActivity.POST_REQUEST;
 public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder> {
     private Context context;
     private boolean isMain = true;
-    private ArrayList<PostInfoSimple> postList = null;
+    private ArrayList<PostInfoSimple> postList;
     private ArrayList<PostInfoSimple> totalPostList = null;    //메인에서 보여줄 postList의 복사본
     private UserInfo userInfo;
 
@@ -175,27 +175,25 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         
         PostViewHolder(final View itemView) {
             super(itemView);
-            writerProfile = (CircleImageView) itemView.findViewById(R.id.postrow_profile);
-            writerName = (TextView) itemView.findViewById(R.id.postrow_name);
-            writerTown = (TextView) itemView.findViewById(R.id.postrow_town);
-            postTime = (TextView) itemView.findViewById(R.id.postrow_time);
-            postTitle = (TextView) itemView.findViewById(R.id.postrow_title);
-            ivHeart = (ImageView) itemView.findViewById(R.id.postrow_ivHeart);
-            heartNum = (TextView) itemView.findViewById(R.id.postrow_heartNum);
-            commentNum = (TextView) itemView.findViewById(R.id.postrow_commentNum);
-            tags = (LinearLayout) itemView.findViewById(R.id.postrow_LinearTag);
+            writerProfile = itemView.findViewById(R.id.postrow_profile);
+            writerName = itemView.findViewById(R.id.postrow_name);
+            writerTown = itemView.findViewById(R.id.postrow_town);
+            postTime = itemView.findViewById(R.id.postrow_time);
+            postTitle = itemView.findViewById(R.id.postrow_title);
+            ivHeart = itemView.findViewById(R.id.postrow_ivHeart);
+            heartNum = itemView.findViewById(R.id.postrow_heartNum);
+            commentNum = itemView.findViewById(R.id.postrow_commentNum);
+            tags = itemView.findViewById(R.id.postrow_LinearTag);
 
             itemView.setOnClickListener(v -> {
                 int pos = getAdapterPosition();
-
                 if (pos != RecyclerView.NO_POSITION) {
                     //선택한 post의 세부 내용을 다른 화면에 보여줌
-                    //TODO: DB에 post 작성자의 이름과 시간을 전달한 후에, 해당 내용을 받아옴
                     Intent showPostPage = new Intent(context, PostActivity.class);
                     Bundle sppBundle = new Bundle();
                         sppBundle.putParcelable("seeUserInfo", userInfo);
-                        //sppBundle.putParcelable("postInfoDetail", postInfoDetail);        //PostInfoDetail postInfoDetail;
                         sppBundle.putParcelable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
+                        sppBundle.putInt("postID", postList.get(pos).getPostID());
                     showPostPage.putExtras(sppBundle);
                     ((MainActivity)context).startActivityForResult(showPostPage, POST_REQUEST);     //해당 글 창으로 넘어감  -> 안됨!!!!!!!!!!
                 }

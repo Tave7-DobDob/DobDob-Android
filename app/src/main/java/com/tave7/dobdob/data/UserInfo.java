@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class UserInfo implements Parcelable {
+    private int userID = -1;
     private byte[] userProfileUrl; //TODO: 추후에 Uri로 변경해야 함!
     private String userName;
     private String userTown;       //XX동 -> 마이페이지 설정 town 혹은 실제 writerTown이 저장될 수 있음
@@ -15,6 +16,7 @@ public class UserInfo implements Parcelable {
     }
 
     protected UserInfo(Parcel in) {
+        userID = in.readInt();
         userProfileUrl = in.createByteArray();
         userName = in.readString();
         userTown = in.readString();
@@ -28,10 +30,12 @@ public class UserInfo implements Parcelable {
         public UserInfo[] newArray(int size) { return new UserInfo[size]; }
     };
 
+    public int getUserID() { return userID; }
     public byte[] getUserProfileUrl() { return userProfileUrl; }
     public String getUserName() { return userName; }
     public String getUserTown() { return userTown; }
 
+    public void setUserID(int userID) { this.userID = userID; }
     public void setUserProfileUrl(byte[] userProfileUrl) { this.userProfileUrl = userProfileUrl; }
     public void setUserName(String userName) { this.userName = userName; }
     public void setUserTown(String userTown) { this.userTown = userTown; }
@@ -41,6 +45,7 @@ public class UserInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(userID);
         dest.writeByteArray(userProfileUrl);
         dest.writeString(userName);
         dest.writeString(userTown);

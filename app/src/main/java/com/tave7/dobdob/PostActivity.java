@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,7 +20,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,10 +48,14 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.relex.circleindicator.CircleIndicator3;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PostActivity extends AppCompatActivity {
     public static final int POST_EDIT_REQUEST = 6500;   //requestCode로 사용될 상수(글 수정)
 
+    int postID = -1;
     UserInfo seeUserInfo;
     PostInfoDetail postInfoDetail;
     Menu menu;
@@ -71,9 +78,30 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        seeUserInfo = (UserInfo) getIntent().getParcelableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
-        PostInfoSimple postInfo = (PostInfoSimple) getIntent().getParcelableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
+        seeUserInfo = getIntent().getParcelableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
+        PostInfoSimple postInfo = getIntent().getParcelableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
         postInfoDetail = new PostInfoDetail(postInfo, "내용입니다아아앙~~\n...\n...");     //얕은 복사
+
+        postID = getIntent().getExtras().getInt("postID");      //선택한 글의 id를 받음
+        RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                Log.i("PostA 글 성공", response.toString());
+                Log.i("PostA 글 성공2", response.body());
+                if (response.code() == 200) {
+                    //TODO: 서버로부터 받은 글의 정보를 postInfoDetail에 저장함
+                }
+                else {
+                    Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                Log.i("PostA 서버 연결실패", t.getMessage());
+                Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         //*********************************예시로 쓰는 사진들**************************************************
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -109,7 +137,7 @@ public class PostActivity extends AppCompatActivity {
             tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
         llTag = findViewById(R.id.post_LinearTag);
             if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0)
-                SettingTags();
+                settingTags();
             else
                 llTag.setVisibility(View.GONE);
         llWriteComment = findViewById(R.id.post_writeCommentL);
@@ -218,6 +246,7 @@ public class PostActivity extends AppCompatActivity {
 
             String writeComment = etWriteComment.getText().toString();
             writeComment = writeComment.trim();
+            writeComment = writeComment.concat(" ");   //마지막에 멘션있을 시를 대비해 하나의 공백은 남겨둠
             if (writeComment.length() != 0) {
                 //TODO: DB에 댓글 저장(현재 시간 저장) -> DB에 시간을 형식 맞게 저장하자!
                 Calendar calendar = Calendar.getInstance();
@@ -239,7 +268,7 @@ public class PostActivity extends AppCompatActivity {
         });
     }
 
-    public void SettingTags() {
+    public void settingTags() {
         for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
             TextView tvTag = new TextView(PostActivity.this);
             tvTag.setText("#"+tagName+" ");
@@ -269,7 +298,11 @@ public class PostActivity extends AppCompatActivity {
     @Override
     public void finish() {
         //변경 내용이 있다면 보내줌(있으면 true 전달, 없으면 false 전달 -> Main에서 처리하게 함!, MyPage에서 처리!)
-        //if (isDeleted)        //글을 삭제했다고 Main에 전달해야 함!!(메인의 postList를 갱신해야 함)
+        Intent returnIntent = new Intent();
+        if (isDeleted)       //글을 삭제했다고 Main에 전달해야 함!!(메인의 postList를 갱신해야 함)
+            setResult(RESULT_OK, returnIntent);
+        else
+            setResult(RESULT_CANCELED, returnIntent);
 
         super.finish();
     }
@@ -309,9 +342,26 @@ public class PostActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
                 builder.setTitle("글 삭제").setMessage("현재 글을 삭제하시겠습니까?");
                 builder.setPositiveButton("삭제", (dialog, which) -> {
-                    //TODO: DB에서 포스트를 삭제하고, 안드로이드 스튜디오 내의 postList에서 post를 삭제해야 함(전달! Bundle로)
-                    isDeleted = true;
-                    finish();
+                    RetrofitClient.getApiService().deleteIDPost(postID).enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                            Log.i("PostA 글 삭제성공", response.toString());
+                            Log.i("PostA 글 삭제성공2", response.body());
+                            if (response.code() == 200) {
+                                isDeleted = true;
+                                finish();
+                            }
+                            else {
+                                Toast.makeText(PostActivity.this, "해당 글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                            Log.i("PostA 삭제서버 연결실패", t.getMessage());
+                            Toast.makeText(PostActivity.this, "해당 글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 });
                 builder.setNegativeButton("취소", (dialog, id) -> {
                     dialog.cancel();    //삭제가 되지 않음
@@ -330,6 +380,26 @@ public class PostActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == POST_EDIT_REQUEST && resultCode == RESULT_OK) {
+            RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                    Log.i("PostA 글 성공", response.toString());
+                    Log.i("PostA 글 성공2", response.body());
+                    if (response.code() == 200) {
+                        //TODO: UI를 변경해야 함!!!
+                    }
+                    else {
+                        Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                    Log.i("PostA 서버 연결실패", t.getMessage());
+                    Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                }
+            });
+            //TODO: 위의 코드로 변경되어야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             postInfoDetail = data.getExtras().getParcelable("postInfo");
             tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
             tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
@@ -343,8 +413,9 @@ public class PostActivity extends AppCompatActivity {
             else {
                 llTag.setVisibility(View.VISIBLE);
                 llTag.removeAllViews();     //태그들 모두 초기화
-                SettingTags();
+                settingTags();
             }
+            //삭제되어야 하는 부분 끝!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         }
     }
 }

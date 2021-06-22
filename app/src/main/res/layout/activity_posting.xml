@@ -42,7 +42,8 @@
             android:hint="제목"
             android:inputType="text"
             android:textStyle="bold"
-            android:textColor="#000000"/>
+            android:textColor="#000000"
+            android:importantForAutofill="no" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
@@ -76,7 +77,8 @@
             android:scrollHorizontally="false"
             android:hint="내용을 입력해주세요."
             android:inputType="none"
-            android:textColor="#000000" />
+            android:textColor="#000000"
+            android:importantForAutofill="no" />
 
         <View
             android:layout_width="match_parent"
@@ -103,7 +105,8 @@
                 android:hint="태그입력"
                 android:inputType="text"
                 android:textColor="#000000"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                android:importantForAutofill="no" />
             <!--태그들이 추가됨-->
             <ScrollView
                 android:layout_width="0dp"
@@ -112,7 +115,7 @@
                 <com.nex3z.flowlayout.FlowLayout
                     android:id="@+id/posting_flTags"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     app:flChildSpacing="5dp"
                     app:flRowSpacing="5dp" />
             </ScrollView>
