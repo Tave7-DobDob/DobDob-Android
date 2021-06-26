@@ -22,6 +22,9 @@ public interface RetrofitAPI {
     @POST("/auth/kakao")
     Call<String> postKakaoToken(@Body JsonObject kakaoToken);       //서버로 카카오 토큰 전달
 
+    @GET("/user/nickname/{nickname}")
+    Call<String> checkExistNick(@Path("nickname") String nickname);                 //서버로부터 해당 id의 포스트를 받음
+
     @Multipart
     @POST("/post/upload")
     Call<String> postNewPost(@Part ArrayList<MultipartBody.Part> postImage, @PartMap Map<String, RequestBody> data);

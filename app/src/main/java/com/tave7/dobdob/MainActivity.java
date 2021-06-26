@@ -22,33 +22,39 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.JsonObject;
 import com.tave7.dobdob.adapter.PostRecyclerAdapter;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.tave7.dobdob.InitialSettingActivity.DAUMADDRESS_REQUEST;
 
 public class MainActivity extends AppCompatActivity {
     public static final int POSTING_REQUEST = 6000;
     public static final int POST_REQUEST = 7000;
     public static final int MYPAGE_REQUEST = 8000;
 
-    UserInfo userInfo = null;
-    ArrayList<PostInfoSimple> postList = null;        //메인에서 보여줄 postList
-    ArrayList<PostInfoSimple> totalPostList = null;   //메인에서 보여줄 postList의 복사본
+    private UserInfo userInfo = null;
+    private ArrayList<PostInfoSimple> postList = null;        //메인에서 보여줄 postList
+    private ArrayList<PostInfoSimple> totalPostList = null;   //메인에서 보여줄 postList의 복사본
 
-    TextView tvTown;
-    RecyclerView rvPost;
-    PostRecyclerAdapter adapter;
+    private TextView tvTown;
+    private RecyclerView rvPost;
+    private PostRecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +151,10 @@ public class MainActivity extends AppCompatActivity {
         tvTown = toolbar.findViewById(R.id.toolbar_town);
         tvTown.setText(userInfo.getUserTown());     //초기에 user가 설정한 동네로 보여줌
 
-        tvTown.setOnClickListener(v -> {
+        LinearLayout llTown = toolbar.findViewById(R.id.toolbar_main_town);
+        llTown.setOnClickListener(v -> {
+            Intent itAddress = new Intent(MainActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
+            startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
             //TODO: 동네를 클릭했을 때, 동네 변경이 가능해야 함 + DB에 저장
             //user.getUserTown() = "설정한 동네"
         });
@@ -258,43 +267,60 @@ public class MainActivity extends AppCompatActivity {
 
                     //TODO: 동네에 대한 post가 갱신되어야 함
                 }
+                updatePostList();
             }
 
             else if (requestCode == POST_REQUEST) {
                 Log.i("확인용", "post_request");
+                updatePostList();
             }
 
             else if (requestCode == POSTING_REQUEST) {
                 Log.i("확인용", "posting_request");
+                updatePostList();
             }
-
-            //변경사항이 있으므로 다시 받아옴
-            RetrofitClient.getApiService().getAllPost().enqueue(new Callback<String>() {
-                @Override
-                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    Log.i("MainA 전체글 새로고침 성공", response.toString());
-                    Log.i("MainA 전체글 새로고침 성공2", response.body());
-                    if (response.code() == 200) {
-                        //totalPostList.clear();
-                        //postList.clear();
-                        //TODO: 글 모두 저장함(totalPostList에 넣고 postList에 addAll함!
-                        //adapter.notifyDataSetChanged(); 해줘야 함!!
-                    }
-                    else {
-                        Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    Log.i("Main 전체글 연결실패", t.getMessage());
-                    Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
-                }
-            });
+            else if (requestCode == DAUMADDRESS_REQUEST) {
+                try {
+                    new GetGEOTask(this, "main", Objects.requireNonNull(data).getExtras().getString("address")).execute().get();
+                } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+            }
         }
-
         //TODO: 이후에 post글 추가를 한다면 동네에 대한 post를 최신으로 새로고침해야 함
         //마이페이지를 봤다면 그대로 내버려둠
         //글의 세부 내용을 보는 거라면 그대로 내버려둠
+    }
+
+    public void mainSettingTown(JsonObject loc) {
+        JsonObject location = loc;
+        tvTown.setText(loc.get("dong").getAsString());     //초기에 user가 설정한 동네로 보여줌
+
+        updatePostList();       //임시!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //updatePostList(location);     //TODO: 지역을 전달해야 함(서버로부터 해당 지역의 동네를 받아야 함!)
+    }
+
+    public void updatePostList() {
+        //변경사항이 있으므로 다시 받아옴
+        RetrofitClient.getApiService().getAllPost().enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                Log.i("MainA 전체글 새로고침 성공", response.toString());
+                Log.i("MainA 전체글 새로고침 성공2", response.body());
+                if (response.code() == 200) {
+                    //totalPostList.clear();
+                    //postList.clear();
+                    //TODO: 글 모두 저장함(totalPostList에 넣고 postList에 addAll함!
+                    //adapter.notifyDataSetChanged(); 해줘야 함!!
+                }
+                else {
+                    Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                Log.i("Main 전체글 연결실패", t.getMessage());
+                Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

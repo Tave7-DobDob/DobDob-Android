@@ -110,8 +110,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:flChildSpacing="5dp"
-                    app:flRowSpacing="10dp"
-                    android:layout_gravity="center_vertical"/>
+                    app:flRowSpacing="8dp" />
             </ScrollView>
         </LinearLayout>
 

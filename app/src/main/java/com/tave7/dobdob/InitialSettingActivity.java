@@ -2,24 +2,35 @@ package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.gson.JsonObject;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 @SuppressLint("StaticFieldLeak")
 public class InitialSettingActivity extends AppCompatActivity {
@@ -27,10 +38,10 @@ public class InitialSettingActivity extends AppCompatActivity {
     private static JsonObject location;
 
     private boolean isCheckedName = false;
-    private static boolean isSetTown = false;
-    private static ImageView ivGPSPointer;
-    private static TextView tvResultTown, tvFullAddress;
-    private static Button btSelectTown;
+    private boolean isSetTown = false;
+    private ImageView ivGPSPointer;
+    private TextView tvResultTown, tvFullAddress;
+    private Button btSelectTown;
     private ConstraintLayout clWhole;
     private EditText etName;
     private TextView tvNameError, tvTownError;
@@ -83,17 +94,49 @@ public class InitialSettingActivity extends AppCompatActivity {
         });
 
         btCheckName.setOnClickListener(v -> {
-            if (etName.getText().toString().equals("")) {
+            String nickName = etName.getText().toString().trim();
+            if (nickName.length() != etName.getText().toString().length()) {
                 tvNameError.setVisibility(View.VISIBLE);
+                tvNameError.setTextColor(Color.parseColor("#FA5858"));
+                tvNameError.setText("닉네임에 공백이 포함되어 있습니다.");
+            }
+            else if (nickName.equals("")) {
+                tvNameError.setVisibility(View.VISIBLE);
+                tvNameError.setTextColor(Color.parseColor("#FA5858"));
                 tvNameError.setText("닉네임을 입력하지 않았습니다.");
             }
-
             else {
-                //TODO: 데이터베이스에서 닉네임 중복 확인함
-                //(중복 확인 후 사용가능하다면 isCheckedName = true;과 tvNameError.setVisibility(View.VISIBLE);)
-                isCheckedName = true;
-                tvNameError.setVisibility(View.VISIBLE);
-                tvNameError.setText("사용 가능한 닉네임입니다.");
+                RetrofitClient.getApiService().checkExistNick(nickName).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        if (response.code() == 200) {   //로그인 사용 가능
+                            try {
+                                JSONObject result = new JSONObject(response.body());
+
+                                if (result.getBoolean("isExisted") == true) {
+                                    tvNameError.setVisibility(View.VISIBLE);
+                                    tvNameError.setTextColor(Color.parseColor("#FA5858"));
+                                    tvNameError.setText("이미 존재하는 닉네임입니다.");
+                                }
+                                else {
+                                    isCheckedName = true;
+                                    tvNameError.setVisibility(View.VISIBLE);
+                                    tvNameError.setTextColor(Color.parseColor("#00AA7D"));
+                                    tvNameError.setText("사용 가능한 닉네임입니다.");
+                                }
+                            } catch (JSONException e) { e.printStackTrace(); }
+                        }
+                        else {
+                            Toast.makeText(InitialSettingActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.i("Initial 닉중복확인 연결실패", t.getMessage());
+                        Toast.makeText(InitialSettingActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -138,7 +181,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         }
     }
 
-    public static void initialSettingTown(JsonObject loc) {
+    public void initialSettingTown(JsonObject loc) {
         location = loc;
 
         isSetTown = true;

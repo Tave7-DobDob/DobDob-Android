@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,28 +25,34 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.gson.JsonObject;
 import com.tave7.dobdob.data.UserInfo;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.tave7.dobdob.InitialSettingActivity.DAUMADDRESS_REQUEST;
 
 public class ModifyProfileActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
-    private static JsonObject location;
+    private JsonObject location;
 
     private UserInfo userInfo = null;
-    private static UserInfo tmpUserInfo = null;
+    private UserInfo tmpUserInfo = null;
     private Bitmap tmpChangeProfile;
     private boolean isChangeProfile = false, isChangeName = false;
 
     private CircleImageView civUserProfile;
     private EditText etUserName;
     private TextView tvNameCheckInfo;
-    private static TextView tvUserTown;
-    private static TextView tvFullAddress;
+    private TextView tvUserTown;
+    private TextView tvFullAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +122,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
     }
 
     public void modifyProfileListener() {
-        TextView tvChangeProfile = (TextView) findViewById(R.id.modify_tvChangeProfile);
+        TextView tvChangeProfile = findViewById(R.id.modify_tvChangeProfile);
         tvChangeProfile.setOnClickListener(v -> {
             //TODO: 갤러리에서 사진을 불러와 그 이미지로 civUserProfile의 리소스를 변경하고 DB에 저장함
             Intent intent = new Intent();
@@ -139,34 +146,58 @@ public class ModifyProfileActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) { }
         });
 
-        Button btCheckName = (Button) findViewById(R.id.modify_btCheckName);
+        Button btCheckName = findViewById(R.id.modify_btCheckName);
         btCheckName.setOnClickListener(v -> {
             isChangeName = false;
 
             String username = etUserName.getText().toString().trim();
-            if (username.length() > 0) {
-                //TODO: DB로부터 아이디 중복 확인
-                // 중복 확인 후 가능할 시  ********************************************************
-                isChangeName = true;
-                tmpUserInfo.setUserName(username);
+            if (username.length() != etUserName.getText().toString().length()) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
-                tvNameCheckInfo.setText("사용가능한 닉네임입니다:)");
-                tvNameCheckInfo.setTextColor(Color.parseColor("#0000FF"));
-    
-                /* 중복 확인 후 가능하지 않을 시
+                tvNameCheckInfo.setText("닉네임에 공백이 포함되어 있습니다.");
+                tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
+            }
+            else if (username.equals("")) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
-                tvNameCheckInfo.setText("이미 존재하는 닉네임입니다. 다른 닉네임을 사용해 주세요:)");
-                tvNameCheckInfo.setTextColor(Color.parseColor("#FF0000"));
-                 */
+                tvNameCheckInfo.setText("닉네임을 입력하지 않았습니다.");
+                tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
             }
             else {
-                tvNameCheckInfo.setVisibility(View.VISIBLE);
-                tvNameCheckInfo.setText("닉네임을 입력해 주세요:)");
-                tvNameCheckInfo.setTextColor(Color.parseColor("#FF0000"));
+                RetrofitClient.getApiService().checkExistNick(username).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        if (response.code() == 200) {   //로그인 사용 가능
+                            try {
+                                JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
+
+                                if (result.getBoolean("isExisted")) {
+                                    tvNameCheckInfo.setVisibility(View.VISIBLE);
+                                    tvNameCheckInfo.setText("이미 존재하는 닉네임입니다. 다른 닉네임을 사용해 주세요:)");
+                                    tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
+                                }
+                                else {
+                                    isChangeName = true;
+                                    tmpUserInfo.setUserName(username);
+                                    tvNameCheckInfo.setVisibility(View.VISIBLE);
+                                    tvNameCheckInfo.setText("사용 가능한 닉네임입니다:)");
+                                    tvNameCheckInfo.setTextColor(Color.parseColor("#00AA7D"));
+                                }
+                            } catch (JSONException e) { e.printStackTrace(); }
+                        }
+                        else {
+                            Toast.makeText(ModifyProfileActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.i("Initial 닉중복확인 연결실패", t.getMessage());
+                        Toast.makeText(ModifyProfileActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
-        Button btChangeTown = (Button) findViewById(R.id.modify_btChangeTown);
+        Button btChangeTown = findViewById(R.id.modify_btChangeTown);
         btChangeTown.setOnClickListener(v -> {
             Intent itAddress = new Intent(ModifyProfileActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
             startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
@@ -186,7 +217,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK){
             try {
-                InputStream is = getContentResolver().openInputStream(data.getData());
+                InputStream is = getContentResolver().openInputStream(Objects.requireNonNull(data).getData());
                 tmpChangeProfile = BitmapFactory.decodeStream(is);
                 is.close();
 
@@ -203,12 +234,12 @@ public class ModifyProfileActivity extends AppCompatActivity {
         }
         else if (requestCode == DAUMADDRESS_REQUEST && resultCode == RESULT_OK) {
             try {
-                new GetGEOTask(this, "modifyProfile", data.getExtras().getString("address")).execute().get();
+                new GetGEOTask(this, "modifyProfile", Objects.requireNonNull(data).getExtras().getString("address")).execute().get();
             } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
         }
     }
 
-    public static void modifyPSettingTown(JsonObject loc) {
+    public void modifyPSettingTown(JsonObject loc) {
         location = loc;
 
         tvUserTown.setText(loc.get("dong").getAsString());

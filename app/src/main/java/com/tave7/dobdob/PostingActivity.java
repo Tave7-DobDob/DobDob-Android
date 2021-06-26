@@ -56,7 +56,7 @@ import static com.tave7.dobdob.InitialSettingActivity.DAUMADDRESS_REQUEST;
 
 public class PostingActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
-    private static JsonObject location;
+    private JsonObject location;
 
     //TODO: File과 Bitmap을 같이 저장해야함! file->name을 받아와야 하기 때문에!
     private UserInfo userInfo = null;
@@ -70,7 +70,7 @@ public class PostingActivity extends AppCompatActivity {
     private LayoutInflater lInflater;
     private LinearLayout llShowPhotos, llTown, llPhotos;
     private TextView tvPhotos;
-    private static TextView tvTown;
+    private TextView tvTown;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -437,7 +437,7 @@ public class PostingActivity extends AppCompatActivity {
     }
 
     //동네 설정 후 화면 설정
-    public static void postingSettingTown(JsonObject loc) {
+    public void postingSettingTown(JsonObject loc) {
         location = loc;
 
         tvTown.setText(loc.get("dong").getAsString());
