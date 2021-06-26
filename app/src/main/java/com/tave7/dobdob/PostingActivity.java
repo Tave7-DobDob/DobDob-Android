@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -51,8 +52,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.tave7.dobdob.InitialSettingActivity.DAUMADDRESS_REQUEST;
+
 public class PostingActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
+    private static JsonObject location;
 
     //TODO: File과 Bitmap을 같이 저장해야함! file->name을 받아와야 하기 때문에!
     private UserInfo userInfo = null;
@@ -65,7 +69,8 @@ public class PostingActivity extends AppCompatActivity {
     private EditText etTitle, etContent, etTag;
     private LayoutInflater lInflater;
     private LinearLayout llShowPhotos, llTown, llPhotos;
-    private TextView tvPhotos, tvTown;
+    private TextView tvPhotos;
+    private static TextView tvTown;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -81,7 +86,7 @@ public class PostingActivity extends AppCompatActivity {
         llShowPhotos = findViewById(R.id.posting_showPhotos);   //업로드한 사진들
             llShowPhotos.setVisibility(View.GONE);
         etContent = findViewById(R.id.posting_content);             //글 내용
-        etTag = findViewById(R.id.posting_etTag);                   //글의 태그 입력칸(TODO: 드롭다운 가능해야 함)
+        etTag = findViewById(R.id.posting_etTag);                   //글의 태그 입력칸
         flTags = findViewById(R.id.posting_flTags);   //글의 태그들 추가할 위치
         tvPhotos = findViewById(R.id.posting_photo);                //글에 첨부할 사진 개수
 
@@ -164,9 +169,9 @@ public class PostingActivity extends AppCompatActivity {
             else if (etContent.getText().toString().trim().length() == 0) {
                 Toast.makeText(getApplicationContext(), "글의 내용을 입력해 주세요:)", Toast.LENGTH_SHORT).show();
             }
-            //else if (tvTown.getText().toString().equals("동네 설정")) {
-                //Toast.makeText(getApplicationContext(), "동네를 설정해 주세요:)", Toast.LENGTH_SHORT).show();
-            //}
+            else if (tvTown.getText().toString().equals("동네 설정")) {
+                Toast.makeText(getApplicationContext(), "동네를 설정해 주세요:)", Toast.LENGTH_SHORT).show();
+            }
             else {
                 if (isEditingPost) {    //글 수정 완료
                     //TODO: 변경 요망!
@@ -186,14 +191,7 @@ public class PostingActivity extends AppCompatActivity {
 
                         JsonObject postData = new JsonObject();
                         postData.addProperty("userId", editPostInfo.getPostInfoSimple().getWriterID());
-                        JsonObject jLocation = new JsonObject();
-                            //TODO: location생길 시에 변경 요망!!!
-                            jLocation.addProperty("si", "성남시");
-                            jLocation.addProperty("gu", "분당구");
-                            jLocation.addProperty("dong", "판교동");
-                            jLocation.addProperty("locationX", 0.0);    //TODO: 임시!
-                            jLocation.addProperty("locationY", 0.0);    //임시!
-                        postData.add("location", jLocation);
+                        postData.add("location", location);
                         postData.addProperty("title", etTitle.getText().toString().trim());
                         postData.addProperty("content", etContent.getText().toString().trim());
                         postData.addProperty("editedAt", String.valueOf(new Date(System.currentTimeMillis())));
@@ -252,14 +250,7 @@ public class PostingActivity extends AppCompatActivity {
                     }
                     Map<String, RequestBody> dataMap = new HashMap<>();
                     dataMap.put("userId", RequestBody.create(MediaType.parse("text/plain"), String.valueOf(userInfo.getUserID())));
-                    JsonObject jLocation = new JsonObject();
-                        //TODO: location생길 시에 변경 요망!!!
-                        jLocation.addProperty("si", "성남시");
-                        jLocation.addProperty("gu", "분당구");
-                        jLocation.addProperty("dong", "판교동");
-                        jLocation.addProperty("locationX", 0.0);    //TODO: 임시!
-                        jLocation.addProperty("locationY", 0.0);    //임시!
-                    dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(jLocation)));
+                    dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(location)));
                     dataMap.put("title", RequestBody.create(MediaType.parse("text/plain"), etTitle.getText().toString().trim()));
                     dataMap.put("content", RequestBody.create(MediaType.parse("text/plain"), etContent.getText().toString().trim()));
                     dataMap.put("createdAt", RequestBody.create(MediaType.parse("text/plain"), String.valueOf(new Date(System.currentTimeMillis()))));
@@ -316,9 +307,9 @@ public class PostingActivity extends AppCompatActivity {
             return false;
         });
 
-        //TODO: 동 내용(tvTown) 클릭
         llTown.setOnClickListener(v -> {
-            //TODO: 위치 지정 혹은 선택 위치 지정
+            Intent itAddress = new Intent(PostingActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
+            startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
         });
 
         llPhotos.setOnClickListener(v -> {
@@ -416,10 +407,15 @@ public class PostingActivity extends AppCompatActivity {
                         llShowPhotos.setVisibility(View.GONE);
                 });
                 llShowPhotos.addView(view);
-
             } catch (Exception e){ e.printStackTrace(); }
         } else if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED){
             Toast.makeText(this,"사진 선택 취소", Toast.LENGTH_SHORT).show();
+        }
+
+        else if (requestCode == DAUMADDRESS_REQUEST && resultCode == RESULT_OK) {
+            try {
+                new GetGEOTask(this, "posting", data.getExtras().getString("address")).execute().get();
+            } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
         }
     }
 
@@ -438,5 +434,12 @@ public class PostingActivity extends AppCompatActivity {
             }
         }
         return null;
+    }
+
+    //동네 설정 후 화면 설정
+    public static void postingSettingTown(JsonObject loc) {
+        location = loc;
+
+        tvTown.setText(loc.get("dong").getAsString());
     }
 }

@@ -145,12 +145,12 @@
         </LinearLayout>
         <TextView
             android:id="@+id/modify_tvFullAddress"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"
             android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
             android:background="@drawable/bg_position_border"
-            android:text="경기도 성남시 분당구 판교역로 지하160(백현동)"
             android:textColor="#999999"
             android:textSize="11sp"/>
     </LinearLayout>

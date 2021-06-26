@@ -8,11 +8,13 @@ public class UserInfo implements Parcelable {
     private byte[] userProfileUrl; //TODO: 추후에 Uri로 변경해야 함!
     private String userName;
     private String userTown;       //XX동 -> 마이페이지 설정 town 혹은 실제 writerTown이 저장될 수 있음
+    private String userAddress;
 
-    public UserInfo(byte[] userProfileUrl, String userName, String userTown) {
+    public UserInfo(byte[] userProfileUrl, String userName, String userTown, String userAddress) {
         this.userProfileUrl = userProfileUrl;       //userProfileUrl값이 null이라면 기본 R.drawable.user_image 사용해야 함
         this.userName = userName;
         this.userTown = userTown;
+        this.userAddress = userAddress;
     }
 
     protected UserInfo(Parcel in) {
@@ -20,6 +22,7 @@ public class UserInfo implements Parcelable {
         userProfileUrl = in.createByteArray();
         userName = in.readString();
         userTown = in.readString();
+        userAddress = in.readString();
     }
 
     public static final Creator<UserInfo> CREATOR = new Creator<UserInfo>() {
@@ -34,11 +37,13 @@ public class UserInfo implements Parcelable {
     public byte[] getUserProfileUrl() { return userProfileUrl; }
     public String getUserName() { return userName; }
     public String getUserTown() { return userTown; }
+    public String getUserAddress() { return userAddress; }
 
     public void setUserID(int userID) { this.userID = userID; }
     public void setUserProfileUrl(byte[] userProfileUrl) { this.userProfileUrl = userProfileUrl; }
     public void setUserName(String userName) { this.userName = userName; }
     public void setUserTown(String userTown) { this.userTown = userTown; }
+    public void setUserAddress(String userAddress) { this.userAddress = userAddress; }
 
     @Override
     public int describeContents() { return 0; }
@@ -49,6 +54,7 @@ public class UserInfo implements Parcelable {
         dest.writeByteArray(userProfileUrl);
         dest.writeString(userName);
         dest.writeString(userTown);
+        dest.writeString(userAddress);
     }
 
     /*

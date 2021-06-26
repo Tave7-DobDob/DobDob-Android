@@ -3,6 +3,5 @@
 
     <string name="KAKAO_APP_KEY">e654a9463a7d36adcf85dd15032bbf68</string>
     <string name="KAKAO_NATIVE_APP_KEY">kakaoe654a9463a7d36adcf85dd15032bbf68</string>
-
-    <string name="copyright">Copyright 2021. 돕돕  all rights reserved</string>
+    <string name="KAKAO_REST_API_KEY">5983aa9486cfc0f38fe7cf6fecd00978</string>
 </resources>

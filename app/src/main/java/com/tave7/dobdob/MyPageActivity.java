@@ -3,6 +3,7 @@ package com.tave7.dobdob;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,13 +73,13 @@ public class MyPageActivity extends AppCompatActivity {
             //user.setUserProfileUrl("https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE");
             //civUserProfile.setImageBitmap(user.getBitmapProfile());
         }
-        tvUserName = (TextView) findViewById(R.id.myPage_userName);            //TODO: 변경 시 해당 user의 닉네임으로 setText("")변경
+        tvUserName = findViewById(R.id.myPage_userName);            //TODO: 변경 시 해당 user의 닉네임으로 setText("")변경
             tvUserName.setText(userInfo.getUserName());
-        tvUserTown = (TextView) findViewById(R.id.myPage_userTown);            //TODO: 해당 user의 동네로 setText("")변경(클릭시 주소 결정할 수 있게)
+        tvUserTown = findViewById(R.id.myPage_userTown);            //TODO: 해당 user의 동네로 setText("")변경(클릭시 주소 결정할 수 있게)
             tvUserTown.setText(userInfo.getUserTown());
-        tvUserPosts = (TextView) findViewById(R.id.myPage_tvUserPost);         //TODO: 해당 user의 닉네임으로 setText(name+" 님이 작성한 글")변경
+        tvUserPosts = findViewById(R.id.myPage_tvUserPost);         //TODO: 해당 user의 닉네임으로 setText(name+" 님이 작성한 글")변경
             tvUserPosts.setText(userInfo.getUserName()+" 님이 작성한 글");
-        rvMyPagePosts = (RecyclerView) findViewById(R.id.myPagePosts);
+        rvMyPagePosts = findViewById(R.id.myPagePosts);
 
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);
@@ -90,7 +91,7 @@ public class MyPageActivity extends AppCompatActivity {
     }
 
     public void toolbarListener(Toolbar toolbar){
-        ivEdit = (ImageView) toolbar.findViewById(R.id.toolbar_edit);
+        ivEdit = toolbar.findViewById(R.id.toolbar_edit);
         ivEdit.setOnClickListener(v -> {
             Intent editProfile = new Intent(this, ModifyProfileActivity.class);
             Bundle bundle = new Bundle();
@@ -136,27 +137,25 @@ public class MyPageActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK) {
-            if (requestCode == EDIT_PROFILE_REQUEST) {
-                //if (data.hasExtra("userProfileUrl")) {
-                //  isChangeProfile = true;
-                //  userInfo.setUserProfileUrl(data.getExtras().getString("userProfileUrl"));
-                //}
-                if (data != null && data.hasExtra("userName")) {
-                    isChangeName = true;
-                    adapter.changeWriterName(userInfo.getUserName(), data.getExtras().getString("userName"));
-                    userInfo.setUserName(data.getExtras().getString("userName"));
-                    tvUserName.setText(userInfo.getUserName());
-                    tvUserPosts.setText(userInfo.getUserName() + " 님이 작성한 글");
-                    //PreferenceManager.setString(MyPageActivity.this, "userName", userInfo.getUserName());
-                    //(DB에 바뀐 이름을 전달하고 DB에서 totalPostList를 받아 search를 통해 notify 함)
-                }
-                if (data != null && data.hasExtra("userTown")) {
-                    isChangeTown = true;
-                    userInfo.setUserTown(data.getExtras().getString("userTown"));
-                    tvUserTown.setText(userInfo.getUserTown());
-                    //PreferenceManager.setString(MyPageActivity.this, "userTown", userInfo.getUserTown());
-                }
+        if (requestCode == EDIT_PROFILE_REQUEST && resultCode == RESULT_OK) {
+            //if (data.hasExtra("userProfileUrl")) {
+            //  isChangeProfile = true;
+            //  userInfo.setUserProfileUrl(data.getExtras().getString("userProfileUrl"));
+            //}
+            if (data != null && data.hasExtra("userName")) {
+                isChangeName = true;
+                adapter.changeWriterName(userInfo.getUserName(), data.getExtras().getString("userName"));
+                userInfo.setUserName(data.getExtras().getString("userName"));
+                tvUserName.setText(userInfo.getUserName());
+                tvUserPosts.setText(userInfo.getUserName() + " 님이 작성한 글");
+                //PreferenceManager.setString(MyPageActivity.this, "userName", userInfo.getUserName());
+                //(DB에 바뀐 이름을 전달하고 DB에서 totalPostList를 받아 search를 통해 notify 함)
+            }
+            if (data != null && data.hasExtra("userTown")) {
+                isChangeTown = true;
+                tvUserTown.setText(data.getExtras().getString("userTown"));
+                userInfo.setUserTown(data.getExtras().getString("userTown"));
+                userInfo.setUserAddress(data.getExtras().getString("userAddress"));
             }
         }
     }

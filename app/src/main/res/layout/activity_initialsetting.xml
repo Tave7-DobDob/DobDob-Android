@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/is_wholeLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/logo"
@@ -15,13 +14,11 @@
         android:layout_marginBottom="50dp"
         android:contentDescription="돕돕"
         android:src="@drawable/logo3"
-        app:layout_constraintBottom_toTopOf="@id/is_settingForm"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.08" />
 
     <LinearLayout
         android:id="@+id/is_settingForm"
@@ -32,11 +29,11 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintTop_toBottomOf="@id/logo"
+        app:layout_constraintBottom_toTopOf="@id/is_btSubmit"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/logo">
+        app:layout_constraintVertical_bias="0.35">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -150,7 +147,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="3dp"
                     android:layout_marginEnd="30dp"
-                    android:text="백현동"
                     android:textColor="#ffc600"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -188,23 +184,28 @@
                 android:layout_marginTop="20dp"
                 android:background="@drawable/bg_position_border"
                 android:lineHeight="20dp"
-                android:text="경기도 성남시 분당구 판교역로 지하160(백현동)"
                 android:textColor="#999999"
                 android:textSize="12dp" />
         </LinearLayout>
-
-        <Button
-            android:id="@+id/is_btSubmit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="150dp"
-            android:backgroundTint="#f8d870"
-            android:paddingTop="15dp"
-            android:paddingBottom="15dp"
-            android:text="돕돕 시작하기"
-            android:textSize="15dp"
-            android:textStyle="bold" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/is_btSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:backgroundTint="#f8d870"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="돕돕 시작하기"
+        android:textSize="15dp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.92" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

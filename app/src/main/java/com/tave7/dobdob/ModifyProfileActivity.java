@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -20,31 +21,39 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.gson.JsonObject;
 import com.tave7.dobdob.data.UserInfo;
 
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.tave7.dobdob.InitialSettingActivity.DAUMADDRESS_REQUEST;
+
 public class ModifyProfileActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
+    private static JsonObject location;
 
-    UserInfo userInfo = null, tmpUserInfo = null;
-    Bitmap tmpChangeProfile;
-    boolean isChangeProfile = false, isChangeName = false, isChangeTown = false;
+    private UserInfo userInfo = null;
+    private static UserInfo tmpUserInfo = null;
+    private Bitmap tmpChangeProfile;
+    private boolean isChangeProfile = false, isChangeName = false;
 
-    CircleImageView civUserProfile;
-    EditText etUserName;
-    TextView tvNameCheckInfo, tvUserTown, tvFullAddress;
+    private CircleImageView civUserProfile;
+    private EditText etUserName;
+    private TextView tvNameCheckInfo;
+    private static TextView tvUserTown;
+    private static TextView tvFullAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_profile);
 
-        tmpUserInfo = new UserInfo(null, "", "");
-        userInfo = (UserInfo) getIntent().getExtras().getParcelable("userInfo");
+        tmpUserInfo = new UserInfo(null, "", "", "");
+        userInfo = getIntent().getExtras().getParcelable("userInfo");
 
         Toolbar toolbar = findViewById(R.id.modify_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -54,27 +63,27 @@ public class ModifyProfileActivity extends AppCompatActivity {
         @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_modify_profile, null);
         actionBar.setCustomView(customView);
 
-        civUserProfile = (CircleImageView) findViewById(R.id.modify_userProfile);
+        civUserProfile = findViewById(R.id.modify_userProfile);
         if (userInfo.getUserProfileUrl() == null)
             civUserProfile.setImageResource(R.drawable.user);
         else {    //TODO: 고쳐야 함(안됨)     //TODO: 해당 user의 이미지로 setImageResource변경
             //user.setUserProfileUrl("https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE");
             //civUserProfile.setImageBitmap(user.getBitmapProfile());
         }
-        etUserName = (EditText) findViewById(R.id.modify_userName);            //TODO: 변경 시 해당 user의 닉네임으로 setText("")변경
+        etUserName = findViewById(R.id.modify_userName);
             etUserName.setText(userInfo.getUserName());
-        tvNameCheckInfo = (TextView) findViewById(R.id.modify_tvNameCheckInfo);
+        tvNameCheckInfo = findViewById(R.id.modify_tvNameCheckInfo);
             tvNameCheckInfo.setVisibility(View.GONE);
-        tvUserTown = (TextView) findViewById(R.id.modify_userTown);            //TODO: 해당 user의 동네로 setText("")변경(클릭시 주소 결정할 수 있게)
+        tvUserTown = findViewById(R.id.modify_userTown);
             tvUserTown.setText(userInfo.getUserTown());
-        tvFullAddress = (TextView) findViewById(R.id.modify_tvFullAddress);     //TODO: 해당 user의 Full Address를 저장함
-            //tvFullAddress.setText();      //TODO: 구현해야함!
+        tvFullAddress = findViewById(R.id.modify_tvFullAddress);
+            tvFullAddress.setText(userInfo.getUserAddress());
         toolbarListener(toolbar);
         modifyProfileListener();
     }
 
     public void toolbarListener(Toolbar toolbar){
-        TextView tvCancel = (TextView) toolbar.findViewById(R.id.toolbar_mp_cancel);
+        TextView tvCancel = toolbar.findViewById(R.id.toolbar_mp_cancel);
         tvCancel.setOnClickListener(v -> {
             Intent intent = new Intent();
             setResult(RESULT_CANCELED, intent);
@@ -82,7 +91,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
             finish();
         });
         
-        TextView tvOK = (TextView) toolbar.findViewById(R.id.toolbar_mp_ok);
+        TextView tvOK = toolbar.findViewById(R.id.toolbar_mp_ok);
         tvOK.setOnClickListener(v -> {      //완료 버튼 클릭 시
             Intent giveChangedUserInfo = new Intent();
             Bundle bUserInfo = new Bundle();
@@ -93,8 +102,12 @@ public class ModifyProfileActivity extends AppCompatActivity {
              */
             if (isChangeName)
                 bUserInfo.putString("userName", tmpUserInfo.getUserName());
-            if (isChangeTown)
+            if (!tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(userInfo.getUserAddress())) {
+                Log.i("확인용 user", userInfo.getUserTown());
+                Log.i("확인용 tmpuser", tmpUserInfo.getUserTown());
                 bUserInfo.putString("userTown", tmpUserInfo.getUserTown());
+                bUserInfo.putString("userAddress", tmpUserInfo.getUserAddress());
+            }
             giveChangedUserInfo.putExtras(bUserInfo);
             setResult(RESULT_OK, giveChangedUserInfo);
             finish();
@@ -155,13 +168,8 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
         Button btChangeTown = (Button) findViewById(R.id.modify_btChangeTown);
         btChangeTown.setOnClickListener(v -> {
-            /*
-            //TODO: 서버로부터 주소를 받고 해당 주소를 DB에 저장
-            isChangeTown = true;
-            tmpUserInfo.setUserTown("XXX동");
-            tvUserTown.setText("XXX동");      //TODO: 해당 주소를 변경
-            //TODO: 주소를 입력하여 변경할 수 있도록 해야함 -> 취소버튼을 누르지 않았다면 isChangeTown = true;가 됨
-             */
+            Intent itAddress = new Intent(ModifyProfileActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
+            startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
         });
     }
 
@@ -193,5 +201,19 @@ public class ModifyProfileActivity extends AppCompatActivity {
         } else if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED){
             Toast.makeText(this,"사진 선택 취소", Toast.LENGTH_SHORT).show();
         }
+        else if (requestCode == DAUMADDRESS_REQUEST && resultCode == RESULT_OK) {
+            try {
+                new GetGEOTask(this, "modifyProfile", data.getExtras().getString("address")).execute().get();
+            } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+        }
+    }
+
+    public static void modifyPSettingTown(JsonObject loc) {
+        location = loc;
+
+        tvUserTown.setText(loc.get("dong").getAsString());
+        tvFullAddress.setText(loc.get("fullAddress").getAsString());
+        tmpUserInfo.setUserTown(loc.get("dong").getAsString());
+        tmpUserInfo.setUserAddress(loc.get("fullAddress").getAsString());
     }
 }
