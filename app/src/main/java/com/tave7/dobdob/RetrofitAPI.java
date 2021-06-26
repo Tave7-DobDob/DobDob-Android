@@ -22,15 +22,18 @@ public interface RetrofitAPI {
     @POST("/auth/kakao")
     Call<String> postKakaoToken(@Body JsonObject kakaoToken);       //서버로 카카오 토큰 전달
 
+    @GET("/user/{id}")
+    Call<String> getUserInfo(@Path("id") int id);                   //서버로부터 해당 유저 id의 정보를 받음
+
     @GET("/user/nickname/{nickname}")
-    Call<String> checkExistNick(@Path("nickname") String nickname);                 //서버로부터 해당 id의 포스트를 받음
+    Call<String> checkExistNick(@Path("nickname") String nickname); //서버로부터 해당 nickname이 이미 존재하는 지를 확인받음
 
     @Multipart
     @POST("/post/upload")
     Call<String> postNewPost(@Part ArrayList<MultipartBody.Part> postImage, @PartMap Map<String, RequestBody> data);
 
     @GET("/post")
-    Call<String> getAllPost();                                      //서버로부터 전체 포스트를 받음
+    Call<String> getAllPost();                                      //서버로부터 전체 포스트를 받음(TODO: 지역을 전달해야 함!)
 
     @GET("/post/{id}")
     Call<String> getIDPost(@Path("id") int postID);                 //서버로부터 해당 id의 포스트를 받음

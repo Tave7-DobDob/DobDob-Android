@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
         //updatePostList(location);     //TODO: 지역을 전달해야 함(서버로부터 해당 지역의 동네를 받아야 함!)
     }
 
-    public void updatePostList() {
+    public void updatePostList() {      //TODO: 지역을 받아야 전달해야 함!!!!!!!!!!
         //변경사항이 있으므로 다시 받아옴
         RetrofitClient.getApiService().getAllPost().enqueue(new Callback<String>() {
             @Override
