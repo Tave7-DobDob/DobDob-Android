@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -17,14 +19,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.R;
 import com.tave7.dobdob.data.CommentInfo;
 import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -56,7 +61,11 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
 
     @Override
     public void onBindViewHolder(CommentRecyclerAdapter.CommentViewHolder holder, int position) {
-        //holder.commenterProfile.setImageURI("");     //TODO: 이미지 URL을 보이게 함
+        Bitmap commenterProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), R.drawable.user, null)).getBitmap();
+        try {
+            commenterProfile = new DownloadFileTask(commentList.get(position).getCommenterInfo().getUserProfileUrl()).execute().get();
+        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+        holder.commenterProfile.setImageBitmap(commenterProfile);
         holder.commenterName.setText(commentList.get(position).getCommenterInfo().getUserName());
         holder.commenterTown.setText(commentList.get(position).getCommenterInfo().getUserTown());
         holder.commentTime.setText(commentList.get(position).getCommentTime());

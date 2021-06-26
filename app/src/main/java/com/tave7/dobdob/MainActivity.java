@@ -63,11 +63,10 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO: UserInfo를 받은 값을 넘겨받아야 함!!!
         String userProfileUrl = PreferenceManager.getString(MainActivity.this, "userProfileUrl");
-        byte[] userProfile = Base64.decode(userProfileUrl.getBytes(), Base64.DEFAULT);
         String userName = PreferenceManager.getString(MainActivity.this, "userName");
         String userTown = PreferenceManager.getString(MainActivity.this, "userTown");
         String userAddress = PreferenceManager.getString(MainActivity.this, "userAddress");
-        userInfo = new UserInfo(userProfile, userName, userTown, userAddress);
+        userInfo = new UserInfo(-1, userProfileUrl, userName, userTown, userAddress);
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -109,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                 tmpHeartUsers.add("생귤");
                 tmpHeartUsers.add("테이비");     tmpHeartUsers.add("테이비2");
                 tmpHeartUsers.add("테이비3");     tmpHeartUsers.add("테이비4");
-            totalPostList.add(new PostInfoSimple(new UserInfo(null, "테이비", "신사동", ""), "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", tmpHeartUsers, 4, tmpTag));
+            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비", "신사동", ""), "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", tmpHeartUsers, 4, tmpTag));
             ArrayList<String> tmpTag2 = new ArrayList<>();
                 tmpTag2.add("자전거타기");
             ArrayList<String> tmpHeartUsers2 = new ArrayList<>();
@@ -122,10 +121,10 @@ public class MainActivity extends AppCompatActivity {
             ArrayList<String> tmpHeartUsers4 = new ArrayList<>();
                 tmpHeartUsers4.add("생귤");
                 tmpHeartUsers4.add("테이비3");     tmpHeartUsers4.add("테이비7");
-            totalPostList.add(new PostInfoSimple(new UserInfo(null, "자전거탄풍경", "개포동", ""), "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", tmpHeartUsers2, 0, tmpTag2));
-            totalPostList.add(new PostInfoSimple(new UserInfo(null, "테이비1", "인사동", ""), "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers3, 2, tmpTag2));
-            totalPostList.add(new PostInfoSimple(new UserInfo(null, "테이비2", "청파동", ""), "2021.05.20 11:30", "맥모닝 같이 먹을 사람 구해요!", null, 0, null));
-            totalPostList.add(new PostInfoSimple(new UserInfo(null, "테이비", "한남동", ""), "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers4, 39, null));
+            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "자전거탄풍경", "개포동", ""), "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", tmpHeartUsers2, 0, tmpTag2));
+            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비1", "인사동", ""), "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers3, 2, tmpTag2));
+            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비2", "청파동", ""), "2021.05.20 11:30", "맥모닝 같이 먹을 사람 구해요!", null, 0, null));
+            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비", "한남동", ""), "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers4, 39, null));
             postList.addAll(totalPostList);     //TODO: 삭제했을 때 영향 미치는 지 확인해야 함
 
         rvPost = findViewById(R.id.mainPost);
@@ -280,9 +279,7 @@ public class MainActivity extends AppCompatActivity {
                 updatePostList();
             }
             else if (requestCode == DAUMADDRESS_REQUEST) {
-                try {
-                    new GetGEOTask(this, "main", Objects.requireNonNull(data).getExtras().getString("address")).execute().get();
-                } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+                new GetGEOTask(this, "main", Objects.requireNonNull(data).getExtras().getString("address")).execute();
             }
         }
         //TODO: 이후에 post글 추가를 한다면 동네에 대한 post를 최신으로 새로고침해야 함

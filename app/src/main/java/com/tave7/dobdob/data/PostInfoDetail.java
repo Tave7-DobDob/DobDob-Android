@@ -8,14 +8,14 @@ import java.util.ArrayList;
 public class PostInfoDetail implements Parcelable {
     PostInfoSimple postInfoSimple;
     private String postContent;
-    private ArrayList<byte[]> postPhotos;     //사진 저장
+    private ArrayList<String> postPhotos;     //사진 저장
     private ArrayList<CommentInfo> comments;
 
     public PostInfoDetail(PostInfoSimple postInfoSimple, String postContent){
         this.postInfoSimple = postInfoSimple;
         this.postContent = postContent;
 
-        postPhotos = new ArrayList<byte[]>();
+        postPhotos = new ArrayList<String>();
         comments = new ArrayList<CommentInfo>();
         //this.comments = comments;
     }
@@ -23,8 +23,8 @@ public class PostInfoDetail implements Parcelable {
     protected PostInfoDetail(Parcel in) {
         postInfoSimple = in.readParcelable(PostInfoSimple.class.getClassLoader());
         postContent = in.readString();
-        postPhotos = new ArrayList<byte[]>();
-        postPhotos = (ArrayList<byte[]>) in.readSerializable();
+        postPhotos = new ArrayList<String>();
+        postPhotos = (ArrayList<String>) in.readSerializable();
         comments = new ArrayList<CommentInfo>();
         in.readTypedList(comments, CommentInfo.CREATOR);
     }
@@ -44,7 +44,7 @@ public class PostInfoDetail implements Parcelable {
 
     public PostInfoSimple getPostInfoSimple() { return postInfoSimple; }
     public String getPostContent() { return postContent; }
-    public ArrayList<byte[]> getPostPhotos() { return postPhotos; }
+    public ArrayList<String> getPostPhotos() { return postPhotos; }
     public ArrayList<CommentInfo> getComments() { return comments; }
 
     public void setPostContent(String postContent) { this.postContent = postContent; }

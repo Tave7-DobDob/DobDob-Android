@@ -55,7 +55,6 @@ public class InitialSettingActivity extends AppCompatActivity {
         clWhole = findViewById(R.id.is_wholeLayout);
         etName = findViewById(R.id.is_etName);
         tvNameError = findViewById(R.id.is_tvNameError);
-            tvNameError.setVisibility(View.GONE);
         btCheckName = findViewById(R.id.is_btCheckName);
         btSelectTown = findViewById(R.id.is_btSelectTown);
         tvTownError = findViewById(R.id.is_tvTownError);
@@ -83,8 +82,9 @@ public class InitialSettingActivity extends AppCompatActivity {
         etName.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                tvNameError.setVisibility(View.GONE);
                 isCheckedName = false;
+                tvNameError.setTextColor(getColor(R.color.gray));
+                tvNameError.setText("\u2713 닉네임은 2자 이상(영문 혹은 한글 1자 이상)\n\u2713 영문 대소문자/한글/숫자 사용가능\n\u2713 공백 및 특수문자 사용불가");
             }
 
             @Override
@@ -96,14 +96,24 @@ public class InitialSettingActivity extends AppCompatActivity {
         btCheckName.setOnClickListener(v -> {
             String nickName = etName.getText().toString().trim();
             if (nickName.length() != etName.getText().toString().length()) {
-                tvNameError.setVisibility(View.VISIBLE);
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
                 tvNameError.setText("닉네임에 공백이 포함되어 있습니다.");
             }
             else if (nickName.equals("")) {
-                tvNameError.setVisibility(View.VISIBLE);
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
                 tvNameError.setText("닉네임을 입력하지 않았습니다.");
+            }
+            else if (nickName.length()<2 || nickName.length()>20) {
+                tvNameError.setTextColor(Color.parseColor("#FA5858"));
+                tvNameError.setText("닉네임은 2자 이상 20자 이내여야 합니다.");
+            }
+            else if (!nickName.matches(".*[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]+.*")) {
+                tvNameError.setTextColor(Color.parseColor("#FA5858"));
+                tvNameError.setText("닉네임에 영문 혹은 한글이 1글자 이상 있어야 합니다.");
+            }
+            else if (nickName.matches(".*[^0-9a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣].*")) {
+                tvNameError.setTextColor(Color.parseColor("#FA5858"));
+                tvNameError.setText("영문 대소문자/한글/숫자 이외의 문자는 사용 불가합니다:)");
             }
             else {
                 RetrofitClient.getApiService().checkExistNick(nickName).enqueue(new Callback<String>() {
@@ -114,13 +124,11 @@ public class InitialSettingActivity extends AppCompatActivity {
                                 JSONObject result = new JSONObject(response.body());
 
                                 if (result.getBoolean("isExisted") == true) {
-                                    tvNameError.setVisibility(View.VISIBLE);
                                     tvNameError.setTextColor(Color.parseColor("#FA5858"));
                                     tvNameError.setText("이미 존재하는 닉네임입니다.");
                                 }
                                 else {
                                     isCheckedName = true;
-                                    tvNameError.setVisibility(View.VISIBLE);
                                     tvNameError.setTextColor(Color.parseColor("#00AA7D"));
                                     tvNameError.setText("사용 가능한 닉네임입니다.");
                                 }
@@ -162,7 +170,7 @@ public class InitialSettingActivity extends AppCompatActivity {
                 finish();
             }
             else if (!isCheckedName) {      //닉네임 중복 확인을 하지 않은 경우
-                tvNameError.setVisibility(View.VISIBLE);
+                tvNameError.setTextColor(Color.parseColor("#FA5858"));
                 tvNameError.setText("닉네임 중복 확인해 주세요.");
             }
             else if (!isSetTown)            //동네 설정을 하지 않은 경우
@@ -175,9 +183,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == DAUMADDRESS_REQUEST && resultCode == RESULT_OK) {
-            try {
-                new GetGEOTask(this, "initial", Objects.requireNonNull(data).getExtras().getString("address")).execute().get();
-            } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+            new GetGEOTask(this, "initial", Objects.requireNonNull(data).getExtras().getString("address")).execute();
         }
     }
 
@@ -186,10 +192,10 @@ public class InitialSettingActivity extends AppCompatActivity {
 
         isSetTown = true;
         ivGPSPointer.setVisibility(View.VISIBLE);
+        btSelectTown.setText("주소 재검색");
         tvResultTown.setVisibility(View.VISIBLE);
             tvResultTown.setText(loc.get("dong").getAsString());
         tvFullAddress.setVisibility(View.VISIBLE);
             tvFullAddress.setText(loc.get("fullAddress").getAsString());
-        btSelectTown.setText("주소 재검색");
     }
 }

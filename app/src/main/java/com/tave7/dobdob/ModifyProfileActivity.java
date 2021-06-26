@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.google.gson.JsonObject;
 import com.tave7.dobdob.data.UserInfo;
@@ -59,7 +61,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_profile);
 
-        tmpUserInfo = new UserInfo(null, "", "", "");
+        tmpUserInfo = new UserInfo(-1, null, "", "", "");
         userInfo = getIntent().getExtras().getParcelable("userInfo");
 
         Toolbar toolbar = findViewById(R.id.modify_toolbar);      //툴바 설정
@@ -73,9 +75,12 @@ public class ModifyProfileActivity extends AppCompatActivity {
         civUserProfile = findViewById(R.id.modify_userProfile);
         if (userInfo.getUserProfileUrl() == null)
             civUserProfile.setImageResource(R.drawable.user);
-        else {    //TODO: 고쳐야 함(안됨)     //TODO: 해당 user의 이미지로 setImageResource변경
-            //user.setUserProfileUrl("https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE");
-            //civUserProfile.setImageBitmap(user.getBitmapProfile());
+        else {
+            Bitmap userProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.user, null)).getBitmap();
+            try {
+                userProfile = new DownloadFileTask(userInfo.getUserProfileUrl()).execute().get();
+            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+            civUserProfile.setImageBitmap(userProfile);
         }
         etUserName = findViewById(R.id.modify_userName);
             etUserName.setText(userInfo.getUserName());
@@ -156,10 +161,28 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 tvNameCheckInfo.setText("닉네임에 공백이 포함되어 있습니다.");
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
             }
+            else if (username.equals(userInfo.getUserName())) {
+                tvNameCheckInfo.setVisibility(View.GONE);
+            }
             else if (username.equals("")) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
                 tvNameCheckInfo.setText("닉네임을 입력하지 않았습니다.");
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
+            }
+            else if (username.length()<2 || username.length()>20) {
+                tvNameCheckInfo.setVisibility(View.VISIBLE);
+                tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
+                tvNameCheckInfo.setText("닉네임은 2자 이상 20자 이내여야 합니다.");
+            }
+            else if (!username.matches(".*[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]+.*")) {
+                tvNameCheckInfo.setVisibility(View.VISIBLE);
+                tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
+                tvNameCheckInfo.setText("닉네임에 영문 혹은 한글이 1글자 이상 있어야 합니다.");
+            }
+            else if (username.matches(".*[^0-9a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣].*")) {
+                tvNameCheckInfo.setVisibility(View.VISIBLE);
+                tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
+                tvNameCheckInfo.setText("영문 대소문자/한글/숫자 이외의 문자는 사용 불가합니다:)");
             }
             else {
                 RetrofitClient.getApiService().checkExistNick(username).enqueue(new Callback<String>() {
@@ -207,7 +230,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        setResult(RESULT_CANCELED, intent);     //TODO: 확인!!!!
+        setResult(RESULT_CANCELED, intent);
 
         super.onBackPressed();
     }
@@ -233,9 +256,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
             Toast.makeText(this,"사진 선택 취소", Toast.LENGTH_SHORT).show();
         }
         else if (requestCode == DAUMADDRESS_REQUEST && resultCode == RESULT_OK) {
-            try {
-                new GetGEOTask(this, "modifyProfile", Objects.requireNonNull(data).getExtras().getString("address")).execute().get();
-            } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+            new GetGEOTask(this, "modifyProfile", Objects.requireNonNull(data).getExtras().getString("address")).execute();
         }
     }
 

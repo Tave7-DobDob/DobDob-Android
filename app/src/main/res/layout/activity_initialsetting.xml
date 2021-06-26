@@ -99,9 +99,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"
+            android:lineSpacingExtra="5dp"
             android:paddingTop="10dp"
-            android:text="닉네임을 입력하지 않았습니다."
-            android:textColor="#FA5858"
+            android:text="\u2713 닉네임은 2자 이상(영문 혹은 한글 1자 이상)\n\u2713 영문 대소문자/한글/숫자 사용가능\n\u2713 공백 및 특수문자 사용불가"
+            android:textColor="@color/gray"
             android:textSize="11sp" />
 
         <LinearLayout

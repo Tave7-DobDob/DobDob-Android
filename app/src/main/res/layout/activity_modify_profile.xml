@@ -96,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
-            android:layout_marginStart="90dp"
+            android:layout_marginStart="80dp"
             android:text="닉네임 중복 확인해 주세요."
             android:textSize="11sp"
             android:textColor="#FF0000"/>
@@ -106,7 +106,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="30dp">
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"

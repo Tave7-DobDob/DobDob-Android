@@ -10,7 +10,7 @@ public class PostInfoSimple implements Parcelable {
     private int postID = -1;     //TODO: 넣어야 함!!
     private UserInfo writerInfo;
     private String postTime = "";                   //포스트가 올려진 시간(TODO: Date로 바뀌어야 함!)
-    private String postTitle = "";
+    private String postTitle;
     private ArrayList<String> heartUsers = null;    //사용자 이름들 저장
     private int commentNum = 0;
     private ArrayList<String> postTag = null;
@@ -52,9 +52,10 @@ public class PostInfoSimple implements Parcelable {
     public int getPostID() { return postID; }
     public UserInfo getWriterInfo() { return writerInfo; }
     public int getWriterID() { return writerInfo.getUserID(); }
-    public byte[] getWriterProfileUrl() { return writerInfo.getUserProfileUrl(); }
+    public String getWriterProfileUrl() { return writerInfo.getUserProfileUrl(); }
     public String getWriterName() { return writerInfo.getUserName(); }
     public String getWriterTown() { return writerInfo.getUserTown(); }
+    public String getWriterAddress() { return writerInfo.getUserAddress(); }
     public String getPostTime() { return postTime; }
     public String getPostTitle() { return postTitle; }
     public ArrayList<String> getHeartUsers() { return heartUsers; }

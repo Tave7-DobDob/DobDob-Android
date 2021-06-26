@@ -2,8 +2,10 @@ package com.tave7.dobdob.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MainActivity;
 import com.tave7.dobdob.PostActivity;
 import com.tave7.dobdob.R;
@@ -23,6 +27,7 @@ import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -62,7 +67,11 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
     @Override
     public void onBindViewHolder(PostViewHolder holder, int position) {
-        //holder.writerProfile.setImageURI("");     //TODO: 이미지 URL을 보이게 함
+        Bitmap writerProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), R.drawable.user, null)).getBitmap();
+        try {
+            writerProfile = new DownloadFileTask(postList.get(position).getWriterProfileUrl()).execute().get();
+        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+        holder.writerProfile.setImageBitmap(writerProfile);
         holder.writerName.setText(postList.get(position).getWriterName());
         holder.writerTown.setText(postList.get(position).getWriterTown());
         holder.postTime.setText(postList.get(position).getPostTime());
@@ -170,7 +179,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
     }
 
     public class PostViewHolder extends RecyclerView.ViewHolder {
-        CircleImageView writerProfile;      //TODO: 사진 받아와서 이 사진으로 설정함
+        CircleImageView writerProfile;
         TextView writerName, writerTown, postTime, postTitle, heartNum, commentNum;
         ImageView ivHeart;
         LinearLayout tags;

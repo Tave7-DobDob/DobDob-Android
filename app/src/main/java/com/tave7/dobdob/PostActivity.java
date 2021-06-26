@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -28,6 +29,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -45,6 +47,7 @@ import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import me.relex.circleindicator.CircleIndicator3;
@@ -104,22 +107,18 @@ public class PostActivity extends AppCompatActivity {
         });
 
         //*********************************예시로 쓰는 사진들**************************************************
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Bitmap sendBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.logo3);
-            sendBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        postInfoDetail.getPostPhotos().add(stream.toByteArray());
-        ByteArrayOutputStream stream2 = new ByteArrayOutputStream();
-        Bitmap icon2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.user);
-            icon2.compress(Bitmap.CompressFormat.JPEG, 100, stream2);
-        postInfoDetail.getPostPhotos().add(stream2.toByteArray());
+        postInfoDetail.getPostPhotos().add("https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg");
+        postInfoDetail.getPostPhotos().add("https://littledeep.com/wp-content/uploads/2019/05/littledeep_sky_style2.png");
 
         isWriter = seeUserInfo.getUserName().equals(postInfoDetail.getPostInfoSimple().getWriterName());
 
         svEntirePost = findViewById(R.id.post_scrollView);
         CircleImageView civWriterProfile = findViewById(R.id.post_writerProfile);
             if (postInfoDetail.getPostInfoSimple().getWriterProfileUrl() != null) {
-                //TODO: postInfo.getWriterProfile()를 통해 사진 설정  -> 확인해야 함!!!!!!!!!!!
-                Bitmap writerProfile = BitmapFactory.decodeByteArray(postInfoDetail.getPostInfoSimple().getWriterProfileUrl(), 0, postInfoDetail.getPostInfoSimple().getWriterProfileUrl().length);
+                Bitmap writerProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.user, null)).getBitmap();
+                try {
+                    writerProfile = new DownloadFileTask(postInfoDetail.getPostInfoSimple().getWriterProfileUrl()).execute().get();
+                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
                 civWriterProfile.setImageBitmap(writerProfile);
             }
         TextView tvWriterName = findViewById(R.id.post_writerName);
@@ -169,10 +168,10 @@ public class PostActivity extends AppCompatActivity {
         
 
         //TODO: 임시 comment들 생성
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(null, "테이비1", "한남동", ""), "2021.05.16 20:00", "@tave1 첫 번째 댓글입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(null, "테이비2", "신사동", ""), "2021.05.17 13:00", "두 번째 댓글@tave2 입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(null, "테이비", "XXXX동", ""), "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(null, "테이비3", "XXX동", ""), "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(-1, null, "테이비1", "한남동", ""), "2021.05.16 20:00", "@tave1 첫 번째 댓글입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(-1, null, "테이비2", "신사동", ""), "2021.05.17 13:00", "두 번째 댓글@tave2 입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(-1, null, "테이비", "XXXX동", ""), "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(-1, null, "테이비3", "XXX동", ""), "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
 
         rvComments = findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);

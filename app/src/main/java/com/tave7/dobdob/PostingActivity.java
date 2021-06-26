@@ -35,7 +35,6 @@ import com.tave7.dobdob.data.PhotoInfo;
 import com.tave7.dobdob.data.PostInfoDetail;
 import com.tave7.dobdob.data.UserInfo;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -56,13 +55,13 @@ import static com.tave7.dobdob.InitialSettingActivity.DAUMADDRESS_REQUEST;
 
 public class PostingActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
-    private JsonObject location;
+    private JsonObject location = null;
+    private String tmpFullAddress = "";
 
-    //TODO: File과 Bitmap을 같이 저장해야함! file->name을 받아와야 하기 때문에!
     private UserInfo userInfo = null;
     private PostInfoDetail editPostInfo = null;
     private ArrayList<String> tmpTag = null;        //글 작성 페이지일 때
-    private ArrayList<PhotoInfo> tmpPhotos = null;  //수정하는 페이지인 경우에도 사용(boolean, File, Bitmap)
+    private ArrayList<PhotoInfo> tmpPhotos = null;  //(boolean, File, Bitmap)
     private boolean isEditingPost = false, isCompleted = false;
 
     private com.nex3z.flowlayout.FlowLayout flTags;
@@ -111,11 +110,12 @@ public class PostingActivity extends AppCompatActivity {
             etTitle.setText(editPostInfo.getPostInfoSimple().getPostTitle());
             if (editPostInfo.getPostPhotos().size() > 0)
                 llShowPhotos.setVisibility(View.VISIBLE);
-            for (byte[] photo : editPostInfo.getPostPhotos()) {
-                //TODO: DB 사진 서버로 갔다 와야함!!!!(서버 경로로 저장해야 함!!!!) --> 파일 한꺼번에 전달해야 함
-                Bitmap bmp = BitmapFactory.decodeByteArray(photo, 0, photo.length);     //byte[]를 bitmap으로 변환
-                PhotoInfo tmpPhoto = new PhotoInfo(bmp);
-                tmpPhotos.add(tmpPhoto);
+            for (String photo : editPostInfo.getPostPhotos()) {
+                Bitmap bmp = null;
+                try {
+                    bmp = new DownloadFileTask(photo).execute().get();
+                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+
                 @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_photo, null);
                 ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()),
                         (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
@@ -124,19 +124,12 @@ public class PostingActivity extends AppCompatActivity {
                 ImageView ivPhoto = view.findViewById(R.id.photo_iv);
                 ivPhoto.setImageBitmap(bmp);
                 ImageView ivCancel = view.findViewById(R.id.photo_cancel);
-                ivCancel.setOnClickListener(v -> {
-                    llShowPhotos.removeView((View) v.getParent());
-                    tmpPhotos.remove(tmpPhoto);
-                    tvPhotos.setText("사진("+tmpPhotos.size()+"/5)");
-
-                    if (tmpPhotos.size() == 0)
-                        llShowPhotos.setVisibility(View.GONE);
-                });
+                    ivCancel.setVisibility(View.GONE);
                 llShowPhotos.addView(view);
             }
             etContent.setText(editPostInfo.getPostContent());
-            tmpTag = editPostInfo.getPostInfoSimple().getPostTag();
-            for (String tag : tmpTag) {      //태그가 있다면 태그 표시
+            for (String tag : editPostInfo.getPostInfoSimple().getPostTag()) {      //태그가 있다면 태그 표시
+                tmpTag.add(tag);
                 @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_tag, null);
                 TextView tvTag = view.findViewById(R.id.tag_tagName);
                 tvTag.setText(tag);
@@ -148,7 +141,7 @@ public class PostingActivity extends AppCompatActivity {
                 flTags.addView(view);
             }
             tvTown.setText(editPostInfo.getPostInfoSimple().getWriterTown());
-            tvPhotos.setText("사진("+tmpPhotos.size()+"/5)");
+            tvPhotos.setText("사진("+editPostInfo.getPostPhotos().size()+"/5)");
         }
         else
             userInfo = getIntent().getExtras().getParcelable("userInfo");
@@ -174,16 +167,15 @@ public class PostingActivity extends AppCompatActivity {
             }
             else {
                 if (isEditingPost) {    //글 수정 완료
-                    //TODO: 변경 요망!
                     boolean isChgTitle = true, isChgContent = true, isChgTown = true, isChgTag = true;
                     if (editPostInfo.getPostInfoSimple().getPostTitle().equals(etTitle.getText().toString().trim()))
                         isChgTitle = false;
                     if (editPostInfo.getPostContent().equals(etContent.getText().toString().trim()))
                         isChgContent = false;
-                    if (editPostInfo.getPostInfoSimple().getWriterTown().equals(tvTown.getText().toString()))
+                    if (tmpFullAddress.length()==0 || tmpFullAddress.equals(editPostInfo.getPostInfoSimple().getWriterAddress()))
                         isChgTown = false;
                     if (editPostInfo.getPostInfoSimple().getPostTag().containsAll(tmpTag) && tmpTag.containsAll(editPostInfo.getPostInfoSimple().getPostTag()))
-                        isChgTag = false;       //TODO: 추후에 확인해보자:)
+                        isChgTag = false;
 
                     //글 제목 혹은 위치 혹은 내용 혹은 태그 변경 시
                     if (isChgTitle || isChgContent || isChgTown || isChgTag) {
@@ -194,7 +186,7 @@ public class PostingActivity extends AppCompatActivity {
                         postData.add("location", location);
                         postData.addProperty("title", etTitle.getText().toString().trim());
                         postData.addProperty("content", etContent.getText().toString().trim());
-                        postData.addProperty("editedAt", String.valueOf(new Date(System.currentTimeMillis())));
+                        postData.addProperty("editedAt", String.valueOf(new Date(System.currentTimeMillis())));     //TODO: 확인해야 함!!!
                         postData.addProperty("tags", new Gson().toJson(tmpTag));
                         RetrofitClient.getApiService().patchIDPost(editPostInfo.getPostInfoSimple().getPostID(), postData).enqueue(new Callback<String>() {       //DB전달
                             @Override
@@ -218,32 +210,18 @@ public class PostingActivity extends AppCompatActivity {
 
                         //TODO: 삭제해야하는 부분!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         editPostInfo.getPostInfoSimple().setPostTitle(etTitle.getText().toString().trim());    //제목 변경
-                        boolean isChangedPhoto = false;     //새로 추가한 사진이 있는 경우(TODO: 사진변경은 수정에서 불가능하게 해야 함!)
-                        for (PhotoInfo photo : tmpPhotos) {
-                            if (photo.getIsNew()) {
-                                isChangedPhoto = true;
-                                break;
-                            }
-                        }
-                        if (isChangedPhoto) {                                                           //사진 변경 -> 서버로 저장된 Uri를 저장해야 함!
-                            editPostInfo.getPostPhotos().clear();
-
-                            for (PhotoInfo photo : tmpPhotos) {
-                                editPostInfo.getPostPhotos().add(bitmapToByte(photo.getPhotoBM()));
-                            }
-                        }
                         editPostInfo.setPostContent(etContent.getText().toString());                    //내용 변경
                         editPostInfo.getPostInfoSimple().setWriterTown(tvTown.getText().toString());    //동네 변경
                         editPostInfo.getPostInfoSimple().setPostTag(tmpTag);        //태그 추가
                         //삭제해야하는 부분 끝!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     }
-                    else
-                        Toast.makeText(PostingActivity.this, "수정 사항이 없습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    else    //수정 사항이 없음
+                        finish();
                 }
                 else {      //글쓰기 완료
                     isCompleted = true;
 
-                    //TODO: 사진 확인해봐야함!!!(해상도를 1024*1024로 맞춰야함!)
+                    //TODO: 사진 확인해봐야함!!!(해상도를 1024*1024로 맞춰야함!) -> 서버에서 해줌!!
                     ArrayList<MultipartBody.Part> postImage = new ArrayList<>();
                     for (PhotoInfo photo : tmpPhotos) {
                         postImage.add(MultipartBody.Part.createFormData("postImage", photo.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), photo.getPhotoFile())));
@@ -253,7 +231,6 @@ public class PostingActivity extends AppCompatActivity {
                     dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(location)));
                     dataMap.put("title", RequestBody.create(MediaType.parse("text/plain"), etTitle.getText().toString().trim()));
                     dataMap.put("content", RequestBody.create(MediaType.parse("text/plain"), etContent.getText().toString().trim()));
-                    dataMap.put("createdAt", RequestBody.create(MediaType.parse("text/plain"), String.valueOf(new Date(System.currentTimeMillis()))));
                     dataMap.put("tags", RequestBody.create(MediaType.parse("multipart/form-data"), new Gson().toJson(tmpTag)));
 
                     RetrofitClient.getApiService().postNewPost(postImage, dataMap).enqueue(new Callback<String>() {
@@ -313,15 +290,20 @@ public class PostingActivity extends AppCompatActivity {
         });
 
         llPhotos.setOnClickListener(v -> {
-            //사진 불러오기
-            if (tmpPhotos.size() < 5) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(intent, PICK_FROM_GALLERY);
+            if (isEditingPost) {
+                Toast.makeText(PostingActivity.this, "글 수정 시에는 사진을 추가할 수 없습니다.", Toast.LENGTH_SHORT).show();
             }
-            else
-                Toast.makeText(PostingActivity.this, "사진은 최대 5장 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show();
+            else {
+                //사진 불러오기
+                if (tmpPhotos.size() < 5) {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(intent, PICK_FROM_GALLERY);
+                }
+                else
+                    Toast.makeText(PostingActivity.this, "사진은 최대 5장 첨부할 수 있습니다.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -361,12 +343,6 @@ public class PostingActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) { }
         });
-    }
-
-    public byte[] bitmapToByte(Bitmap bitmap) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        return stream.toByteArray();
     }
 
     @SuppressLint("SetTextI18n")
@@ -413,9 +389,7 @@ public class PostingActivity extends AppCompatActivity {
         }
 
         else if (requestCode == DAUMADDRESS_REQUEST && resultCode == RESULT_OK) {
-            try {
-                new GetGEOTask(this, "posting", data.getExtras().getString("address")).execute().get();
-            } catch (InterruptedException | ExecutionException e) { e.printStackTrace(); }
+            new GetGEOTask(this, "posting", Objects.requireNonNull(data).getExtras().getString("address")).execute();
         }
     }
 
@@ -439,7 +413,7 @@ public class PostingActivity extends AppCompatActivity {
     //동네 설정 후 화면 설정
     public void postingSettingTown(JsonObject loc) {
         location = loc;
-
+        tmpFullAddress = loc.get("fullAddress").getAsString();
         tvTown.setText(loc.get("dong").getAsString());
     }
 }

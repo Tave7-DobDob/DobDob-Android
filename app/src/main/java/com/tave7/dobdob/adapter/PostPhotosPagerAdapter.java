@@ -2,7 +2,9 @@ package com.tave7.dobdob.adapter;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,21 +12,27 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.R;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPagerAdapter.PhotosViewHolder> {
     private Context context;
-    private ArrayList<byte[]> photoList;     //photo의 url이 변환된 byte[]형태로 저장돼있음 -> TODO: 추후에 Uri를 받도록 변경해야 함!
+    private ArrayList<String> photoList;
 
-    public PostPhotosPagerAdapter(ArrayList<byte[]> photoList) { this.photoList = photoList; }
-
-    public void changePhotoList(ArrayList<byte[]> photoList) {
+    public PostPhotosPagerAdapter(ArrayList<String> photoList) {
         this.photoList = photoList;
     }
+
+    public void changePhotoList(ArrayList<String> photoList) {
+        this.photoList = photoList;
+    }
+
     @NonNull
     @Override
     public PostPhotosPagerAdapter.PhotosViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -40,7 +48,11 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
     @Override
     public void onBindViewHolder(PostPhotosPagerAdapter.PhotosViewHolder holder, int position) {
         //TODO: Uri를 Bitmap으로 변경해서 setImageBitmap을 해야 함!
-        holder.ivPhoto.setImageBitmap(BitmapFactory.decodeByteArray(photoList.get(position), 0, photoList.get(position).length));
+        Bitmap photo = null;
+        try {
+            photo = new DownloadFileTask(photoList.get(position)).execute().get();
+        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+        holder.ivPhoto.setImageBitmap(photo);
     }
 
     @Override
