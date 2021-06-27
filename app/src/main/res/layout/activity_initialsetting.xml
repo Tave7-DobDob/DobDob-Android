@@ -101,7 +101,7 @@
             android:layout_margin="3dp"
             android:lineSpacingExtra="5dp"
             android:paddingTop="10dp"
-            android:text="\u2713 닉네임은 2자 이상(영문 혹은 한글 1자 이상)\n\u2713 영문 대소문자/한글/숫자 사용가능\n\u2713 공백 및 특수문자 사용불가"
+            android:text="\u2713 2자 이상 20자 이하의 영문 소문자/한글(숫자혼합 가능)\n\u2713 공백 및 특수문자 불가"
             android:textColor="@color/gray"
             android:textSize="11sp" />
 

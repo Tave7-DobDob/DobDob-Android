@@ -26,7 +26,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -70,7 +69,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         initialSettingClickListener();
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     public void initialSettingClickListener(){
         clWhole.setOnTouchListener((v, event) -> {
             ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
@@ -84,7 +83,7 @@ public class InitialSettingActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 isCheckedName = false;
                 tvNameError.setTextColor(getColor(R.color.gray));
-                tvNameError.setText("\u2713 닉네임은 2자 이상(영문 혹은 한글 1자 이상)\n\u2713 영문 대소문자/한글/숫자 사용가능\n\u2713 공백 및 특수문자 사용불가");
+                tvNameError.setText("\u2713 2자 이상 20자 이하의 영문 소문자/한글(숫자혼합 가능)\n\u2713 공백 및 특수문자 불가");
             }
 
             @Override
@@ -105,15 +104,15 @@ public class InitialSettingActivity extends AppCompatActivity {
             }
             else if (nickName.length()<2 || nickName.length()>20) {
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("닉네임은 2자 이상 20자 이내여야 합니다.");
+                tvNameError.setText("닉네임은 2자 이상 20자 이하여야 합니다.");
             }
-            else if (!nickName.matches(".*[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]+.*")) {
+            else if (!nickName.matches(".*[a-zㄱ-ㅎㅏ-ㅣ가-힣]+.*")) {
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("닉네임에 영문 혹은 한글이 1글자 이상 있어야 합니다.");
+                tvNameError.setText("닉네임에 영문 소문자 혹은 한글이 1글자 이상 있어야 합니다.");
             }
-            else if (nickName.matches(".*[^0-9a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣].*")) {
+            else if (nickName.matches(".*[^0-9a-zㄱ-ㅎㅏ-ㅣ가-힣].*")) {
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("영문 대소문자/한글/숫자 이외의 문자는 사용 불가합니다:)");
+                tvNameError.setText("영문 소문자/한글/숫자 이외의 문자는 사용 불가합니다:)");
             }
             else {
                 RetrofitClient.getApiService().checkExistNick(nickName).enqueue(new Callback<String>() {
@@ -121,9 +120,9 @@ public class InitialSettingActivity extends AppCompatActivity {
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.code() == 200) {   //로그인 사용 가능
                             try {
-                                JSONObject result = new JSONObject(response.body());
+                                JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
 
-                                if (result.getBoolean("isExisted") == true) {
+                                if (result.getBoolean("isExisted")) {
                                     tvNameError.setTextColor(Color.parseColor("#FA5858"));
                                     tvNameError.setText("이미 존재하는 닉네임입니다.");
                                 }
@@ -157,7 +156,13 @@ public class InitialSettingActivity extends AppCompatActivity {
         });
 
         btSubmit.setOnClickListener(v -> {
-            if (isCheckedName && isSetTown) {
+            if (!isCheckedName) {      //닉네임 중복 확인을 하지 않은 경우
+                tvNameError.setTextColor(Color.parseColor("#FA5858"));
+                tvNameError.setText("닉네임 중복 확인해 주세요.");
+            }
+            else if (!isSetTown)            //동네 설정을 하지 않은 경우
+                tvTownError.setVisibility(View.VISIBLE);
+            else {
                 //TODO: DB에 결과를 보냄 -> 닉네임과 주소!  -->  그 주소를 저장함      (url 이름 바꿔야 함)
                 PreferenceManager.setBoolean(InitialSettingActivity.this, "isDidInitialSetting", true);
                 PreferenceManager.setString(InitialSettingActivity.this, "userName", etName.getText().toString());
@@ -169,12 +174,6 @@ public class InitialSettingActivity extends AppCompatActivity {
                 startActivity(showMain);
                 finish();
             }
-            else if (!isCheckedName) {      //닉네임 중복 확인을 하지 않은 경우
-                tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("닉네임 중복 확인해 주세요.");
-            }
-            else if (!isSetTown)            //동네 설정을 하지 않은 경우
-                tvTownError.setVisibility(View.VISIBLE);
         });
     }
 

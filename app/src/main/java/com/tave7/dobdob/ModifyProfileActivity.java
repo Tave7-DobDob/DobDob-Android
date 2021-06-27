@@ -76,7 +76,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
         if (userInfo.getUserProfileUrl() == null)
             civUserProfile.setImageResource(R.drawable.user);
         else {
-            Bitmap userProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.user, null)).getBitmap();
+            Bitmap userProfile = ((BitmapDrawable) Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.user, null))).getBitmap();
             try {
                 userProfile = new DownloadFileTask(userInfo.getUserProfileUrl()).execute().get();
             } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
@@ -126,6 +126,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("SetTextI18n")
     public void modifyProfileListener() {
         TextView tvChangeProfile = findViewById(R.id.modify_tvChangeProfile);
         tvChangeProfile.setOnClickListener(v -> {
@@ -174,15 +175,15 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
                 tvNameCheckInfo.setText("닉네임은 2자 이상 20자 이내여야 합니다.");
             }
-            else if (!username.matches(".*[a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]+.*")) {
+            else if (!username.matches(".*[a-zㄱ-ㅎㅏ-ㅣ가-힣]+.*")) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
-                tvNameCheckInfo.setText("닉네임에 영문 혹은 한글이 1글자 이상 있어야 합니다.");
+                tvNameCheckInfo.setText("닉네임에 영문 소문자 혹은 한글이 1글자 이상 있어야 합니다.");
             }
-            else if (username.matches(".*[^0-9a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣].*")) {
+            else if (username.matches(".*[^0-9a-zㄱ-ㅎㅏ-ㅣ가-힣].*")) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
-                tvNameCheckInfo.setText("영문 대소문자/한글/숫자 이외의 문자는 사용 불가합니다:)");
+                tvNameCheckInfo.setText("영문 소문자/한글/숫자 이외의 문자는 사용 불가합니다:)");
             }
             else {
                 RetrofitClient.getApiService().checkExistNick(username).enqueue(new Callback<String>() {
