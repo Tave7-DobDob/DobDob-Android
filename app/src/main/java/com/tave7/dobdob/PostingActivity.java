@@ -192,7 +192,7 @@ public class PostingActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                                 Log.i("Posting 수정성공1", response.toString());
-                                Log.i("Posting 수정성공1", response.body());
+                                Log.i("Posting 수정성공2", response.body());
                                 if (response.code() == 200) {
                                     finish();
                                 }
@@ -237,7 +237,7 @@ public class PostingActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                             Log.i("Posting 연결성공1", response.toString());
-                            Log.i("Posting 연결성공1", response.body());
+                            Log.i("Posting 연결성공2", response.body());
                             if (response.code() == 201) {
                                 //TODO: DB에 글 업로드 완료:)라는 의미임
                                 //postId를 받아 저장해야 하며, 이미지의 url로 바꿔야 함!!!

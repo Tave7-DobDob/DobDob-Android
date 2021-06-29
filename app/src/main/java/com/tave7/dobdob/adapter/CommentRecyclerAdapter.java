@@ -62,9 +62,11 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
     @Override
     public void onBindViewHolder(CommentRecyclerAdapter.CommentViewHolder holder, int position) {
         Bitmap commenterProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), R.drawable.user, null)).getBitmap();
-        try {
-            commenterProfile = new DownloadFileTask(commentList.get(position).getCommenterInfo().getUserProfileUrl()).execute().get();
-        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+        if (commentList.get(position).getCommenterInfo().getUserProfileUrl() != null) {
+            try {
+                commenterProfile = new DownloadFileTask(commentList.get(position).getCommenterInfo().getUserProfileUrl()).execute().get();
+            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+        }
         holder.commenterProfile.setImageBitmap(commenterProfile);
         holder.commenterName.setText(commentList.get(position).getCommenterInfo().getUserName());
         holder.commenterTown.setText(commentList.get(position).getCommenterInfo().getUserTown());

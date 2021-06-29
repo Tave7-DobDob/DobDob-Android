@@ -68,9 +68,11 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
     @Override
     public void onBindViewHolder(PostViewHolder holder, int position) {
         Bitmap writerProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), R.drawable.user, null)).getBitmap();
-        try {
-            writerProfile = new DownloadFileTask(postList.get(position).getWriterProfileUrl()).execute().get();
-        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+        if (postList.get(position).getWriterProfileUrl() != null) {
+            try {
+                writerProfile = new DownloadFileTask(postList.get(position).getWriterProfileUrl()).execute().get();
+            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+        }
         holder.writerProfile.setImageBitmap(writerProfile);
         holder.writerName.setText(postList.get(position).getWriterName());
         holder.writerTown.setText(postList.get(position).getWriterTown());

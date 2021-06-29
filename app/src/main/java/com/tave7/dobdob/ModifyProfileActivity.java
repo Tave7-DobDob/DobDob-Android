@@ -45,8 +45,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
     private JsonObject location;
 
-    private UserInfo userInfo = null;
-    private UserInfo tmpUserInfo = null;
+    private UserInfo userInfo = null, tmpUserInfo = null;
     private Bitmap tmpChangeProfile;
     private boolean isChangeProfile = false, isChangeName = false;
 
@@ -61,8 +60,8 @@ public class ModifyProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_profile);
 
-        tmpUserInfo = new UserInfo(-1, null, "", "", "");
         userInfo = getIntent().getExtras().getParcelable("userInfo");
+        tmpUserInfo = new UserInfo(userInfo.getUserID(), null, "", "", "");
 
         Toolbar toolbar = findViewById(R.id.modify_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -105,24 +104,45 @@ public class ModifyProfileActivity extends AppCompatActivity {
         
         TextView tvOK = toolbar.findViewById(R.id.toolbar_mp_ok);
         tvOK.setOnClickListener(v -> {      //완료 버튼 클릭 시
-            Intent giveChangedUserInfo = new Intent();
-            Bundle bUserInfo = new Bundle();
-            /*  TODO: 이미지를 String으로 전달해야 함
-            if (isChangeProfile)
-                bUserInfo.putString("userProfileUrl", );
-                //tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
-             */
-            if (isChangeName)
-                bUserInfo.putString("userName", tmpUserInfo.getUserName());
-            if (!tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(userInfo.getUserAddress())) {
-                Log.i("확인용 user", userInfo.getUserTown());
-                Log.i("확인용 tmpuser", tmpUserInfo.getUserTown());
-                bUserInfo.putString("userTown", tmpUserInfo.getUserTown());
-                bUserInfo.putString("userAddress", tmpUserInfo.getUserAddress());
+            boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(userInfo.getUserAddress());
+            if (isChangeName || isChangeAddress) {      //TODO: 프로필 변경 시에도 추가되어야 함
+                JsonObject userData = new JsonObject();
+                userData.addProperty("nickName", tmpUserInfo.getUserName());
+                userData.add("location", location);
+                RetrofitClient.getApiService().patchUserInfo(userInfo.getUserID(), userData).enqueue(new Callback<String>() {       //DB전달
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("MProfile 설정성공1", response.toString());
+                        Log.i("MProfile 설정성공2", response.body());
+                        if (response.code() == 200) {
+                            Intent giveChangedUserInfo = new Intent();
+                            Bundle bUserInfo = new Bundle();
+                            /*  TODO: 이미지를 String으로 전달해야 함
+                            if (isChangeProfile)
+                                bUserInfo.putString("userProfileUrl", );
+                                //tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
+                             */
+                            if (isChangeName)
+                                bUserInfo.putString("userName", tmpUserInfo.getUserName());
+                            if (isChangeAddress) {
+                                bUserInfo.putString("userTown", tmpUserInfo.getUserTown());
+                                bUserInfo.putString("userAddress", tmpUserInfo.getUserAddress());
+                            }
+                            giveChangedUserInfo.putExtras(bUserInfo);
+                            setResult(RESULT_OK, giveChangedUserInfo);
+                            finish();
+                        }
+                        else
+                            Toast.makeText(ModifyProfileActivity.this, "다시 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.i("MProfile 설정실패", t.getMessage());
+                        Toast.makeText(ModifyProfileActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-            giveChangedUserInfo.putExtras(bUserInfo);
-            setResult(RESULT_OK, giveChangedUserInfo);
-            finish();
         });
     }
 

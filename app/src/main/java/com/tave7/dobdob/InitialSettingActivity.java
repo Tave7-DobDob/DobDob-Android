@@ -35,6 +35,7 @@ import retrofit2.Response;
 public class InitialSettingActivity extends AppCompatActivity {
     public static final int DAUMADDRESS_REQUEST = 3000;
     private static JsonObject location;
+    private int userID = -1;
 
     private boolean isCheckedName = false;
     private boolean isSetTown = false;
@@ -50,6 +51,8 @@ public class InitialSettingActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialsetting);
+
+        userID = getIntent().getExtras().getInt("userID");      //TODO: 추후에 변경될 가능성 있음??!?!!
 
         clWhole = findViewById(R.id.is_wholeLayout);
         etName = findViewById(R.id.is_etName);
@@ -118,10 +121,9 @@ public class InitialSettingActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().checkExistNick(nickName).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        if (response.code() == 200) {   //로그인 사용 가능
+                        if (response.code() == 200) {   //서버 연결 성공
                             try {
                                 JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
-
                                 if (result.getBoolean("isExisted")) {
                                     tvNameError.setTextColor(Color.parseColor("#FA5858"));
                                     tvNameError.setText("이미 존재하는 닉네임입니다.");
@@ -162,17 +164,40 @@ public class InitialSettingActivity extends AppCompatActivity {
             }
             else if (!isSetTown)            //동네 설정을 하지 않은 경우
                 tvTownError.setVisibility(View.VISIBLE);
-            else {
-                //TODO: DB에 결과를 보냄 -> 닉네임과 주소!  -->  그 주소를 저장함      (url 이름 바꿔야 함)
-                PreferenceManager.setBoolean(InitialSettingActivity.this, "isDidInitialSetting", true);
-                PreferenceManager.setString(InitialSettingActivity.this, "userName", etName.getText().toString());
-                PreferenceManager.setString(InitialSettingActivity.this, "userTown", tvResultTown.getText().toString());
-                PreferenceManager.setString(InitialSettingActivity.this, "userAddress", tvFullAddress.getText().toString());
+            else {  //서버에 유저 정보를 전달함
+                JsonObject userData = new JsonObject();
+                userData.addProperty("nickName", etName.getText().toString().trim());
+                userData.add("location", location);
+                RetrofitClient.getApiService().patchUserInfo(userID, userData).enqueue(new Callback<String>() {       //DB전달
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("Initial 설정성공1", response.toString());
+                        Log.i("Initial 설정성공2", response.body());
+                        if (response.code() == 200) {
+                            //TODO: 현재 위치가 저장이 안되고 있음 확인해야 함!!          --> 창우님이 해결해주셔야 함!!!!
+                            //TODO: 현재 닉네임이 변경이 되지 않고 있음!!!!! 확인해야 함!!!!!!!
+                            /*
+                            //TODO: DB에 결과를 보냄 -> 닉네임과 주소!  -->  그 주소를 저장함      (url 이름 바꿔야 함)
+                            PreferenceManager.setStriing(InitialSettingActivity.this, "userName", etName.getText().toString().trim());
+                            PreferenceManager.setString(InitialSettingActivity.this, "userTown", tvResultTown.getText().toString());
+                            PreferenceManager.setString(InitialSettingActivity.this, "userAddress", tvFullAddress.getText().toString());
+                             */
 
-                //TODO: DB에서 postList 내용 받아와야 함!(이때)
-                Intent showMain = new Intent(InitialSettingActivity.this, MainActivity.class);
-                startActivity(showMain);
-                finish();
+                            //UserId를 넘겨줘야 함!!
+                            Intent showMain = new Intent(InitialSettingActivity.this, MainActivity.class);
+                            startActivity(showMain);
+                            finish();
+                        }
+                        else
+                            Toast.makeText(InitialSettingActivity.this, "다시 돕돕 시작하기 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.i("Initial 설정실패", t.getMessage());
+                        Toast.makeText(InitialSettingActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }

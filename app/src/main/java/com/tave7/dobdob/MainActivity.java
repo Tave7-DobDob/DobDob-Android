@@ -61,12 +61,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //TODO: UserInfo를 받은 값을 넘겨받아야 함!!!
-        String userProfileUrl = PreferenceManager.getString(MainActivity.this, "userProfileUrl");
+        //TODO: UserInfo를 받은 값을 넘겨받아야 함!!! (extra로 넘겨받은 id값을 userID로 넣고 정보를 받아옴!!)
         String userName = PreferenceManager.getString(MainActivity.this, "userName");
         String userTown = PreferenceManager.getString(MainActivity.this, "userTown");
         String userAddress = PreferenceManager.getString(MainActivity.this, "userAddress");
-        userInfo = new UserInfo(-1, userProfileUrl, userName, userTown, userAddress);
+        //userInfo = new UserInfo(-1, userProfileUrl, userName, userTown, userAddress);
+        userInfo = new UserInfo(-1, null, userName, userTown, userAddress);
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -79,26 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
         postList = new ArrayList<>();
         totalPostList = new ArrayList<>();
-        RetrofitClient.getApiService().getAllPost().enqueue(new Callback<String>() {
-            @Override
-            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("MainA 전체글 성공", response.toString());
-                Log.i("MainA 전체글 성공2", response.body());
-                if (response.code() == 200) {
-                    //TODO: 글 모두 저장함(totalPostList에 넣고 postList에 addAll함!)
-                }
-                else {
-                    Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                Log.i("Main 전체글 연결실패", t.getMessage());
-                Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         //TODO: 임시 postList 생성
             ArrayList<String> tmpTag = new ArrayList<>();
                 tmpTag.add("산책");
@@ -143,6 +123,26 @@ public class MainActivity extends AppCompatActivity {
                 bundle.putParcelable("userInfo", userInfo);
             postingPage.putExtras(bundle);
             startActivityForResult(postingPage, POSTING_REQUEST);    //글쓰기 창으로 화면이 넘어감
+        });
+
+        RetrofitClient.getApiService().getAllPost().enqueue(new Callback<String>() {     //전체 글 업로드!  TODO: updatePostList 함수로 사용!!!!
+            @Override
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                Log.i("MainA 전체글 성공", response.toString());
+                Log.i("MainA 전체글 성공2", response.body());
+                if (response.code() == 200) {
+                    //TODO: 글 모두 저장함(totalPostList에 넣고 postList에 addAll함!)      -> findViewById 이후에 위치해야할 수도 있음!
+                }
+                else {
+                    Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                Log.i("Main 전체글 연결실패", t.getMessage());
+                Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -260,13 +260,16 @@ public class MainActivity extends AppCompatActivity {
                     userInfo.setUserName(data.getExtras().getString("userName"));
                     //TODO: 동네에 대한 post가 갱신되어야 함(혹은 자기 이름의 post를 찾아 이름 변경!)
                 }
+
                 if (data != null && data.hasExtra("userTown")) {
                     userInfo.setUserTown(data.getExtras().getString("userTown"));
                     tvTown.setText(userInfo.getUserTown());
 
                     //TODO: 동네에 대한 post가 갱신되어야 함
+                    //mainSettingTown();  ->  아래의 updatePostList가 겹침!! 문제
                 }
-                updatePostList();
+                else
+                    updatePostList();       //리팩토링 해야 함!!
             }
 
             else if (requestCode == POST_REQUEST) {

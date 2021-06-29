@@ -38,8 +38,8 @@ public class LoginActivity extends AppCompatActivity {
 
         kakaoLogin = findViewById(R.id.btLogin);
         kakaoLogin.setEnabled(false);
-
-        /*
+        
+        /*  -> userID를 통해 검색을 한 후에 닉네임이 없으면 넘기고(InitialSet로) 아니면 Main으로 넘어감(UserInfo를 전달해야 함!)
         //TODO: InitialSettingActivity를 한 사용자 혹은 웹에서 회원가임 폼을 작성한 사용자라면 MainActivity가 바로 보일 수 있도록 함!
         if (!PreferenceManager.getString(LoginActivity.this, "access_token").equals("")) {      //토큰이 있을 시 자동로그인 가능
             Log.i("Login 자동로그인", "가능");
@@ -48,11 +48,11 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(this, InitialSettingActivity.class));
             finish();
 
-            //startActivity(new Intent(this, MainActivity.class));
+            //startActivity(new Intent(this, MainActivity.class));      TODO: -> 이때 userID를 넘겨야 함(extra로!!!)
             //finish();
         }
-
          */
+
         //else {
             Log.i("Login 자동로그인", "불가능");
             kakaoLogin.setEnabled(true);    //로그인을 해야 함!
@@ -84,12 +84,17 @@ public class LoginActivity extends AppCompatActivity {
                         PreferenceManager.setString(LoginActivity.this, "access_token", oAuthToken.getAccessToken());
                         try {
                             JSONObject loginInfo = new JSONObject(response.body());
+                            int userID = loginInfo.getJSONObject("user").getInt("id");
+
                             if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {      //닉네임 설정 안됨
-                                startActivity(new Intent(LoginActivity.this, InitialSettingActivity.class));
+                                Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
+                                Bundle bundle = new Bundle();
+                                    bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!
+                                showIS.putExtras(bundle);
+                                startActivity(showIS);
                                 finish();
                             }
                             else {
-                                int userID = loginInfo.getJSONObject("user").getInt("id");
                                 RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
                                     @Override
                                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -98,9 +103,16 @@ public class LoginActivity extends AppCompatActivity {
                                         if (response.code() == 200) {
                                             try {
                                                 JSONObject userInfo = new JSONObject(response.body());
-                                                JSONObject user = userInfo.getJSONObject("user");       //TODO: location 확인해봐야 함!!
+                                                JSONObject user = userInfo.getJSONObject("user");
+                                                /*  TODO: location이 완료되면 이걸로 출력해야함!!!
                                                 UserInfo myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
                                                         user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("fullAddress"));
+                                                 */
+                                                UserInfo myInfo;
+                                                if (user.isNull("profileUrl"))
+                                                    myInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 --- 1020 ");
+                                                else
+                                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), "역삼동", "강남구 --- 1020 ");
 
                                                 Intent showMain = new Intent(LoginActivity.this, MainActivity.class);
                                                 Bundle bundle = new Bundle();

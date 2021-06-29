@@ -23,7 +23,10 @@ public interface RetrofitAPI {
     Call<String> postKakaoToken(@Body JsonObject kakaoToken);       //서버로 카카오 토큰 전달
 
     @GET("/user/{id}")
-    Call<String> getUserInfo(@Path("id") int id);                   //서버로부터 해당 유저 id의 정보를 받음
+    Call<String> getUserInfo(@Path("id") int userID);               //서버로부터 해당 유저 id의 정보를 받음
+
+    @PATCH("/user/{id}")
+    Call<String> patchUserInfo(@Path("id") int userID, @Body JsonObject userData);  //서버로 수정할 유저의 정보를 전달
 
     @GET("/user/nickname/{nickname}")
     Call<String> checkExistNick(@Path("nickname") String nickname); //서버로부터 해당 nickname이 이미 존재하는 지를 확인받음
