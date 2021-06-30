@@ -10,18 +10,17 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -35,7 +34,6 @@ import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,10 +47,15 @@ public class MainActivity extends AppCompatActivity {
     public static final int MYPAGE_REQUEST = 8000;
 
     private UserInfo userInfo = null;
+    private JsonObject location;        //TODO: 현재 표시하고 있는 지역이 어디인지를 보여줌!
     private ArrayList<PostInfoSimple> postList = null;        //메인에서 보여줄 postList
     private ArrayList<PostInfoSimple> totalPostList = null;   //메인에서 보여줄 postList의 복사본
+    private boolean isSearchFocus = false;
 
+    private ActionBar actionBar;
+    private SearchView sv;
     private TextView tvTown;
+    private SwipeRefreshLayout srlPost;
     private RecyclerView rvPost;
     private PostRecyclerAdapter adapter;
 
@@ -67,10 +70,11 @@ public class MainActivity extends AppCompatActivity {
         String userAddress = PreferenceManager.getString(MainActivity.this, "userAddress");
         //userInfo = new UserInfo(-1, userProfileUrl, userName, userTown, userAddress);
         userInfo = new UserInfo(-1, null, userName, userTown, userAddress);
+        //location = new JsonObject();    //TODO: location을 저장해서 들고 있어야 함!!!
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
+        actionBar = getSupportActionBar();
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);    //기본 제목을 없앰
         @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
@@ -107,13 +111,19 @@ public class MainActivity extends AppCompatActivity {
             totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비", "한남동", ""), "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers4, 39, null));
             postList.addAll(totalPostList);     //TODO: 삭제했을 때 영향 미치는 지 확인해야 함
 
+        srlPost = findViewById(R.id.main_swipeRL);
+        srlPost.setDistanceToTriggerSync(400);
+        srlPost.setOnRefreshListener(() -> {
+            //TODO: allPosts로 들고 옴!!!
+            updatePostList(true);
+        });
         rvPost = findViewById(R.id.mainPost);
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL,false);
         rvPost.setLayoutManager(manager);
         adapter = new PostRecyclerAdapter(postList, totalPostList, userInfo);
         rvPost.setAdapter(adapter);      //어댑터 등록
         DividerItemDecoration devider=new DividerItemDecoration(MainActivity.this, 1);
-        devider.setDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null));
+        devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
         rvPost.addItemDecoration(devider); //리스트 사이의 구분선 설정
 
         FloatingActionButton fabAddPost = findViewById(R.id.mainFabAddPost);
@@ -125,25 +135,7 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(postingPage, POSTING_REQUEST);    //글쓰기 창으로 화면이 넘어감
         });
 
-        RetrofitClient.getApiService().getAllPost().enqueue(new Callback<String>() {     //전체 글 업로드!  TODO: updatePostList 함수로 사용!!!!
-            @Override
-            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("MainA 전체글 성공", response.toString());
-                Log.i("MainA 전체글 성공2", response.body());
-                if (response.code() == 200) {
-                    //TODO: 글 모두 저장함(totalPostList에 넣고 postList에 addAll함!)      -> findViewById 이후에 위치해야할 수도 있음!
-                }
-                else {
-                    Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                Log.i("Main 전체글 연결실패", t.getMessage());
-                Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        updatePostList(false);   //추후에 지역을 전달해서 allPost를 받아와야 함!
     }
 
     public void toolbarListener(Toolbar toolbar){
@@ -154,8 +146,6 @@ public class MainActivity extends AppCompatActivity {
         llTown.setOnClickListener(v -> {
             Intent itAddress = new Intent(MainActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
             startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
-            //TODO: 동네를 클릭했을 때, 동네 변경이 가능해야 함 + DB에 저장
-            //user.getUserTown() = "설정한 동네"
         });
     }
 
@@ -167,20 +157,20 @@ public class MainActivity extends AppCompatActivity {
         inflater.inflate(R.menu.main_menu, menu);
 
         MenuItem mSearch = menu.findItem(R.id.search);
-        mSearch.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) { return true; }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-                searchTitleTag("");    //초기로 돌려놓음
-
-                return true;
-            }
-        });
-        SearchView sv = (SearchView) mSearch.getActionView();
+        sv = (SearchView) mSearch.getActionView();
         sv.setQueryHint("제목 및 태그 검색");
+        sv.setOnSearchClickListener(v -> {
+            isSearchFocus = true;
+            actionBar.setDisplayShowCustomEnabled(false);
+        });
+        sv.setOnCloseListener(() -> {
+            isSearchFocus = false;
+            actionBar.setDisplayShowCustomEnabled(true);
+            searchTitleTag("");    //초기로 돌려놓음
+            sv.onActionViewCollapsed();
+
+            return true;
+        });
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {    //SearchView의 검색 이벤트
             @Override
             public boolean onQueryTextSubmit(String query) {        //검색버튼을 눌렀을 경우
@@ -247,6 +237,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (isSearchFocus) {
+            isSearchFocus = false;
+            actionBar.setDisplayShowCustomEnabled(true);
+            searchTitleTag("");     //TODO: 변경할 것 인지 고민해보자!
+            sv.onActionViewCollapsed();
+        }
+        else
+            super.onBackPressed();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -269,17 +271,17 @@ public class MainActivity extends AppCompatActivity {
                     //mainSettingTown();  ->  아래의 updatePostList가 겹침!! 문제
                 }
                 else
-                    updatePostList();       //리팩토링 해야 함!!
+                    updatePostList(false);       //리팩토링 해야 함!!
             }
 
             else if (requestCode == POST_REQUEST) {
                 Log.i("확인용", "post_request");
-                updatePostList();
+                updatePostList(false);
             }
 
             else if (requestCode == POSTING_REQUEST) {
                 Log.i("확인용", "posting_request");
-                updatePostList();
+                updatePostList(false);
             }
             else if (requestCode == DAUMADDRESS_REQUEST) {
                 new GetGEOTask(this, "main", Objects.requireNonNull(data).getExtras().getString("address")).execute();
@@ -291,20 +293,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void mainSettingTown(JsonObject loc) {
-        JsonObject location = loc;
+        location = loc;
         tvTown.setText(loc.get("dong").getAsString());     //초기에 user가 설정한 동네로 보여줌
 
-        updatePostList();       //임시!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //updatePostList(location);     //TODO: 지역을 전달해야 함(서버로부터 해당 지역의 동네를 받아야 함!)
+        updatePostList(false);
+        //updatePostList(false, location);     //TODO: 지역을 전달해야 함(서버로부터 해당 지역의 동네를 받아야 함!)
     }
 
-    public void updatePostList() {      //TODO: 지역을 받아야 전달해야 함!!!!!!!!!!
+    public void updatePostList(boolean isSwipe) {      //TODO: 지역을 받아야 전달해야 함!!!!!!!!!!
         //변경사항이 있으므로 다시 받아옴
         RetrofitClient.getApiService().getAllPost().enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 Log.i("MainA 전체글 새로고침 성공", response.toString());
                 Log.i("MainA 전체글 새로고침 성공2", response.body());
+                if (isSwipe)
+                    srlPost.setRefreshing(false);
+
                 if (response.code() == 200) {
                     //totalPostList.clear();
                     //postList.clear();
@@ -319,6 +324,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 Log.i("Main 전체글 연결실패", t.getMessage());
+                if (isSwipe)
+                    srlPost.setRefreshing(false);
                 Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
             }
         });
