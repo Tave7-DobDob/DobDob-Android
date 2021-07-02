@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         rvPost = findViewById(R.id.mainPost);
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL,false);
         rvPost.setLayoutManager(manager);
-        adapter = new PostRecyclerAdapter(postList, totalPostList, myInfo);
+        adapter = new PostRecyclerAdapter(postList, totalPostList);
         rvPost.setAdapter(adapter);      //어댑터 등록
         DividerItemDecoration devider=new DividerItemDecoration(MainActivity.this, 1);
         devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));

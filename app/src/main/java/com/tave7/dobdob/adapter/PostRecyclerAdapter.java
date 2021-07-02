@@ -1,11 +1,12 @@
 package com.tave7.dobdob.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tave7.dobdob.DownloadFileTask;
@@ -24,7 +24,6 @@ import com.tave7.dobdob.PostActivity;
 import com.tave7.dobdob.R;
 import com.tave7.dobdob.TagPostActivity;
 import com.tave7.dobdob.data.PostInfoSimple;
-import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -32,24 +31,22 @@ import java.util.concurrent.ExecutionException;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.tave7.dobdob.MainActivity.POST_REQUEST;
+import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder> {
     private Context context;
     private boolean isMain = true;
     private ArrayList<PostInfoSimple> postList;
     private ArrayList<PostInfoSimple> totalPostList = null;    //메인에서 보여줄 postList의 복사본
-    private UserInfo userInfo;
 
-    public PostRecyclerAdapter(ArrayList<PostInfoSimple> postList, UserInfo userInfo) {      //MyPageActivity에서 호출
+    public PostRecyclerAdapter(ArrayList<PostInfoSimple> postList) {      //MyPageActivity에서 호출
         isMain = false;        //태그 클릭 시 태그에 대한 게시물 검색이 안됨
         this.postList = postList;
-        this.userInfo = userInfo;
     }
 
-    public PostRecyclerAdapter(ArrayList<PostInfoSimple> postList, ArrayList<PostInfoSimple> totalPostList, UserInfo userInfo) {   //MainActivity에서 호출
+    public PostRecyclerAdapter(ArrayList<PostInfoSimple> postList, ArrayList<PostInfoSimple> totalPostList) {   //MainActivity에서 호출
         this.postList = postList;
         this.totalPostList = totalPostList;
-        this.userInfo = userInfo;
     }
 
     @NonNull
@@ -65,9 +62,10 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         return viewHolder;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
-    public void onBindViewHolder(PostViewHolder holder, int position) {
-        Bitmap writerProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), R.drawable.user, null)).getBitmap();
+    public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
+        Bitmap writerProfile = BitmapFactory.decodeResource(context.getResources(), R.drawable.user);
         if (postList.get(position).getWriterProfileUrl() != null) {
             try {
                 writerProfile = new DownloadFileTask(postList.get(position).getWriterProfileUrl()).execute().get();
@@ -81,7 +79,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
         boolean isClickedHeart = false;
         for (String user: postList.get(position).getHeartUsers()) {
-            if (user.equals(userInfo.getUserName())) {
+            if (user.equals(myInfo.getUserName())) {
                 isClickedHeart = true;
                 break;
             }
@@ -94,11 +92,11 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         boolean IsHeartFull = isClickedHeart;
         holder.ivHeart.setOnClickListener(v -> {
             if (IsHeartFull) {       //기존에는 하트가 눌렸었지만 하트를 취소함
-                postList.get(position).getHeartUsers().remove(userInfo.getUserName());
+                postList.get(position).getHeartUsers().remove(myInfo.getUserName());
                 //TODO: DB에 하트를 취소했다고 추가해야 함!!
             }
             else {
-                postList.get(position).getHeartUsers().add(userInfo.getUserName());
+                postList.get(position).getHeartUsers().add(myInfo.getUserName());
                 //TODO: DB에 하트를 클릭했다고 추가해야 함!!
             }
 
@@ -127,7 +125,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                         Bundle sctBundle = new Bundle();
                             sctBundle.putString("tagName", searchTag);
                             sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));
-                            sctBundle.putParcelable("userInfo", userInfo);
                         showContainTagPost.putExtras(sctBundle);
                         context.startActivity(showContainTagPost);
                     }
@@ -204,7 +201,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     //선택한 post의 세부 내용을 다른 화면에 보여줌
                     Intent showPostPage = new Intent(context, PostActivity.class);
                     Bundle sppBundle = new Bundle();
-                        sppBundle.putParcelable("seeUserInfo", userInfo);
                         sppBundle.putParcelable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
                         sppBundle.putInt("postID", postList.get(pos).getPostID());
                     showPostPage.putExtras(sppBundle);

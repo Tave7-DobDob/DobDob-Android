@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -29,7 +28,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,7 +41,6 @@ import com.tave7.dobdob.data.PostInfoDetail;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
-import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Objects;
@@ -55,11 +52,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.tave7.dobdob.MainActivity.myInfo;
+
 public class PostActivity extends AppCompatActivity {
     public static final int POST_EDIT_REQUEST = 7500;   //requestCode로 사용될 상수(글 수정)
 
     int postID = -1;
-    UserInfo seeUserInfo;
     PostInfoDetail postInfoDetail;
     Menu menu;
     boolean isWriter = false;
@@ -81,7 +79,6 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        seeUserInfo = getIntent().getParcelableExtra("seeUserInfo");     //지금 화면을 보고 있는 사용자의 정보
         PostInfoSimple postInfo = getIntent().getParcelableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
         postInfoDetail = new PostInfoDetail(postInfo, "내용입니다아아앙~~\n...\n...");     //얕은 복사
 
@@ -110,12 +107,12 @@ public class PostActivity extends AppCompatActivity {
         postInfoDetail.getPostPhotos().add("https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg");
         postInfoDetail.getPostPhotos().add("https://littledeep.com/wp-content/uploads/2019/05/littledeep_sky_style2.png");
 
-        isWriter = seeUserInfo.getUserName().equals(postInfoDetail.getPostInfoSimple().getWriterName());
+        isWriter = myInfo.getUserName().equals(postInfoDetail.getPostInfoSimple().getWriterName());
 
         svEntirePost = findViewById(R.id.post_scrollView);
         CircleImageView civWriterProfile = findViewById(R.id.post_writerProfile);
             if (postInfoDetail.getPostInfoSimple().getWriterProfileUrl() != null) {
-                Bitmap writerProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.user, null)).getBitmap();
+                Bitmap writerProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
                 try {
                     writerProfile = new DownloadFileTask(postInfoDetail.getPostInfoSimple().getWriterProfileUrl()).execute().get();
                 } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
@@ -156,7 +153,7 @@ public class PostActivity extends AppCompatActivity {
 
         ivHeart = findViewById(R.id.post_ivHeart);
         for (String user: postInfoDetail.getPostInfoSimple().getHeartUsers()) {
-            if (user.equals(seeUserInfo.getUserName())) {
+            if (user.equals(myInfo.getUserName())) {
                 isClickedHeart = true;
                 break;
             }
@@ -176,7 +173,7 @@ public class PostActivity extends AppCompatActivity {
         rvComments = findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvComments.setLayoutManager(manager);
-        commentAdapter = new CommentRecyclerAdapter(postInfoDetail.getComments(), seeUserInfo);
+        commentAdapter = new CommentRecyclerAdapter(postInfoDetail.getComments());
         rvComments.setAdapter(commentAdapter);      //어댑터 등록
         rvComments.addItemDecoration(new DividerItemDecoration(PostActivity.this, 1));
 
@@ -195,13 +192,12 @@ public class PostActivity extends AppCompatActivity {
 
         TextView tvWriterName = findViewById(R.id.post_writerName);
         tvWriterName.setOnClickListener(v -> {
-            //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
             Intent showProfilePage = new Intent(PostActivity.this, MyPageActivity.class);
             Bundle sppBundle = new Bundle();
-                sppBundle.putBoolean("isMyPage", false);
+                //sppBundle.putInt("userID", postInfoDetail.getPostInfoSimple().getWriterID());
+                sppBundle.putInt("userID", 3);      //TODO: 시험용
             showProfilePage.putExtras(sppBundle);
-            //TODO: user의 닉네임을 DB에 전달해서 DB로부터 해당 userInfo와 user가 쓴 글을 받아와야 함
-            //startActivity(showProfilePage);
+            startActivity(showProfilePage);
         });
 
         //하트 클릭 시
@@ -210,14 +206,14 @@ public class PostActivity extends AppCompatActivity {
 
             if (isClickedHeart) {
                 ivHeart.setImageResource(R.drawable.heart_click);
-                postInfoDetail.getPostInfoSimple().getHeartUsers().add(seeUserInfo.getUserName());
+                postInfoDetail.getPostInfoSimple().getHeartUsers().add(myInfo.getUserName());
                 tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
 
                 //TODO: DB에 저장하고 수정 + MainActivity에서도 변경된 값을 갖고 있도록 해야함!
             }
             else {
                 ivHeart.setImageResource(R.drawable.heart);
-                postInfoDetail.getPostInfoSimple().getHeartUsers().remove(seeUserInfo.getUserName());
+                postInfoDetail.getPostInfoSimple().getHeartUsers().remove(myInfo.getUserName());
                 tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
 
                 //TODO: DB에 저장하고 수정
@@ -252,7 +248,7 @@ public class PostActivity extends AppCompatActivity {
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
                 String date = sdf.format(calendar.getTime());
 
-                postInfoDetail.getComments().add(new CommentInfo(seeUserInfo, date, writeComment));
+                postInfoDetail.getComments().add(new CommentInfo(myInfo, date, writeComment));
                 commentAdapter.notifyDataSetChanged();
 
                 tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
@@ -267,6 +263,7 @@ public class PostActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("SetTextI18n")
     public void settingTags() {
         for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
             TextView tvTag = new TextView(PostActivity.this);
@@ -285,7 +282,6 @@ public class PostActivity extends AppCompatActivity {
                 Bundle sctBundle = new Bundle();
                     sctBundle.putString("tagName", searchTag);
                     sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));       //어떻게?
-                    sctBundle.putParcelable("userInfo", seeUserInfo);
                 showContainTagPost.putExtras(sctBundle);
                 startActivity(showContainTagPost);
                 finish();
@@ -340,7 +336,7 @@ public class PostActivity extends AppCompatActivity {
             case R.id.postDelete: {
                 AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
                 builder.setTitle("글 삭제").setMessage("현재 글을 삭제하시겠습니까?");
-                builder.setPositiveButton("삭제", (dialog, which) -> {
+                builder.setPositiveButton("삭제", (dialog, which) ->
                     RetrofitClient.getApiService().deleteIDPost(postID).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -360,8 +356,7 @@ public class PostActivity extends AppCompatActivity {
                             Log.i("PostA 삭제서버 연결실패", t.getMessage());
                             Toast.makeText(PostActivity.this, "해당 글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
                         }
-                    });
-                });
+                    }));
                 builder.setNegativeButton("취소", (dialog, id) -> {
                     dialog.cancel();    //삭제가 되지 않음
                 });
@@ -399,7 +394,7 @@ public class PostActivity extends AppCompatActivity {
                 }
             });
             //TODO: 위의 코드로 변경되어야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            postInfoDetail = data.getExtras().getParcelable("postInfo");
+            postInfoDetail = Objects.requireNonNull(data).getExtras().getParcelable("postInfo");
             tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
             tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
             tvContent.setText(postInfoDetail.getPostContent());

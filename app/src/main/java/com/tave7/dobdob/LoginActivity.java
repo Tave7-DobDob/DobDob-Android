@@ -22,6 +22,8 @@ import com.tave7.dobdob.data.UserInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 import kotlin.Unit;
 import kotlin.jvm.functions.Function2;
 import retrofit2.Call;
@@ -86,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (response.code() == 200 || response.code() == 201) {
                         PreferenceManager.setString(LoginActivity.this, "access_token", oAuthToken.getAccessToken());
                         try {
-                            JSONObject loginInfo = new JSONObject(response.body());
+                            JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             int userID = loginInfo.getJSONObject("user").getInt("id");
 
                             if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {      //닉네임 설정 안됨
@@ -105,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                                         Log.i("Login user 정보받기 성공2", response.body());
                                         if (response.code() == 200) {
                                             try {
-                                                JSONObject userInfo = new JSONObject(response.body());
+                                                JSONObject userInfo = new JSONObject(Objects.requireNonNull(response.body()));
                                                 JSONObject user = userInfo.getJSONObject("user");
                                                 /*  TODO: location이 완료되면 이걸로 출력해야함!!!
                                                 UserInfo myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),

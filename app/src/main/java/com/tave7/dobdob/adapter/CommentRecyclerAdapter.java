@@ -2,11 +2,10 @@ package com.tave7.dobdob.adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -19,28 +18,26 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.R;
 import com.tave7.dobdob.data.CommentInfo;
-import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static com.tave7.dobdob.MainActivity.myInfo;
+
 public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecyclerAdapter.CommentViewHolder> {
     private Context context;
-    private UserInfo seeUserInfo;
     private ArrayList<CommentInfo> commentList;
 
-    public CommentRecyclerAdapter(ArrayList<CommentInfo> commentList, UserInfo seeUserInfo) {
+    public CommentRecyclerAdapter(ArrayList<CommentInfo> commentList) {
         this.commentList = commentList;
-        this.seeUserInfo = seeUserInfo;
     }
 
     public void changeCommentList(ArrayList<CommentInfo> commentList) {
@@ -60,8 +57,8 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
     }
 
     @Override
-    public void onBindViewHolder(CommentRecyclerAdapter.CommentViewHolder holder, int position) {
-        Bitmap commenterProfile = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), R.drawable.user, null)).getBitmap();
+    public void onBindViewHolder(@NonNull CommentRecyclerAdapter.CommentViewHolder holder, int position) {
+        Bitmap commenterProfile = BitmapFactory.decodeResource(context.getResources(), R.drawable.user);
         if (commentList.get(position).getCommenterInfo().getUserProfileUrl() != null) {
             try {
                 commenterProfile = new DownloadFileTask(commentList.get(position).getCommenterInfo().getUserProfileUrl()).execute().get();
@@ -69,6 +66,15 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         }
         holder.commenterProfile.setImageBitmap(commenterProfile);
         holder.commenterName.setText(commentList.get(position).getCommenterInfo().getUserName());
+        //상대 닉네임을 클릭했을 때
+        holder.commenterName.setOnClickListener(v -> {
+            Intent showProfilePage = new Intent(context, MyPageActivity.class);
+            Bundle sppBundle = new Bundle();
+            //sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
+            sppBundle.putInt("userID", 3);      //TODO: 시험용
+            showProfilePage.putExtras(sppBundle);
+            context.startActivity(showProfilePage);
+        });
         holder.commenterTown.setText(commentList.get(position).getCommenterInfo().getUserTown());
         holder.commentTime.setText(commentList.get(position).getCommentTime());
         holder.comment.setText(commentList.get(position).getContent());
@@ -77,13 +83,12 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                 @Override
                 public void onClick(View widget) {
                     //멘션 닉네임을 눌렀을 때 가능한 이벤트
-                    //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
                     Bundle sppBundle = new Bundle();
-                        sppBundle.putBoolean("isMyPage", false);
+                        //sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
+                        sppBundle.putInt("userID", 3);      //TODO: 시험용
                     showProfilePage.putExtras(sppBundle);
-                    //TODO: user의 닉네임을 DB에 전달해서 DB로부터 해당 userInfo와 user가 쓴 글을 받아와야 함
-                    //context.startActivity(showProfilePage);
+                    context.startActivity(showProfilePage);
                 }
 
                 @Override
@@ -114,24 +119,18 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             }
             holder.comment.setMovementMethod(LinkMovementMethod.getInstance());
 
-        if (seeUserInfo.getUserName().equals(commentList.get(position).getCommenterInfo().getUserName())){
+        if (myInfo.getUserName().equals(commentList.get(position).getCommenterInfo().getUserName())){
             holder.commentDelete.setVisibility(View.VISIBLE);
             holder.commentDelete.setOnClickListener(v -> {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("댓글 삭제").setMessage("이 댓글을 삭제하시겠습니까?");
-                builder.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //TODO: DB에서 댓글을 삭제
-                        commentList.remove(position);
-                        notifyDataSetChanged();
-                    }
+                builder.setPositiveButton("삭제", (dialog, which) -> {
+                    //TODO: DB에서 댓글을 삭제
+                    commentList.remove(position);
+                    notifyDataSetChanged();
                 });
-                builder.setNegativeButton("취소", new DialogInterface.OnClickListener(){
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();    //삭제가 되지 않음
-                    }
+                builder.setNegativeButton("취소", (dialog, id) -> {
+                    dialog.cancel();    //삭제가 되지 않음
                 });
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
@@ -150,25 +149,12 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
 
         CommentViewHolder(final View itemView) {
             super(itemView);
-            commenterProfile = (CircleImageView) itemView.findViewById(R.id.commentrow_profile);
-            commenterName = (TextView) itemView.findViewById(R.id.commentrow_name);
-            commenterTown = (TextView) itemView.findViewById(R.id.commentrow_town);
-            commentTime = (TextView) itemView.findViewById(R.id.commentrow_time);
-            comment = (TextView) itemView.findViewById(R.id.commentrow_comment);
-            commentDelete = (TextView) itemView.findViewById(R.id.commentrow_delete);
-
-            commenterName.setOnClickListener(new View.OnClickListener() {        //상대 닉네임을 클릭했을 때
-                @Override
-                public void onClick(View v) {
-                    //TODO: 추후에 이 사람이 쓴 글을 볼 수 있게 함(해당 사용자의 UserInfo를 주어야 함) -> 만약 현재 닉네임을 클릭한 사람이 작성자라면 true로 Extra 전달
-                    Intent showProfilePage = new Intent(context, MyPageActivity.class);
-                    Bundle sppBundle = new Bundle();
-                        sppBundle.putBoolean("isMyPage", false);
-                    showProfilePage.putExtras(sppBundle);
-                    //TODO: user의 닉네임을 DB에 전달해서 DB로부터 해당 userInfo와 user가 쓴 글을 받아와야 함
-                    //context.startActivity(showProfilePage);
-                }
-            });
+            commenterProfile = itemView.findViewById(R.id.commentrow_profile);
+            commenterName = itemView.findViewById(R.id.commentrow_name);
+            commenterTown = itemView.findViewById(R.id.commentrow_town);
+            commentTime = itemView.findViewById(R.id.commentrow_time);
+            comment = itemView.findViewById(R.id.commentrow_comment);
+            commentDelete = itemView.findViewById(R.id.commentrow_delete);
         }
     }
 }

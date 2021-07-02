@@ -46,7 +46,6 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
 
     @Override
     public void onBindViewHolder(PostPhotosPagerAdapter.PhotosViewHolder holder, int position) {
-        //TODO: Uri를 Bitmap으로 변경해서 setImageBitmap을 해야 함!
         Bitmap photo = null;
         try {
             photo = new DownloadFileTask(photoList.get(position)).execute().get();

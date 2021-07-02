@@ -1,5 +1,6 @@
 package com.tave7.dobdob;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,50 +18,47 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tave7.dobdob.adapter.PostRecyclerAdapter;
 import com.tave7.dobdob.data.PostInfoSimple;
-import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 
 public class TagPostActivity extends AppCompatActivity {
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tag_post);
 
         ArrayList<PostInfoSimple> tagPostLists = getIntent().getExtras().getParcelableArrayList("tagPostLists");
-        UserInfo userInfo = (UserInfo) getIntent().getExtras().getParcelable("userInfo");
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.tagPost_toolbar);      //툴바 설정
+        Toolbar toolbar = findViewById(R.id.tagPost_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
+        @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
         actionBar.setCustomView(customView);
-        ImageView ivGPS = (ImageView) toolbar.findViewById(R.id.toolbar_gpspointer);
+        ImageView ivGPS = toolbar.findViewById(R.id.toolbar_gpspointer);
             ivGPS.setVisibility(View.GONE);
-        TextView tvTag = (TextView) toolbar.findViewById(R.id.toolbar_town);
+        TextView tvTag = toolbar.findViewById(R.id.toolbar_town);
             tvTag.setText("# "+getIntent().getExtras().getString("tagName"));
             tvTag.setTextColor(Color.parseColor("#5AAEFF"));
 
 
-        RecyclerView rvTagPost = (RecyclerView) findViewById(R.id.tagPost);
+        RecyclerView rvTagPost = findViewById(R.id.tagPost);
         LinearLayoutManager manager = new LinearLayoutManager(TagPostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvTagPost.setLayoutManager(manager);
-        PostRecyclerAdapter adapter = new PostRecyclerAdapter(tagPostLists, userInfo);
+        PostRecyclerAdapter adapter = new PostRecyclerAdapter(tagPostLists);
         rvTagPost.setAdapter(adapter);      //어댑터 등록
         rvTagPost.addItemDecoration(new DividerItemDecoration(TagPostActivity.this, 1)); //리스트 사이의 구분선 설정
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:{    //toolbar의 back키 눌렀을 때 동작
-                finish();
-                return true;
-            }
+        if (item.getItemId() == android.R.id.home) {//toolbar의 back키 눌렀을 때 동작
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

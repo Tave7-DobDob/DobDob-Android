@@ -11,7 +11,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,18 +27,24 @@ import com.tave7.dobdob.adapter.PostRecyclerAdapter;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class MyPageActivity extends AppCompatActivity {
     private static final int EDIT_PROFILE_REQUEST = 8000;
 
-    boolean isMyPage = true;   //본인의 페이지인지?
+    boolean isMyPage = true;
     boolean isChangeProfile = false, isChangeName = false, isChangeAddress = false;
     UserInfo otherInfo = null;
     ArrayList<PostInfoSimple> userPostList = null;        //user가 올린 글 모음
@@ -61,25 +69,70 @@ public class MyPageActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
 
         civUserProfile = findViewById(R.id.myPage_userProfile);
+        tvUserName = findViewById(R.id.myPage_userName);
+        tvUserTown = findViewById(R.id.myPage_userTown);
+        tvUserPosts = findViewById(R.id.myPage_tvUserPost);
+        rvMyPagePosts = findViewById(R.id.myPagePosts);
+        LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
+        rvMyPagePosts.setLayoutManager(manager);
+
+        userPostList = new ArrayList<>();
+        if (getIntent().hasExtra("userPosts"))
+            userPostList = getIntent().getExtras().getParcelableArrayList("userPosts");     //TODO: 추후에 변경 바랍!!!!!!!!!!!!!!!!!!!!!(삭제요망)
 
         if (getIntent().hasExtra("userID")) {
-            //TODO: DB로부터 해당 id 소유자의 정보 및 내용들을 받아옴**********************************(구현해야 함!)
             isMyPage = false;
-            otherInfo = getIntent().getExtras().getParcelable("userInfo");      //다른 사람의 값을 받아옴(임시로 작성함!!!!! 나중에 변경해야 함!)
+            int userID = getIntent().getExtras().getInt("userID");
+            RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                    Log.i("MyPage user정보받기 성공1", response.toString());
+                    Log.i("MyPage user정보받기 성공2", response.body());
+                    if (response.code() == 200) {
+                        try {
+                            JSONObject userInfo = new JSONObject(Objects.requireNonNull(response.body()));
+                            JSONObject user = userInfo.getJSONObject("user");
+                            /*  TODO: location이 완료되면 이걸로 출력해야함!!!
+                            otherInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
+                                    user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("fullAddress"));
+                             */
+                            if (user.isNull("profileUrl"))
+                                otherInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");
+                            else
+                                otherInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), "역삼동", "강남구 역삼동 200");
 
-            if (otherInfo.getUserProfileUrl() == null)
-                civUserProfile.setImageResource(R.drawable.user);
-            else {
-                Bitmap userProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
-                try {
-                    userProfile = new DownloadFileTask(otherInfo.getUserProfileUrl()).execute().get();
-                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-                civUserProfile.setImageBitmap(userProfile);
-            }
+                            if (otherInfo.getUserProfileUrl() == null)
+                                civUserProfile.setImageResource(R.drawable.user);
+                            else {
+                                Bitmap userProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+                                try {
+                                    userProfile = new DownloadFileTask(otherInfo.getUserProfileUrl()).execute().get();
+                                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                                civUserProfile.setImageBitmap(userProfile);
+                            }
+                            tvUserName.setText(otherInfo.getUserName());
+                            tvUserTown.setText(otherInfo.getUserTown());
+                            tvUserPosts.setText(otherInfo.getUserName()+" 님이 작성한 글");
+
+                            //TODO: userPostList를 서버로부터 받아와서 저장해야 함!!!!!!!!!!!!!!!!!!!!!!!
+                            adapter = new PostRecyclerAdapter(userPostList);
+                            rvMyPagePosts.setAdapter(adapter);
+                            DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
+                            devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
+                            rvMyPagePosts.addItemDecoration(devider); //리스트 사이의 구분선 설정
+                        } catch (JSONException e) { e.printStackTrace(); }
+                    }
+                    else
+                        Toast.makeText(MyPageActivity.this, "다시 한번 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                    Toast.makeText(MyPageActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-        userPostList = getIntent().getExtras().getParcelableArrayList("userPosts");
-
-        if (isMyPage) {   //현재 사용자의 페이지를 보는 경우
+        else {   //실제 사용자의 페이지를 보는 경우
             @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_mypage, null);
             actionBar.setCustomView(customView);
             toolbarListener(toolbar);
@@ -93,25 +146,17 @@ public class MyPageActivity extends AppCompatActivity {
                 } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
                 civUserProfile.setImageBitmap(userProfile);
             }
-        }
-        tvUserName = findViewById(R.id.myPage_userName);
-            tvUserName.setText(isMyPage? myInfo.getUserName() : otherInfo.getUserName());
-        tvUserTown = findViewById(R.id.myPage_userTown);
-            tvUserTown.setText(isMyPage? myInfo.getUserTown() : otherInfo.getUserTown());
-        tvUserPosts = findViewById(R.id.myPage_tvUserPost);
-            tvUserPosts.setText(isMyPage? myInfo.getUserName()+" 님이 작성한 글" : otherInfo.getUserName()+" 님이 작성한 글");
-        rvMyPagePosts = findViewById(R.id.myPagePosts);
+            tvUserName.setText(myInfo.getUserName());
+            tvUserTown.setText(myInfo.getUserTown());
+            tvUserPosts.setText(myInfo.getUserName()+" 님이 작성한 글");
 
-        LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
-        rvMyPagePosts.setLayoutManager(manager);
-        if (isMyPage)
-            adapter = new PostRecyclerAdapter(userPostList, myInfo);
-        else
-            adapter = new PostRecyclerAdapter(userPostList, otherInfo);
-        rvMyPagePosts.setAdapter(adapter);
-        DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
-        devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
-        rvMyPagePosts.addItemDecoration(devider); //리스트 사이의 구분선 설정
+            //TODO: userPostList를 서버로부터 받아와서 저장해야 함!!!!!!!!!!!!!!!!!!!!!!!
+            adapter = new PostRecyclerAdapter(userPostList);
+            rvMyPagePosts.setAdapter(adapter);
+            DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
+            devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
+            rvMyPagePosts.addItemDecoration(devider);
+        }
     }
 
     public void toolbarListener(Toolbar toolbar){

@@ -32,7 +32,7 @@ public class PostInfoSimple implements Parcelable {
     }
 
     protected PostInfoSimple(Parcel in) {
-        postID = in.readInt();      //TODO: 확인해야함!!!(있어야 하는 건가?)
+        postID = in.readInt();
         writerInfo = in.readParcelable(UserInfo.class.getClassLoader());
         postTime = in.readString();
         postTitle = in.readString();
