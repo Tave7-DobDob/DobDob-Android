@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.gson.JsonObject;
+import com.tave7.dobdob.data.UserInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +31,8 @@ import java.util.Objects;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.tave7.dobdob.MainActivity.myInfo;
 
 @SuppressLint("StaticFieldLeak")
 public class InitialSettingActivity extends AppCompatActivity {
@@ -175,17 +178,9 @@ public class InitialSettingActivity extends AppCompatActivity {
                         Log.i("Initial 설정성공2", response.body());
                         if (response.code() == 200) {
                             //TODO: 현재 위치가 저장이 안되고 있음 확인해야 함!!          --> 창우님이 해결해주셔야 함!!!!
-                            //TODO: 현재 닉네임이 변경이 되지 않고 있음!!!!! 확인해야 함!!!!!!!
-                            /*
-                            //TODO: DB에 결과를 보냄 -> 닉네임과 주소!  -->  그 주소를 저장함      (url 이름 바꿔야 함)
-                            PreferenceManager.setStriing(InitialSettingActivity.this, "userName", etName.getText().toString().trim());
-                            PreferenceManager.setString(InitialSettingActivity.this, "userTown", tvResultTown.getText().toString());
-                            PreferenceManager.setString(InitialSettingActivity.this, "userAddress", tvFullAddress.getText().toString());
-                             */
-
                             //UserId를 넘겨줘야 함!!
-                            Intent showMain = new Intent(InitialSettingActivity.this, MainActivity.class);
-                            startActivity(showMain);
+                            myInfo = new UserInfo(userID, null, etName.getText().toString().trim(), location.get("dong").getAsString(), location.get("fullAddress").getAsString());
+                            startActivity(new Intent(InitialSettingActivity.this, MainActivity.class));
                             finish();
                         }
                         else

@@ -14,8 +14,17 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,6 +43,7 @@ import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int POST_REQUEST = 7000;
     public static final int MYPAGE_REQUEST = 8000;
 
-    private UserInfo userInfo = null;
+    public static UserInfo myInfo = null;       //로그인한 사용자의 정보
     private JsonObject location;        //TODO: 현재 표시하고 있는 지역이 어디인지를 보여줌!
     private ArrayList<PostInfoSimple> postList = null;        //메인에서 보여줄 postList
     private ArrayList<PostInfoSimple> totalPostList = null;   //메인에서 보여줄 postList의 복사본
@@ -54,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActionBar actionBar;
     private SearchView sv;
+    private MenuItem mMyPage;
     private TextView tvTown;
     private SwipeRefreshLayout srlPost;
     private RecyclerView rvPost;
@@ -65,12 +76,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //TODO: UserInfo를 받은 값을 넘겨받아야 함!!! (extra로 넘겨받은 id값을 userID로 넣고 정보를 받아옴!!)
-        String userName = PreferenceManager.getString(MainActivity.this, "userName");
-        String userTown = PreferenceManager.getString(MainActivity.this, "userTown");
-        String userAddress = PreferenceManager.getString(MainActivity.this, "userAddress");
-        //userInfo = new UserInfo(-1, userProfileUrl, userName, userTown, userAddress);
-        userInfo = new UserInfo(-1, null, userName, userTown, userAddress);
+        /*
+        //userInfo = new UserInfo(-1, null, userName, userTown, userAddress);
         //location = new JsonObject();    //TODO: location을 저장해서 들고 있어야 함!!!
+         */
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -95,6 +104,9 @@ public class MainActivity extends AppCompatActivity {
             totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비", "신사동", ""), "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", tmpHeartUsers, 4, tmpTag));
             ArrayList<String> tmpTag2 = new ArrayList<>();
                 tmpTag2.add("자전거타기");
+            ArrayList<String> tmpTag3 = new ArrayList<>();
+                tmpTag3.add("빨대");
+                tmpTag3.add("공구");
             ArrayList<String> tmpHeartUsers2 = new ArrayList<>();
                 tmpHeartUsers2.add("테이브");      tmpHeartUsers2.add("테이비7");
                 tmpHeartUsers2.add("테이비");      tmpHeartUsers2.add("테이비2");
@@ -106,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 tmpHeartUsers4.add("생귤");
                 tmpHeartUsers4.add("테이비3");     tmpHeartUsers4.add("테이비7");
             totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "자전거탄풍경", "개포동", ""), "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", tmpHeartUsers2, 0, tmpTag2));
-            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비1", "인사동", ""), "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers3, 2, tmpTag2));
+            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비1", "인사동", ""), "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers3, 2, tmpTag3));
             totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비2", "청파동", ""), "2021.05.20 11:30", "맥모닝 같이 먹을 사람 구해요!", null, 0, null));
             totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비", "한남동", ""), "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers4, 39, null));
             postList.addAll(totalPostList);     //TODO: 삭제했을 때 영향 미치는 지 확인해야 함
@@ -120,19 +132,15 @@ public class MainActivity extends AppCompatActivity {
         rvPost = findViewById(R.id.mainPost);
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL,false);
         rvPost.setLayoutManager(manager);
-        adapter = new PostRecyclerAdapter(postList, totalPostList, userInfo);
+        adapter = new PostRecyclerAdapter(postList, totalPostList, myInfo);
         rvPost.setAdapter(adapter);      //어댑터 등록
         DividerItemDecoration devider=new DividerItemDecoration(MainActivity.this, 1);
         devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
         rvPost.addItemDecoration(devider); //리스트 사이의 구분선 설정
 
         FloatingActionButton fabAddPost = findViewById(R.id.mainFabAddPost);
-        fabAddPost.setOnClickListener(v -> {
-            Intent postingPage = new Intent(MainActivity.this, PostingActivity.class);
-            Bundle bundle = new Bundle();
-                bundle.putParcelable("userInfo", userInfo);
-            postingPage.putExtras(bundle);
-            startActivityForResult(postingPage, POSTING_REQUEST);    //글쓰기 창으로 화면이 넘어감
+        fabAddPost.setOnClickListener(v -> {    //글쓰기 창으로 화면이 넘어감
+            startActivityForResult(new Intent(MainActivity.this, PostingActivity.class), POSTING_REQUEST);
         });
 
         updatePostList(false);   //추후에 지역을 전달해서 allPost를 받아와야 함!
@@ -140,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void toolbarListener(Toolbar toolbar){
         tvTown = toolbar.findViewById(R.id.toolbar_town);
-        tvTown.setText(userInfo.getUserTown());     //초기에 user가 설정한 동네로 보여줌
+        tvTown.setText(myInfo.getUserTown());     //초기에 user가 설정한 동네로 보여줌
 
         LinearLayout llTown = toolbar.findViewById(R.id.toolbar_main_town);
         llTown.setOnClickListener(v -> {
@@ -190,14 +198,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mMyPage = menu.findItem(R.id.subMenuUser);
+        setMyPageIcon();
+
         MenuItem mProfile = menu.findItem(R.id.profile);
-        //mProfile.setIcon()        //TODO 마이페이지 아이콘 설정 보이게 하기!!!!
         mProfile.setOnMenuItemClickListener(item -> {
             Intent showMyPage = new Intent(MainActivity.this, MyPageActivity.class);
             Bundle smpBundle = new Bundle();
-                smpBundle.putBoolean("isMyPage", true);
-                smpBundle.putParcelableArrayList("userPosts", adapter.searchUserPosts(userInfo.getUserName()));
-                smpBundle.putParcelable("userInfo", userInfo);
+                smpBundle.putParcelableArrayList("userPosts", adapter.searchUserPosts(myInfo.getUserName()));
             showMyPage.putExtras(smpBundle);
             startActivityForResult(showMyPage, MYPAGE_REQUEST);
 
@@ -213,6 +221,40 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
         return true;
+    }
+    private void setMyPageIcon() {
+        if (myInfo.getUserProfileUrl() == null) {
+            Bitmap bmUser = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+            mMyPage.setIcon(new BitmapDrawable(getResources(), bmUser));
+        }
+        else {
+            Bitmap bmUser = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+            try {
+                bmUser = new DownloadFileTask(myInfo.getUserProfileUrl()).execute().get();
+            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+            int widHeig = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 90, getResources().getDisplayMetrics());
+            Bitmap resize = Bitmap.createScaledBitmap(bmUser, widHeig, widHeig, false);
+            Bitmap circleImg = getBitmapCircle(resize);
+            mMyPage.setIcon(new BitmapDrawable(getResources(), circleImg));
+        }
+    }
+
+    private Bitmap getBitmapCircle(Bitmap bitmap) {
+        Bitmap circleImg = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(circleImg);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawCircle(bitmap.getWidth()/2, bitmap.getHeight()/2, bitmap.getWidth()/2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+
+        return circleImg;
     }
 
     public void searchTitleTag(String searchText) {     //제목 검색
@@ -253,25 +295,12 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == MYPAGE_REQUEST){        //MyPage에서 User 정보 변경 시 적용 위함
-                /*TODO: 확인 요망!
-                if (data.getExtras().getString("userProfile").length()>0)
-                    userInfo.setUserProfileUrl(data.getExtras().getString("userProfile"));
-                 */
-                if (data != null && data.hasExtra("userName")) {
-                    userInfo.setUserName(data.getExtras().getString("userName"));
-                    //TODO: 동네에 대한 post가 갱신되어야 함(혹은 자기 이름의 post를 찾아 이름 변경!)
-                }
-
-                if (data != null && data.hasExtra("userTown")) {
-                    userInfo.setUserTown(data.getExtras().getString("userTown"));
-                    tvTown.setText(userInfo.getUserTown());
-
-                    //TODO: 동네에 대한 post가 갱신되어야 함
-                    //mainSettingTown();  ->  아래의 updatePostList가 겹침!! 문제
-                }
-                else
+            if (requestCode == MYPAGE_REQUEST) {        //MyPage에서 User 정보 변경 시 적용 위함
+                if (data.hasExtra("isChanged")) {
+                    setMyPageIcon();
+                    tvTown.setText(myInfo.getUserTown());
                     updatePostList(false);       //리팩토링 해야 함!!
+                }
             }
 
             else if (requestCode == POST_REQUEST) {

@@ -33,7 +33,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.tave7.dobdob.data.PhotoInfo;
 import com.tave7.dobdob.data.PostInfoDetail;
-import com.tave7.dobdob.data.UserInfo;
 
 import java.io.File;
 import java.io.InputStream;
@@ -52,13 +51,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.tave7.dobdob.InitialSettingActivity.DAUMADDRESS_REQUEST;
+import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class PostingActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
     private JsonObject location = null;
     private String tmpFullAddress = "";
 
-    private UserInfo userInfo = null;
     private PostInfoDetail editPostInfo = null;
     private ArrayList<String> tmpTag = null;        //글 작성 페이지일 때
     private ArrayList<PhotoInfo> tmpPhotos = null;  //(boolean, File, Bitmap)
@@ -114,17 +113,19 @@ public class PostingActivity extends AppCompatActivity {
                 Bitmap bmp = null;
                 try {
                     bmp = new DownloadFileTask(photo).execute().get();
-                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                } catch (ExecutionException | InterruptedException e) {
+                    e.printStackTrace();
+                }
 
                 @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_photo, null);
-                ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()),
-                        (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
-                params.rightMargin = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+                ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()),
+                        (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics()));
+                params.rightMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
                 view.setLayoutParams(params);
                 ImageView ivPhoto = view.findViewById(R.id.photo_iv);
                 ivPhoto.setImageBitmap(bmp);
                 ImageView ivCancel = view.findViewById(R.id.photo_cancel);
-                    ivCancel.setVisibility(View.GONE);
+                ivCancel.setVisibility(View.GONE);
                 llShowPhotos.addView(view);
             }
             etContent.setText(editPostInfo.getPostContent());
@@ -141,10 +142,8 @@ public class PostingActivity extends AppCompatActivity {
                 flTags.addView(view);
             }
             tvTown.setText(editPostInfo.getPostInfoSimple().getWriterTown());
-            tvPhotos.setText("사진("+editPostInfo.getPostPhotos().size()+"/5)");
+            tvPhotos.setText("사진(" + editPostInfo.getPostPhotos().size() + "/5)");
         }
-        else
-            userInfo = getIntent().getExtras().getParcelable("userInfo");
 
         postingClickListener();
         postingTextChangedListener();
@@ -221,13 +220,13 @@ public class PostingActivity extends AppCompatActivity {
                 else {      //글쓰기 완료
                     isCompleted = true;
 
-                    //TODO: 사진 확인해봐야함!!!(해상도를 1024*1024로 맞춰야함!) -> 서버에서 해줌!!
+                    //TODO: 사진 확인해봐야함!!!
                     ArrayList<MultipartBody.Part> postImage = new ArrayList<>();
                     for (PhotoInfo photo : tmpPhotos) {
                         postImage.add(MultipartBody.Part.createFormData("postImage", photo.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), photo.getPhotoFile())));
                     }
                     Map<String, RequestBody> dataMap = new HashMap<>();
-                    dataMap.put("userId", RequestBody.create(MediaType.parse("text/plain"), String.valueOf(userInfo.getUserID())));
+                    dataMap.put("userId", RequestBody.create(MediaType.parse("text/plain"), String.valueOf(myInfo.getUserID())));
                     dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(location)));
                     dataMap.put("title", RequestBody.create(MediaType.parse("text/plain"), etTitle.getText().toString().trim()));
                     dataMap.put("content", RequestBody.create(MediaType.parse("text/plain"), etContent.getText().toString().trim()));

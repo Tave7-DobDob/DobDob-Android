@@ -2,8 +2,9 @@ package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,15 +26,18 @@ import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class MyPageActivity extends AppCompatActivity {
     private static final int EDIT_PROFILE_REQUEST = 8000;
 
-    boolean isMyPage = false;   //본인의 페이지인지?
-    boolean isChangeProfile = false, isChangeName = false, isChangeTown = false;
-    UserInfo userInfo = null;
+    boolean isMyPage = true;   //본인의 페이지인지?
+    boolean isChangeProfile = false, isChangeName = false, isChangeAddress = false;
+    UserInfo otherInfo = null;
     ArrayList<PostInfoSimple> userPostList = null;        //user가 올린 글 모음
 
     CircleImageView civUserProfile;
@@ -55,38 +59,57 @@ public class MyPageActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
 
-        userInfo = getIntent().getExtras().getParcelable("userInfo");
+        civUserProfile = findViewById(R.id.myPage_userProfile);
+
+        if (getIntent().hasExtra("userID")) {
+            //TODO: DB로부터 해당 id 소유자의 정보 및 내용들을 받아옴**********************************(구현해야 함!)
+            isMyPage = false;
+            otherInfo = getIntent().getExtras().getParcelable("userInfo");      //다른 사람의 값을 받아옴(임시로 작성함!!!!! 나중에 변경해야 함!)
+
+            if (otherInfo.getUserProfileUrl() == null)
+                civUserProfile.setImageResource(R.drawable.user);
+            else {
+                Bitmap userProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+                try {
+                    userProfile = new DownloadFileTask(otherInfo.getUserProfileUrl()).execute().get();
+                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                civUserProfile.setImageBitmap(userProfile);
+            }
+        }
         userPostList = getIntent().getExtras().getParcelableArrayList("userPosts");
 
-
-        isMyPage = getIntent().getExtras().getBoolean("isMyPage");
         if (isMyPage) {   //현재 사용자의 페이지를 보는 경우
             @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_mypage, null);
             actionBar.setCustomView(customView);
             toolbarListener(toolbar);
-        }
 
-        civUserProfile = findViewById(R.id.myPage_userProfile);
-        if (userInfo.getUserProfileUrl() == null)
-            civUserProfile.setImageResource(R.drawable.user);
-        else {    //TODO: 고쳐야 함(안됨)     //TODO: 해당 user의 이미지로 setImageResource변경
-            //user.setUserProfileUrl("https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE");
-            //civUserProfile.setImageBitmap(user.getBitmapProfile());
+            if (myInfo.getUserProfileUrl() == null)
+                civUserProfile.setImageResource(R.drawable.user);
+            else {
+                Bitmap userProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+                try {
+                    userProfile = new DownloadFileTask(myInfo.getUserProfileUrl()).execute().get();
+                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                civUserProfile.setImageBitmap(userProfile);
+            }
         }
-        tvUserName = findViewById(R.id.myPage_userName);            //TODO: 변경 시 해당 user의 닉네임으로 setText("")변경
-            tvUserName.setText(userInfo.getUserName());
-        tvUserTown = findViewById(R.id.myPage_userTown);            //TODO: 해당 user의 동네로 setText("")변경(클릭시 주소 결정할 수 있게)
-            tvUserTown.setText(userInfo.getUserTown());
-        tvUserPosts = findViewById(R.id.myPage_tvUserPost);         //TODO: 해당 user의 닉네임으로 setText(name+" 님이 작성한 글")변경
-            tvUserPosts.setText(userInfo.getUserName()+" 님이 작성한 글");
+        tvUserName = findViewById(R.id.myPage_userName);
+            tvUserName.setText(isMyPage? myInfo.getUserName() : otherInfo.getUserName());
+        tvUserTown = findViewById(R.id.myPage_userTown);
+            tvUserTown.setText(isMyPage? myInfo.getUserTown() : otherInfo.getUserTown());
+        tvUserPosts = findViewById(R.id.myPage_tvUserPost);
+            tvUserPosts.setText(isMyPage? myInfo.getUserName()+" 님이 작성한 글" : otherInfo.getUserName()+" 님이 작성한 글");
         rvMyPagePosts = findViewById(R.id.myPagePosts);
 
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);
-        adapter = new PostRecyclerAdapter(userPostList, userInfo);
-        rvMyPagePosts.setAdapter(adapter);      //어댑터 등록
+        if (isMyPage)
+            adapter = new PostRecyclerAdapter(userPostList, myInfo);
+        else
+            adapter = new PostRecyclerAdapter(userPostList, otherInfo);
+        rvMyPagePosts.setAdapter(adapter);
         DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
-        devider.setDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null));
+        devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
         rvMyPagePosts.addItemDecoration(devider); //리스트 사이의 구분선 설정
     }
 
@@ -94,9 +117,6 @@ public class MyPageActivity extends AppCompatActivity {
         ivEdit = toolbar.findViewById(R.id.toolbar_edit);
         ivEdit.setOnClickListener(v -> {
             Intent editProfile = new Intent(this, ModifyProfileActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("userInfo", userInfo);
-            editProfile.putExtras(bundle);
             startActivityForResult(editProfile, EDIT_PROFILE_REQUEST);
         });
     }
@@ -118,15 +138,20 @@ public class MyPageActivity extends AppCompatActivity {
             //TODO: 메인인지를 구별해야 함!!(MainActivity일 때!라는 코드가 있어야 함!)
             Intent giveChangedUserInfo = new Intent();
             Bundle bUserInfo = new Bundle();
-            /*  TODO: 이미지를 String으로 전달해야 함
+            if (isChangeProfile || isChangeName || isChangeAddress)
+                bUserInfo.putBoolean("isChanged", true);
+
+            //모두 삭제해야함
+            /*
             if (isChangeProfile)
                 bUserInfo.putString("userProfileUrl", );
                 //tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
-             */
             if (isChangeName)
-                bUserInfo.putString("userName", userInfo.getUserName());
-            if (isChangeTown)
-                bUserInfo.putString("userTown", userInfo.getUserTown());
+                bUserInfo.putString("userName", myInfo.getUserName());
+            if (isChangeAddress)
+                bUserInfo.putString("userTown", myInfo.getUserTown());
+            */
+
             giveChangedUserInfo.putExtras(bUserInfo);
             setResult(RESULT_OK, giveChangedUserInfo);
         }
@@ -138,24 +163,33 @@ public class MyPageActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == EDIT_PROFILE_REQUEST && resultCode == RESULT_OK) {
-            //if (data.hasExtra("userProfileUrl")) {
-            //  isChangeProfile = true;
-            //  userInfo.setUserProfileUrl(data.getExtras().getString("userProfileUrl"));
-            //}
-            if (data != null && data.hasExtra("userName")) {
-                isChangeName = true;
-                adapter.changeWriterName(userInfo.getUserName(), data.getExtras().getString("userName"));
-                userInfo.setUserName(data.getExtras().getString("userName"));
-                tvUserName.setText(userInfo.getUserName());
-                tvUserPosts.setText(userInfo.getUserName() + " 님이 작성한 글");
-                //PreferenceManager.setString(MyPageActivity.this, "userName", userInfo.getUserName());
-                //(DB에 바뀐 이름을 전달하고 DB에서 totalPostList를 받아 search를 통해 notify 함)
+            if (data != null && data.getExtras().getBoolean("isChanged")) {
+                //TODO: DB로부터 user의 post들 다 받아오기
+                //DB에서 userPostList를 다시 설정함(clear후에 데이터 새로고침)
+                adapter.notifyDataSetChanged();
             }
-            if (data != null && data.hasExtra("userTown")) {
-                isChangeTown = true;
+            if (data != null && data.hasExtra("isChangeProfile")) {
+                isChangeProfile = true;
+                if (myInfo.getUserProfileUrl() == null)
+                    civUserProfile.setImageResource(R.drawable.user);
+                else {
+                    Bitmap userProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+                    try {
+                        userProfile = new DownloadFileTask(myInfo.getUserProfileUrl()).execute().get();
+                    } catch (ExecutionException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    civUserProfile.setImageBitmap(userProfile);
+                }
+            }
+            if (data != null && data.hasExtra("isChangeName")) {
+                isChangeName = true;
+                tvUserName.setText(myInfo.getUserName());
+                tvUserPosts.setText(myInfo.getUserName() + " 님이 작성한 글");
+            }
+            if (data != null && data.hasExtra("isChangeAddress")) {
+                isChangeAddress = true;
                 tvUserTown.setText(data.getExtras().getString("userTown"));
-                userInfo.setUserTown(data.getExtras().getString("userTown"));
-                userInfo.setUserAddress(data.getExtras().getString("userAddress"));
             }
         }
     }

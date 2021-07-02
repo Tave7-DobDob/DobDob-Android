@@ -28,6 +28,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.tave7.dobdob.MainActivity.myInfo;
+
 public class LoginActivity extends AppCompatActivity {
     Button kakaoLogin;
 
@@ -48,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(this, InitialSettingActivity.class));
             finish();
 
+            myInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");      //TODO: MainActivity의 myInfo에 저장함(사용자 정보를)
             //startActivity(new Intent(this, MainActivity.class));      TODO: -> 이때 userID를 넘겨야 함(extra로!!!)
             //finish();
         }
@@ -108,17 +111,12 @@ public class LoginActivity extends AppCompatActivity {
                                                 UserInfo myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
                                                         user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("fullAddress"));
                                                  */
-                                                UserInfo myInfo;
                                                 if (user.isNull("profileUrl"))
-                                                    myInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 --- 1020 ");
+                                                    myInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");
                                                 else
-                                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), "역삼동", "강남구 --- 1020 ");
+                                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), "역삼동", "강남구 역삼동 200");
 
-                                                Intent showMain = new Intent(LoginActivity.this, MainActivity.class);
-                                                Bundle bundle = new Bundle();
-                                                    bundle.putParcelable("myInfo", myInfo);
-                                                showMain.putExtras(bundle);
-                                                startActivity(showMain);
+                                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                                 finish();
                                             } catch (JSONException e) { e.printStackTrace(); }
                                         }

@@ -40,12 +40,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.tave7.dobdob.InitialSettingActivity.DAUMADDRESS_REQUEST;
+import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class ModifyProfileActivity extends AppCompatActivity {
     private static final int PICK_FROM_GALLERY = 100;
     private JsonObject location;
 
-    private UserInfo userInfo = null, tmpUserInfo = null;
+    private UserInfo tmpUserInfo = null;
     private Bitmap tmpChangeProfile;
     private boolean isChangeProfile = false, isChangeName = false;
 
@@ -60,8 +61,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_profile);
 
-        userInfo = getIntent().getExtras().getParcelable("userInfo");
-        tmpUserInfo = new UserInfo(userInfo.getUserID(), null, "", "", "");
+        tmpUserInfo = new UserInfo(myInfo.getUserID(), null, "", "", "");
 
         Toolbar toolbar = findViewById(R.id.modify_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -72,23 +72,23 @@ public class ModifyProfileActivity extends AppCompatActivity {
         actionBar.setCustomView(customView);
 
         civUserProfile = findViewById(R.id.modify_userProfile);
-        if (userInfo.getUserProfileUrl() == null)
+        if (myInfo.getUserProfileUrl() == null)
             civUserProfile.setImageResource(R.drawable.user);
         else {
             Bitmap userProfile = ((BitmapDrawable) Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.user, null))).getBitmap();
             try {
-                userProfile = new DownloadFileTask(userInfo.getUserProfileUrl()).execute().get();
+                userProfile = new DownloadFileTask(myInfo.getUserProfileUrl()).execute().get();
             } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
             civUserProfile.setImageBitmap(userProfile);
         }
         etUserName = findViewById(R.id.modify_userName);
-            etUserName.setText(userInfo.getUserName());
+            etUserName.setText(myInfo.getUserName());
         tvNameCheckInfo = findViewById(R.id.modify_tvNameCheckInfo);
             tvNameCheckInfo.setVisibility(View.GONE);
         tvUserTown = findViewById(R.id.modify_userTown);
-            tvUserTown.setText(userInfo.getUserTown());
+            tvUserTown.setText(myInfo.getUserTown());
         tvFullAddress = findViewById(R.id.modify_tvFullAddress);
-            tvFullAddress.setText(userInfo.getUserAddress());
+            tvFullAddress.setText(myInfo.getUserAddress());
         toolbarListener(toolbar);
         modifyProfileListener();
     }
@@ -104,12 +104,12 @@ public class ModifyProfileActivity extends AppCompatActivity {
         
         TextView tvOK = toolbar.findViewById(R.id.toolbar_mp_ok);
         tvOK.setOnClickListener(v -> {      //완료 버튼 클릭 시
-            boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(userInfo.getUserAddress());
+            boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(myInfo.getUserAddress());
             if (isChangeName || isChangeAddress) {      //TODO: 프로필 변경 시에도 추가되어야 함
                 JsonObject userData = new JsonObject();
                 userData.addProperty("nickName", tmpUserInfo.getUserName());
                 userData.add("location", location);
-                RetrofitClient.getApiService().patchUserInfo(userInfo.getUserID(), userData).enqueue(new Callback<String>() {       //DB전달
+                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {       //DB전달
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("MProfile 설정성공1", response.toString());
@@ -117,17 +117,27 @@ public class ModifyProfileActivity extends AppCompatActivity {
                         if (response.code() == 200) {
                             Intent giveChangedUserInfo = new Intent();
                             Bundle bUserInfo = new Bundle();
+                            boolean isChanged = false;
                             /*  TODO: 이미지를 String으로 전달해야 함
-                            if (isChangeProfile)
-                                bUserInfo.putString("userProfileUrl", );
+                            if (isChangeProfile) {
+                                isChanged = true;
+                                bUserInfo.putBoolean("isChangeProfile", true);
+                                myInfo.setUserProfileUrl();
                                 //tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
-                             */
-                            if (isChangeName)
-                                bUserInfo.putString("userName", tmpUserInfo.getUserName());
-                            if (isChangeAddress) {
-                                bUserInfo.putString("userTown", tmpUserInfo.getUserTown());
-                                bUserInfo.putString("userAddress", tmpUserInfo.getUserAddress());
                             }
+                             */
+                            if (isChangeName) {
+                                isChanged = true;
+                                bUserInfo.putBoolean("isChangeName", true);
+                                myInfo.setUserName(tmpUserInfo.getUserName());
+                            }
+                            if (isChangeAddress) {
+                                isChanged = true;
+                                bUserInfo.putBoolean("isChangeAddress", true);
+                                myInfo.setUserTown(tmpUserInfo.getUserTown());
+                                myInfo.setUserAddress(tmpUserInfo.getUserAddress());
+                            }
+                            bUserInfo.putBoolean("isChanged", isChanged);
                             giveChangedUserInfo.putExtras(bUserInfo);
                             setResult(RESULT_OK, giveChangedUserInfo);
                             finish();
@@ -182,7 +192,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 tvNameCheckInfo.setText("닉네임에 공백이 포함되어 있습니다.");
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
             }
-            else if (username.equals(userInfo.getUserName())) {
+            else if (username.equals(myInfo.getUserName())) {
                 tvNameCheckInfo.setVisibility(View.GONE);
             }
             else if (username.equals("")) {
