@@ -63,7 +63,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
         tmpUserInfo = new UserInfo(myInfo.getUserID(), null, "", "", "");
 
-        Toolbar toolbar = findViewById(R.id.modify_toolbar);      //툴바 설정
+        Toolbar toolbar = findViewById(R.id.modify_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
             Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(true);
@@ -105,11 +105,16 @@ public class ModifyProfileActivity extends AppCompatActivity {
         TextView tvOK = toolbar.findViewById(R.id.toolbar_mp_ok);
         tvOK.setOnClickListener(v -> {      //완료 버튼 클릭 시
             boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(myInfo.getUserAddress());
-            if (isChangeName || isChangeAddress) {      //TODO: 프로필 변경 시에도 추가되어야 함
+            if (isChangeProfile || isChangeName || isChangeAddress) {      //TODO: 프로필 변경 시에도 추가되어야 함(변경 시에 추가, 아니면 말고!)
                 JsonObject userData = new JsonObject();
-                userData.addProperty("nickName", tmpUserInfo.getUserName());
-                userData.add("location", location);
-                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {       //DB전달
+                if (isChangeName)
+                    userData.addProperty("nickName", tmpUserInfo.getUserName());
+                else
+                    userData.addProperty("nickName", myInfo.getUserName());
+
+                if (isChangeAddress)
+                    userData.add("location", location);     //TODO: 서버와 확인해봐야 함!!!!!!!!!!!!!!!!!!!!!!
+                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("MProfile 설정성공1", response.toString());
@@ -118,7 +123,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                             Intent giveChangedUserInfo = new Intent();
                             Bundle bUserInfo = new Bundle();
                             boolean isChanged = false;
-                            /*  TODO: 이미지를 String으로 전달해야 함
+                            /*
                             if (isChangeProfile) {
                                 isChanged = true;
                                 bUserInfo.putBoolean("isChangeProfile", true);
@@ -160,6 +165,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
     public void modifyProfileListener() {
         TextView tvChangeProfile = findViewById(R.id.modify_tvChangeProfile);
         tvChangeProfile.setOnClickListener(v -> {
+            //TODO: (기본 프로필 이미지로 변경!)이라는 버튼도 만들어야 함!
             //TODO: 갤러리에서 사진을 불러와 그 이미지로 civUserProfile의 리소스를 변경하고 DB에 저장함
             Intent intent = new Intent();
             intent.setType("image/*");
@@ -219,6 +225,8 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().checkExistNick(username).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("MProfile 닉중복확인 성공1", response.toString());
+                        Log.i("MProfile 닉중복확인 성공2", response.body());
                         if (response.code() == 200) {   //로그인 사용 가능
                             try {
                                 JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
@@ -244,7 +252,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Log.i("Initial 닉중복확인 연결실패", t.getMessage());
+                        Log.i("MProfile 닉중복확인 연결실패", t.getMessage());
                         Toast.makeText(ModifyProfileActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -252,10 +260,9 @@ public class ModifyProfileActivity extends AppCompatActivity {
         });
 
         Button btChangeTown = findViewById(R.id.modify_btChangeTown);
-        btChangeTown.setOnClickListener(v -> {
-            Intent itAddress = new Intent(ModifyProfileActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
-            startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
-        });
+        btChangeTown.setOnClickListener(v ->
+            startActivityForResult(new Intent(ModifyProfileActivity.this, DaumAddressActivity.class), DAUMADDRESS_REQUEST)
+        );
     }
 
     @Override

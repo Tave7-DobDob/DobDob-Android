@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -123,11 +124,9 @@ public class MyPageActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:{    //toolbar의 back키 눌렀을 때 동작
-                finish();
-                return true;
-            }
+        if (item.getItemId() == android.R.id.home) {//toolbar의 back키 눌렀을 때 동작
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -141,23 +140,13 @@ public class MyPageActivity extends AppCompatActivity {
             if (isChangeProfile || isChangeName || isChangeAddress)
                 bUserInfo.putBoolean("isChanged", true);
 
-            //모두 삭제해야함
-            /*
-            if (isChangeProfile)
-                bUserInfo.putString("userProfileUrl", );
-                //tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
-            if (isChangeName)
-                bUserInfo.putString("userName", myInfo.getUserName());
-            if (isChangeAddress)
-                bUserInfo.putString("userTown", myInfo.getUserTown());
-            */
-
             giveChangedUserInfo.putExtras(bUserInfo);
             setResult(RESULT_OK, giveChangedUserInfo);
         }
         super.finish();
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -189,7 +178,7 @@ public class MyPageActivity extends AppCompatActivity {
             }
             if (data != null && data.hasExtra("isChangeAddress")) {
                 isChangeAddress = true;
-                tvUserTown.setText(data.getExtras().getString("userTown"));
+                tvUserTown.setText(myInfo.getUserTown());
             }
         }
     }
