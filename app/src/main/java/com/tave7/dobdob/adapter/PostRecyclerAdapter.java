@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MainActivity;
+import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.PostActivity;
 import com.tave7.dobdob.R;
 import com.tave7.dobdob.TagPostActivity;
@@ -29,6 +30,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -76,12 +78,20 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         }
         holder.writerProfile.setImageBitmap(writerProfile);
         holder.writerName.setText(postList.get(position).getWriterName());
+        holder.writerName.setOnClickListener(v -> {
+            Intent showProfilePage = new Intent(context, MyPageActivity.class);
+            Bundle sppBundle = new Bundle();
+            if (myInfo.getUserID() != postList.get(position).getWriterID())
+                sppBundle.putInt("userID", postList.get(position).getWriterID());
+            showProfilePage.putExtras(sppBundle);
+            context.startActivity(showProfilePage);
+        });
         holder.writerTown.setText(postList.get(position).getWriterTown());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         try {
             Date date = sdf.parse(postList.get(position).getPostTime());
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");      //TODO: 초 확인!
-            String dateString = dateFormat.format(date);
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");      //TODO: 초 확인!
+            String dateString = dateFormat.format(Objects.requireNonNull(date));
             holder.postTime.setText(dateString);
         } catch (ParseException e) { e.printStackTrace(); }
         holder.postTitle.setText(postList.get(position).getPostTitle());
@@ -160,17 +170,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         }
 
         return tmpTagPosts;
-    }
-
-    public ArrayList<PostInfoSimple> searchUserPosts(String userName) {
-        ArrayList<PostInfoSimple> tmpUserPosts = new ArrayList<>();
-
-        for (PostInfoSimple pi : totalPostList) {
-            if (pi.getWriterName().equals(userName))
-                tmpUserPosts.add(pi);
-        }
-
-        return tmpUserPosts;
     }
 
     public class PostViewHolder extends RecyclerView.ViewHolder {

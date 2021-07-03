@@ -15,22 +15,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,8 +60,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSearchFocus = false;
 
     private ActionBar actionBar;
-    private SearchView sv;
-    private MenuItem mMyPage;
+    private CircleImageView civSubMenuUser;
+    private LinearLayout llTown;
+    private SearchView svSearch;
     private TextView tvTown;
     private SwipeRefreshLayout srlPost;
     private RecyclerView rvPost;
@@ -120,37 +114,28 @@ public class MainActivity extends AppCompatActivity {
         tvTown = toolbar.findViewById(R.id.toolbar_town);
         tvTown.setText(myInfo.getUserTown());     //초기에 user가 설정한 동네로 보여줌
 
-        LinearLayout llTown = toolbar.findViewById(R.id.toolbar_main_town);
+        llTown = toolbar.findViewById(R.id.toolbar_main_town);
         llTown.setOnClickListener(v -> {
             Intent itAddress = new Intent(MainActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
             startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
         });
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-
-        MenuItem mSearch = menu.findItem(R.id.search);
-        sv = (SearchView) mSearch.getActionView();
-        sv.setQueryHint("제목 및 태그 검색");
-        sv.setOnSearchClickListener(v -> {
+        svSearch = findViewById(R.id.toolbar_search);
+        svSearch.setQueryHint("제목 및 태그 검색");
+        svSearch.setOnSearchClickListener(v -> {
             isSearchFocus = true;
-            actionBar.setDisplayShowCustomEnabled(false);
+            llTown.setVisibility(View.GONE);
         });
-        sv.setOnCloseListener(() -> {
+        svSearch.setOnCloseListener(() -> {
             isSearchFocus = false;
-            actionBar.setDisplayShowCustomEnabled(true);
             searchTitleTag("");    //초기로 돌려놓음(삭제요망)
             //TODO: DB에 키워드를 전달해 값을 반환받음!!(totalPostList 초기화 해야 함!!)
-            sv.onActionViewCollapsed();
+            svSearch.onActionViewCollapsed();
+            llTown.setVisibility(View.VISIBLE);
 
             return true;
         });
-        sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {    //SearchView의 검색 이벤트
+        svSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {    //SearchView의 검색 이벤트
             @Override
             public boolean onQueryTextSubmit(String query) {        //검색버튼을 눌렀을 경우
                 searchTitleTag(query);      //TODO: DB에 키워드를 전달해 값을 반환받음!!
@@ -167,59 +152,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mMyPage = menu.findItem(R.id.subMenuUser);
-        setMyPageIcon();
-
-        MenuItem mProfile = menu.findItem(R.id.profile);
-        mProfile.setOnMenuItemClickListener(item -> {
-            startActivityForResult(new Intent(MainActivity.this, MyPageActivity.class), MYPAGE_REQUEST);
-
-            return true;
-        });
-        MenuItem mLogout = menu.findItem(R.id.logout);
-        mLogout.setOnMenuItemClickListener(item -> {     //로그아웃  TODO: Main에서 바로 Login으로 갈 수 있는 지??! 중간에 쌓인 스택들은 없는 지 확인!
-            PreferenceManager.removeKey(MainActivity.this, "access_token");         //어세스 토크 삭제 TODO: 수정 요망!!!!!!!!!!
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-
-            finish();
-
-            return true;
-        });
-        return true;
-    }
-    private void setMyPageIcon() {
-        if (myInfo.getUserProfileUrl() == null) {
-            Bitmap bmUser = BitmapFactory.decodeResource(getResources(), R.drawable.user);
-            mMyPage.setIcon(new BitmapDrawable(getResources(), bmUser));
-        }
+        civSubMenuUser = findViewById(R.id.toolbar_subMenuUser);
+        if (myInfo.getUserProfileUrl() == null)
+            civSubMenuUser.setImageResource(R.drawable.user);
         else {
-            Bitmap bmUser = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+            Bitmap userProfile = ((BitmapDrawable) Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.user, null))).getBitmap();
             try {
-                bmUser = new DownloadFileTask(myInfo.getUserProfileUrl()).execute().get();
+                userProfile = new DownloadFileTask(myInfo.getUserProfileUrl()).execute().get();
             } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-            int widHeig = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 90, getResources().getDisplayMetrics());
-            Bitmap resize = Bitmap.createScaledBitmap(bmUser, widHeig, widHeig, false);
-            Bitmap circleImg = getBitmapCircle(resize);
-            mMyPage.setIcon(new BitmapDrawable(getResources(), circleImg));
+            civSubMenuUser.setImageBitmap(userProfile);
         }
-    }
+        civSubMenuUser.setOnClickListener(view -> {
+            final PopupMenu popupMenu = new PopupMenu(getApplicationContext(), view);
+            getMenuInflater().inflate(R.menu.main_menu, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(menuItem -> {
+                if (menuItem.getItemId() == R.id.mypage)
+                    startActivityForResult(new Intent(MainActivity.this, MyPageActivity.class), MYPAGE_REQUEST);
+                else {  //로그아웃  TODO: Main에서 바로 Login으로 갈 수 있는 지??! 중간에 쌓인 스택들은 없는 지 확인!
+                    PreferenceManager.removeKey(MainActivity.this, "access_token");         //어세스 토크 삭제 TODO: 수정 요망!!!!!!!!!!
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
 
-    private Bitmap getBitmapCircle(Bitmap bitmap) {
-        Bitmap circleImg = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(circleImg);
-
-        final int color = 0xff424242;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        canvas.drawCircle(bitmap.getWidth()/2, bitmap.getHeight()/2, bitmap.getWidth()/2, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-
-        return circleImg;
+                    finish();
+                }
+                return false;
+            });
+            popupMenu.show();
+        });
     }
 
     public void searchTitleTag(String searchText) {     //제목 검색
@@ -247,9 +205,10 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (isSearchFocus) {
             isSearchFocus = false;
-            actionBar.setDisplayShowCustomEnabled(true);
             searchTitleTag("");     //TODO: 변경할 것 인지 고민해보자!
-            sv.onActionViewCollapsed();
+            svSearch.onActionViewCollapsed();
+            Log.i("확인용", "1");
+            llTown.setVisibility(View.VISIBLE);
         }
         else
             super.onBackPressed();
@@ -262,7 +221,15 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == MYPAGE_REQUEST) {        //MyPage에서 User 정보 변경 시 적용 위함
                 if (Objects.requireNonNull(data).hasExtra("isChanged")) {
-                    setMyPageIcon();
+                    if (myInfo.getUserProfileUrl() == null)
+                        civSubMenuUser.setImageResource(R.drawable.user);
+                    else {
+                        Bitmap userProfile = ((BitmapDrawable) Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.user, null))).getBitmap();
+                        try {
+                            userProfile = new DownloadFileTask(myInfo.getUserProfileUrl()).execute().get();
+                        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                        civSubMenuUser.setImageBitmap(userProfile);
+                    }
                     tvTown.setText(myInfo.getUserTown());
                     updatePostList(false);       //리팩토링 해야 함!!
                 }

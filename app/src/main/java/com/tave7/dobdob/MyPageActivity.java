@@ -70,7 +70,7 @@ public class MyPageActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         civUserProfile = findViewById(R.id.myPage_userProfile);
         tvUserName = findViewById(R.id.myPage_userName);
