@@ -172,11 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
         MenuItem mProfile = menu.findItem(R.id.profile);
         mProfile.setOnMenuItemClickListener(item -> {
-            Intent showMyPage = new Intent(MainActivity.this, MyPageActivity.class);
-            Bundle smpBundle = new Bundle();
-                smpBundle.putParcelableArrayList("userPosts", adapter.searchUserPosts(myInfo.getUserName()));
-            showMyPage.putExtras(smpBundle);
-            startActivityForResult(showMyPage, MYPAGE_REQUEST);
+            startActivityForResult(new Intent(MainActivity.this, MyPageActivity.class), MYPAGE_REQUEST);
 
             return true;
         });

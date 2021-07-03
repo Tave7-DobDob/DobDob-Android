@@ -126,14 +126,15 @@
                     android:gravity="top"
                     android:lineHeight="20dp"
                     android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
                     android:textColor="#000000" />
 
                 <FrameLayout
+                    android:id="@+id/post_flImages"
                     android:layout_width="match_parent"
-                    android:layout_height="250dp">
+                    android:layout_height="300dp"
+                    android:layout_marginTop="20dp">
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vpPostPhotos"
                         android:layout_gravity="center"
@@ -159,14 +160,14 @@
                     android:orientation="horizontal">
                     <!--각 태그들이 나열됨-->
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingLeft="3dp"
-                    android:paddingBottom="5dp">
+                    android:paddingLeft="3dp">
 
                     <ImageView
                         android:id="@+id/post_ivHeart"
@@ -188,7 +189,7 @@
                     <ImageView
                         android:layout_width="18dp"
                         android:layout_height="18dp"
-                        android:layout_marginStart="15dp"
+                        android:layout_marginStart="20dp"
                         android:contentDescription="댓글수"
                         android:src="@drawable/comment_icon" />
 

@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -41,8 +42,14 @@ import com.tave7.dobdob.data.PostInfoDetail;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -79,17 +86,112 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        PostInfoSimple postInfo = getIntent().getParcelableExtra("postInfo");     //TODO: DB에서 가져올 것인가(Extra로 안받아도됨)? 아니면 저장되어 있는 것을 보여줄 것인가?
-        postInfoDetail = new PostInfoDetail(postInfo, "내용입니다아아앙~~\n...\n...");     //얕은 복사
+        PostInfoSimple postInfo = getIntent().getParcelableExtra("postInfo");
+        postID = postInfo.getPostID();
+        postInfoDetail = new PostInfoDetail(postInfo);
+        isWriter = myInfo.getUserName().equals(postInfoDetail.getPostInfoSimple().getWriterName());
 
-        postID = getIntent().getExtras().getInt("postID");      //선택한 글의 id를 받음
+        Toolbar toolbar = findViewById(R.id.post_toolbar);      //툴바 설정
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+            Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(false);
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
+
+        svEntirePost = findViewById(R.id.post_scrollView);
+        CircleImageView civWriterProfile = findViewById(R.id.post_writerProfile);
+        if (postInfoDetail.getPostInfoSimple().getWriterProfileUrl() != null) {
+            Bitmap writerProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+            try {
+                writerProfile = new DownloadFileTask(postInfoDetail.getPostInfoSimple().getWriterProfileUrl()).execute().get();
+            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+            civWriterProfile.setImageBitmap(writerProfile);
+        }
+        TextView tvWriterName = findViewById(R.id.post_writerName);
+            tvWriterName.setText(postInfoDetail.getPostInfoSimple().getWriterName());
+        tvWriterTown = findViewById(R.id.post_writerTown);
+            tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
+        tvTitle = findViewById(R.id.post_title);
+        TextView tvPostTime = findViewById(R.id.post_time);
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            try {
+                Date date = sdf.parse(postInfoDetail.getPostInfoSimple().getPostTime());
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+                String dateString = dateFormat.format(Objects.requireNonNull(date));
+                tvPostTime.setText(dateString);
+            } catch (ParseException e) { e.printStackTrace(); }
+        tvContent = findViewById(R.id.post_content);
+        indicator = findViewById(R.id.indicator);
+        ViewPager2 viewpager2 = findViewById(R.id.vpPostPhotos);
+        ivHeart = findViewById(R.id.post_ivHeart);
+        tvHeartNums = findViewById(R.id.post_heartNum);
+        tvCommentNums = findViewById(R.id.post_commentNum);
+        llTag = findViewById(R.id.post_LinearTag);
+        rvComments = findViewById(R.id.postComments);
+        llWriteComment = findViewById(R.id.post_writeCommentL);
+
         RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 Log.i("PostA 글 성공", response.toString());
                 Log.i("PostA 글 성공2", response.body());
                 if (response.code() == 200) {
-                    //TODO: 서버로부터 받은 글의 정보를 postInfoDetail에 저장함
+                    postInfoDetail.getPostImages().clear();
+                    //postInfoDetail.getComments().clear();
+                    try {
+                        JSONObject postInfo = new JSONObject(Objects.requireNonNull(response.body())).getJSONObject("post");
+                        if (!postInfoDetail.getPostInfoSimple().getPostTitle().equals(postInfo.getString("title"))){
+                            postInfoDetail.getPostInfoSimple().setPostTitle(postInfo.getString("title"));
+                            tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
+                        }
+                        //if (!postInfoDetail.getPostInfoSimple().getHeartUsers())        TODO: 하트 수가 다를 시!
+                        //      postInfoDetail.getPostInfoSimple().getHeartUsers =
+                        //if (!postInfoDetail.getPostInfoSimple().getPostTag())           TODO: 태그 전체를 비교 시, 다를 시에는 추가함!
+                        postInfoDetail.setPostContent(postInfo.getString("content"));
+                        JSONArray postImages = postInfo.getJSONArray("PostImages");
+                        for (int i=0; i<postImages.length(); i++) {
+                            postInfoDetail.getPostImages().add(postImages.getJSONObject(i).getString("url"));
+                        }
+                        //if (!postInfoDetail.getPostInfoSimple().getCommentNum())        TODO: 댓글 저장해야 함!
+                    } catch (JSONException e) { e.printStackTrace(); }
+
+                    tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
+                    tvContent.setText(postInfoDetail.getPostContent());
+
+                    if (postInfoDetail.getPostImages().size() == 0) {
+                        FrameLayout flImages = findViewById(R.id.post_flImages);
+                        flImages.setVisibility(View.GONE);
+                    }
+                    else {
+                        photoAdapter = new PostPhotosPagerAdapter(postInfoDetail.getPostImages());
+                        viewpager2.setAdapter(photoAdapter);
+                        indicator.setViewPager(viewpager2);
+                        photoAdapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
+                    }
+
+                    for (String user: postInfoDetail.getPostInfoSimple().getHeartUsers()) {     //TODO: 하트 확인!!!!!!!!!!!!!!!!
+                        if (user.equals(myInfo.getUserName())) {
+                            isClickedHeart = true;
+                            break;
+                        }
+                    }
+                    if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
+                        ivHeart.setImageResource(R.drawable.heart_click);
+                    else
+                        ivHeart.setImageResource(R.drawable.heart);
+                    tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
+                    tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
+
+                    if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0)
+                        settingTags();
+                    else
+                        llTag.setVisibility(View.GONE);
+
+                    LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
+                    rvComments.setLayoutManager(manager);
+                    commentAdapter = new CommentRecyclerAdapter(postInfoDetail.getComments());
+                    rvComments.setAdapter(commentAdapter);      //어댑터 등록
+                    rvComments.addItemDecoration(new DividerItemDecoration(PostActivity.this, 1));
                 }
                 else {
                     Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
@@ -103,79 +205,11 @@ public class PostActivity extends AppCompatActivity {
             }
         });
 
-        //*********************************예시로 쓰는 사진들**************************************************
-        postInfoDetail.getPostPhotos().add("https://blog.kakaocdn.net/dn/0mySg/btqCUccOGVk/nQ68nZiNKoIEGNJkooELF1/img.jpg");
-        postInfoDetail.getPostPhotos().add("https://littledeep.com/wp-content/uploads/2019/05/littledeep_sky_style2.png");
-
-        isWriter = myInfo.getUserName().equals(postInfoDetail.getPostInfoSimple().getWriterName());
-
-        svEntirePost = findViewById(R.id.post_scrollView);
-        CircleImageView civWriterProfile = findViewById(R.id.post_writerProfile);
-            if (postInfoDetail.getPostInfoSimple().getWriterProfileUrl() != null) {
-                Bitmap writerProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
-                try {
-                    writerProfile = new DownloadFileTask(postInfoDetail.getPostInfoSimple().getWriterProfileUrl()).execute().get();
-                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-                civWriterProfile.setImageBitmap(writerProfile);
-            }
-        TextView tvWriterName = findViewById(R.id.post_writerName);
-            tvWriterName.setText(postInfoDetail.getPostInfoSimple().getWriterName());
-        tvWriterTown = findViewById(R.id.post_writerTown);
-            tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
-        tvTitle = findViewById(R.id.post_title);
-            tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
-        tvContent = findViewById(R.id.post_content);
-            tvContent.setText(postInfoDetail.getPostContent());
-        indicator = findViewById(R.id.indicator);
-        tvHeartNums = findViewById(R.id.post_heartNum);
-            tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
-        tvCommentNums = findViewById(R.id.post_commentNum);
-            tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
-        llTag = findViewById(R.id.post_LinearTag);
-            if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0)
-                settingTags();
-            //else
-                //llTag.setVisibility(View.GONE);
-        llWriteComment = findViewById(R.id.post_writeCommentL);
-
-        Toolbar toolbar = findViewById(R.id.post_toolbar);      //툴바 설정
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(false);
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
-
-        ViewPager2 viewpager2 = findViewById(R.id.vpPostPhotos);
-        photoAdapter = new PostPhotosPagerAdapter(postInfoDetail.getPostPhotos());
-        viewpager2.setAdapter(photoAdapter);
-        indicator.setViewPager(viewpager2);
-        photoAdapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
-
-        ivHeart = findViewById(R.id.post_ivHeart);
-        for (String user: postInfoDetail.getPostInfoSimple().getHeartUsers()) {
-            if (user.equals(myInfo.getUserName())) {
-                isClickedHeart = true;
-                break;
-            }
-        }
-        if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
-            ivHeart.setImageResource(R.drawable.heart_click);
-        else
-            ivHeart.setImageResource(R.drawable.heart);
-        
-
         //TODO: 임시 comment들 생성
             postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비1", "한남동", ""), "2021-07-03T07:13:23.000Z", "@tave1 첫 번째 댓글입니다!"));
             postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비2", "신사동", ""), "2021-07-03T07:13:23.000Z", "두 번째 댓글@tave2 입니다!"));
             postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비", "XXXX동", ""), "2021-07-03T07:13:23.000Z", "@tave3 세 번째 댓글입니다!"));
             postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비3", "XXX동", ""), "2021-07-03T07:13:23.000Z", "네 번째 댓글입니다! @tave4 "));
-
-        rvComments = findViewById(R.id.postComments);
-        LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
-        rvComments.setLayoutManager(manager);
-        commentAdapter = new CommentRecyclerAdapter(postInfoDetail.getComments());
-        rvComments.setAdapter(commentAdapter);      //어댑터 등록
-        rvComments.addItemDecoration(new DividerItemDecoration(PostActivity.this, 1));
 
         postClickListener();
     }
@@ -194,8 +228,8 @@ public class PostActivity extends AppCompatActivity {
         tvWriterName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(PostActivity.this, MyPageActivity.class);
             Bundle sppBundle = new Bundle();
-                //sppBundle.putInt("userID", postInfoDetail.getPostInfoSimple().getWriterID());
-                sppBundle.putInt("userID", 3);      //TODO: 시험용
+            if (myInfo.getUserID() != postInfoDetail.getPostInfoSimple().getWriterID())
+                sppBundle.putInt("userID", postInfoDetail.getPostInfoSimple().getWriterID());
             showProfilePage.putExtras(sppBundle);
             startActivity(showProfilePage);
         });
@@ -398,7 +432,7 @@ public class PostActivity extends AppCompatActivity {
             tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
             tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
             tvContent.setText(postInfoDetail.getPostContent());
-            photoAdapter.changePhotoList(postInfoDetail.getPostPhotos());    //List의 주소가 변경됐으므로 이 주소로 설정해야 함!
+            photoAdapter.changePhotoList(postInfoDetail.getPostImages());    //List의 주소가 변경됐으므로 이 주소로 설정해야 함!
             photoAdapter.notifyDataSetChanged();
             commentAdapter.changeCommentList(postInfoDetail.getComments());
             commentAdapter.notifyDataSetChanged();

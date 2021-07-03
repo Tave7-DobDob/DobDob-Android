@@ -75,6 +75,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         holder.commenterName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(context, MyPageActivity.class);
             Bundle sppBundle = new Bundle();
+            if (myInfo.getUserID() != commentList.get(position).getCommenterInfo().getUserID())
                 sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
             showProfilePage.putExtras(sppBundle);
             context.startActivity(showProfilePage);
@@ -95,6 +96,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                     //멘션 닉네임을 눌렀을 때 가능한 이벤트
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
                     Bundle sppBundle = new Bundle();
+                    if (myInfo.getUserID() != commentList.get(position).getCommenterInfo().getUserID())
                         sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
                     showProfilePage.putExtras(sppBundle);
                     context.startActivity(showProfilePage);

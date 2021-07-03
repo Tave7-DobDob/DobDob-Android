@@ -107,15 +107,13 @@ public class PostingActivity extends AppCompatActivity {
             editPostInfo = getIntent().getExtras().getParcelable("postInfo");
 
             etTitle.setText(editPostInfo.getPostInfoSimple().getPostTitle());
-            if (editPostInfo.getPostPhotos().size() > 0)
+            if (editPostInfo.getPostImages().size() > 0)
                 llShowPhotos.setVisibility(View.VISIBLE);
-            for (String photo : editPostInfo.getPostPhotos()) {
+            for (String photo : editPostInfo.getPostImages()) {
                 Bitmap bmp = null;
                 try {
                     bmp = new DownloadFileTask(photo).execute().get();
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                }
+                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
 
                 @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_photo, null);
                 ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()),
@@ -123,9 +121,9 @@ public class PostingActivity extends AppCompatActivity {
                 params.rightMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
                 view.setLayoutParams(params);
                 ImageView ivPhoto = view.findViewById(R.id.photo_iv);
-                ivPhoto.setImageBitmap(bmp);
+                    ivPhoto.setImageBitmap(bmp);
                 ImageView ivCancel = view.findViewById(R.id.photo_cancel);
-                ivCancel.setVisibility(View.GONE);
+                    ivCancel.setVisibility(View.GONE);
                 llShowPhotos.addView(view);
             }
             etContent.setText(editPostInfo.getPostContent());
@@ -142,7 +140,7 @@ public class PostingActivity extends AppCompatActivity {
                 flTags.addView(view);
             }
             tvTown.setText(editPostInfo.getPostInfoSimple().getWriterTown());
-            tvPhotos.setText("사진(" + editPostInfo.getPostPhotos().size() + "/5)");
+            tvPhotos.setText("사진(" + editPostInfo.getPostImages().size() + "/5)");
         }
 
         postingClickListener();

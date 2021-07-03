@@ -27,6 +27,7 @@ import com.tave7.dobdob.adapter.PostRecyclerAdapter;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,7 +62,10 @@ public class MyPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mypage);
 
-        Toolbar toolbar = findViewById(R.id.myPage_toolbar);      //툴바 설정
+        userPostList = new ArrayList<>();
+        isMyPage = !getIntent().hasExtra("userID");
+
+        Toolbar toolbar = findViewById(R.id.myPage_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(true);
@@ -75,13 +79,13 @@ public class MyPageActivity extends AppCompatActivity {
         rvMyPagePosts = findViewById(R.id.myPagePosts);
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);
+        adapter = new PostRecyclerAdapter(userPostList);
+        rvMyPagePosts.setAdapter(adapter);
+        DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
+        devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
+        rvMyPagePosts.addItemDecoration(devider); //리스트 사이의 구분선 설정
 
-        userPostList = new ArrayList<>();
-        if (getIntent().hasExtra("userPosts"))
-            userPostList = getIntent().getExtras().getParcelableArrayList("userPosts");     //TODO: 추후에 변경 바랍!!!!!!!!!!!!!!!!!!!!!(삭제요망)
-
-        if (getIntent().hasExtra("userID")) {
-            isMyPage = false;
+        if (!isMyPage) {
             int userID = getIntent().getExtras().getInt("userID");
             RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
                 @Override
@@ -113,13 +117,6 @@ public class MyPageActivity extends AppCompatActivity {
                             tvUserName.setText(otherInfo.getUserName());
                             tvUserTown.setText(otherInfo.getUserTown());
                             tvUserPosts.setText(otherInfo.getUserName()+" 님이 작성한 글");
-
-                            //TODO: userPostList를 서버로부터 받아와서 저장해야 함!!!!!!!!!!!!!!!!!!!!!!!
-                            adapter = new PostRecyclerAdapter(userPostList);
-                            rvMyPagePosts.setAdapter(adapter);
-                            DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
-                            devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
-                            rvMyPagePosts.addItemDecoration(devider); //리스트 사이의 구분선 설정
                         } catch (JSONException e) { e.printStackTrace(); }
                     }
                     else
@@ -131,6 +128,7 @@ public class MyPageActivity extends AppCompatActivity {
                     Toast.makeText(MyPageActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
                 }
             });
+            setWhosePosts(userID);
         }
         else {   //실제 사용자의 페이지를 보는 경우
             @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_mypage, null);
@@ -150,12 +148,7 @@ public class MyPageActivity extends AppCompatActivity {
             tvUserTown.setText(myInfo.getUserTown());
             tvUserPosts.setText(myInfo.getUserName()+" 님이 작성한 글");
 
-            //TODO: userPostList를 서버로부터 받아와서 저장해야 함!!!!!!!!!!!!!!!!!!!!!!!
-            adapter = new PostRecyclerAdapter(userPostList);
-            rvMyPagePosts.setAdapter(adapter);
-            DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
-            devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
-            rvMyPagePosts.addItemDecoration(devider);
+            setWhosePosts(myInfo.getUserID());
         }
     }
 
@@ -198,9 +191,7 @@ public class MyPageActivity extends AppCompatActivity {
 
         if (requestCode == EDIT_PROFILE_REQUEST && resultCode == RESULT_OK) {
             if (data != null && data.getExtras().getBoolean("isChanged")) {
-                //TODO: DB로부터 user의 post들 다 받아오기
-                //DB에서 userPostList를 다시 설정함(clear후에 데이터 새로고침)
-                adapter.notifyDataSetChanged();
+                setWhosePosts(myInfo.getUserID());
             }
             if (data != null && data.hasExtra("isChangeProfile")) {
                 isChangeProfile = true;
@@ -226,5 +217,49 @@ public class MyPageActivity extends AppCompatActivity {
                 tvUserTown.setText(myInfo.getUserTown());
             }
         }
+    }
+
+    private void setWhosePosts(int whoseID) {   //해당 user의 post글들을 모두 받아옴
+        RetrofitClient.getApiService().getUserPosts(whoseID).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                Log.i("MyPage user글받기 성공1", response.toString());
+                Log.i("MyPage user글받기 성공2", response.body());
+                if (response.code() == 200) {
+                    userPostList.clear();
+                    try {
+                        JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
+                        JSONArray jsonPosts = result.getJSONArray("posts");
+                        for (int i=0; i < jsonPosts.length(); i++) {
+                            JSONObject postObject = jsonPosts.getJSONObject(i);
+
+                            int postID = postObject.getInt("id");
+                            JSONObject userObject = postObject.getJSONObject("User");
+                            //TODO: 동네도 넣어야 함!!!!!!!!!!!!!!!!!!!!!!!!
+                            UserInfo writerInfo;
+                            if (userObject.isNull("profileUrl"))
+                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), "");
+                            else
+                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), "");
+                            String postTime = postObject.getString("createdAt");
+                            String title = postObject.getString("title");
+                            //하트 수
+                            int commentNum = 3;     //TODO: 서버로부터 받아와야 함!!
+                            //태그 받아옴!
+                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, null, commentNum, null);
+                            userPostList.add(post);
+                        }
+                        adapter.notifyDataSetChanged();
+                    } catch (JSONException e) { e.printStackTrace(); }
+                }
+                else
+                    Toast.makeText(MyPageActivity.this, "해당 유저가 포스트한 글을 다시 한번 받아보세요:)", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                Toast.makeText(MyPageActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

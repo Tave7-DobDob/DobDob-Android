@@ -197,8 +197,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     //선택한 post의 세부 내용을 다른 화면에 보여줌
                     Intent showPostPage = new Intent(context, PostActivity.class);
                     Bundle sppBundle = new Bundle();
-                        sppBundle.putParcelable("postInfo", postList.get(pos));       //TODO: 변경 필요!!
-                        sppBundle.putInt("postID", postList.get(pos).getPostID());
+                        sppBundle.putParcelable("postInfo", postList.get(pos));
                     showPostPage.putExtras(sppBundle);
                     ((MainActivity)context).startActivityForResult(showPostPage, POST_REQUEST);     //해당 글 창으로 넘어감  -> 안됨!!!!!!!!!!
                 }

@@ -7,25 +7,24 @@ import java.util.ArrayList;
 
 public class PostInfoDetail implements Parcelable {
     PostInfoSimple postInfoSimple;
-    private String postContent;
-    private ArrayList<String> postPhotos;     //사진 저장
+    private String postContent = "";
+    private ArrayList<String> postImages;     //사진 저장
     private ArrayList<CommentInfo> comments;
 
-    public PostInfoDetail(PostInfoSimple postInfoSimple, String postContent){
+    public PostInfoDetail(PostInfoSimple postInfoSimple){
         this.postInfoSimple = postInfoSimple;
-        this.postContent = postContent;
 
-        postPhotos = new ArrayList<String>();
-        comments = new ArrayList<CommentInfo>();
+        postImages = new ArrayList<>();
+        comments = new ArrayList<>();
         //this.comments = comments;
     }
 
     protected PostInfoDetail(Parcel in) {
         postInfoSimple = in.readParcelable(PostInfoSimple.class.getClassLoader());
         postContent = in.readString();
-        postPhotos = new ArrayList<String>();
-        postPhotos = (ArrayList<String>) in.readSerializable();
-        comments = new ArrayList<CommentInfo>();
+        postImages = new ArrayList<>();
+        postImages = (ArrayList<String>) in.readSerializable();
+        comments = new ArrayList<>();
         in.readTypedList(comments, CommentInfo.CREATOR);
     }
 
@@ -44,7 +43,7 @@ public class PostInfoDetail implements Parcelable {
 
     public PostInfoSimple getPostInfoSimple() { return postInfoSimple; }
     public String getPostContent() { return postContent; }
-    public ArrayList<String> getPostPhotos() { return postPhotos; }
+    public ArrayList<String> getPostImages() { return postImages; }
     public ArrayList<CommentInfo> getComments() { return comments; }
 
     public void setPostContent(String postContent) { this.postContent = postContent; }
@@ -56,7 +55,7 @@ public class PostInfoDetail implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(postInfoSimple, flags);
         dest.writeString(postContent);
-        dest.writeSerializable(postPhotos);
+        dest.writeSerializable(postImages);
         dest.writeTypedList(comments);
     }
 }
