@@ -19,7 +19,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
@@ -59,13 +58,11 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<PostInfoSimple> totalPostList = null;   //메인에서 보여줄 postList의 복사본
     private boolean isSearchFocus = false;
 
-    private ActionBar actionBar;
     private CircleImageView civSubMenuUser;
     private LinearLayout llTown;
     private SearchView svSearch;
     private TextView tvTown;
     private SwipeRefreshLayout srlPost;
-    private RecyclerView rvPost;
     private PostRecyclerAdapter adapter;
 
     @Override
@@ -77,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
-        actionBar = getSupportActionBar();
+        ActionBar actionBar = getSupportActionBar();
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);    //기본 제목을 없앰
         @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
@@ -93,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             //TODO: allPosts로 들고 옴!!!(지역 전달해야함!!)
             updatePostList(true);
         });
-        rvPost = findViewById(R.id.mainPost);
+        RecyclerView rvPost = findViewById(R.id.mainPost);
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL,false);
         rvPost.setLayoutManager(manager);
         adapter = new PostRecyclerAdapter(postList, totalPostList);

@@ -90,7 +90,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
         try {
             Date date = sdf.parse(postList.get(position).getPostTime());
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");      //TODO: 초 확인!
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
             String dateString = dateFormat.format(Objects.requireNonNull(date));
             holder.postTime.setText(dateString);
         } catch (ParseException e) { e.printStackTrace(); }

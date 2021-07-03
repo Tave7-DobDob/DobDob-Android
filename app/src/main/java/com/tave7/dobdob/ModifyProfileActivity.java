@@ -1,12 +1,15 @@
 package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
@@ -14,8 +17,10 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -63,9 +68,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
     private CircleImageView civUserProfile;
     private EditText etUserName;
-    private TextView tvNameCheckInfo;
-    private TextView tvUserTown;
-    private TextView tvFullAddress;
+    private TextView tvNameCheckInfo, tvUserTown, tvFullAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,14 +121,17 @@ public class ModifyProfileActivity extends AppCompatActivity {
             boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(myInfo.getUserAddress());
             if (isChangeProfile || isChangeName || isChangeAddress) {
                 MultipartBody.Part postImage = null;
-                if (isChangeProfile)
-                    postImage = MultipartBody.Part.createFormData("profileImage", tmpProfileImg.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tmpProfileImg.getPhotoFile()));
-
                 Map<String, RequestBody> dataMap = new HashMap<>();
+
+                if (isChangeProfile) {
+                    if (tmpProfileImg != null)
+                        postImage = MultipartBody.Part.createFormData("profileImage", tmpProfileImg.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tmpProfileImg.getPhotoFile()));
+                    else        //TODO: 변경해야 함!!!!!!!! 문자열 null이면 안됨
+                        dataMap.put("profileUrl", RequestBody.create(MediaType.parse("text/plain"), "null"));
+                }
+
                 if (isChangeName)
                     dataMap.put("nickName", RequestBody.create(MediaType.parse("text/plain"), tmpUserInfo.getUserName()));
-                else
-                    dataMap.put("nickName", RequestBody.create(MediaType.parse("text/plain"), myInfo.getUserName()));
 
                 if (isChangeAddress)    //TODO: 서버와 확인해봐야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(location)));
@@ -180,19 +186,46 @@ public class ModifyProfileActivity extends AppCompatActivity {
     public void modifyProfileListener() {
         TextView tvChangeProfile = findViewById(R.id.modify_tvChangeProfile);
         tvChangeProfile.setOnClickListener(v -> {
-            //TODO: (기본 프로필 이미지로 변경!)이라는 버튼도 만들어야 함!
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(intent, PICK_FROM_GALLERY);
-        });
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_setprofile, null);
 
+            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+            builder.setView(dialogView);
+            final AlertDialog alertDialog = builder.create();
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            alertDialog.show();
+
+            WindowManager.LayoutParams params = alertDialog.getWindow().getAttributes();
+            Display display = getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getRealSize(size);
+            int width = size.x;
+            params.width = (int) (width*0.75);
+            alertDialog.getWindow().setAttributes(params);
+
+            TextView tvProfileDefault = dialogView.findViewById(R.id.pdialog_setDefault);
+            tvProfileDefault.setOnClickListener(view -> {
+                Toast.makeText(getApplicationContext(), "OK 버튼을 눌렀습니다.", Toast.LENGTH_LONG).show();
+                isChangeProfile = true;
+                tmpProfileImg = null;
+                civUserProfile.setImageResource(R.drawable.user);
+                alertDialog.dismiss();
+            });
+
+            TextView tvProfileImg = dialogView.findViewById(R.id.pdialog_selectImg);
+            tvProfileImg.setOnClickListener(view -> {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, PICK_FROM_GALLERY);
+                alertDialog.dismiss();
+            });
+        });
         etUserName.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (tvNameCheckInfo.getVisibility() == View.VISIBLE) {
                     tvNameCheckInfo.setVisibility(View.GONE);
-                    isChangeName = false;       //이름이 바뀌었으므로
+                    isChangeName = false;
                 }
             }
 

@@ -13,17 +13,21 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MyPageActivity;
+import com.tave7.dobdob.PostActivity;
 import com.tave7.dobdob.R;
+import com.tave7.dobdob.RetrofitClient;
 import com.tave7.dobdob.data.CommentInfo;
 
 import java.text.ParseException;
@@ -34,6 +38,9 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.tave7.dobdob.MainActivity.myInfo;
 
@@ -93,13 +100,15 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             ClickableSpan clickableSpan = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    //멘션 닉네임을 눌렀을 때 가능한 이벤트
+                    //멘션 닉네임을 눌렀을 때 가능한 이벤트(닉네임 검색되도록 하자!!!!)
+                    /*
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
                     Bundle sppBundle = new Bundle();
-                    if (myInfo.getUserID() != commentList.get(position).getCommenterInfo().getUserID())
-                        sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
+                    if (myInfo.getUserID() != )
+                        sppBundle.putInt("userID", );
                     showProfilePage.putExtras(sppBundle);
                     context.startActivity(showProfilePage);
+                     */
                 }
 
                 @Override
@@ -136,7 +145,26 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("댓글 삭제").setMessage("이 댓글을 삭제하시겠습니까?");
                 builder.setPositiveButton("삭제", (dialog, which) -> {
-                    //TODO: DB에서 댓글을 삭제
+                    RetrofitClient.getApiService().deleteIDComment(commentList.get(position).getCommentID()).enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                            Log.i("Comment 글 삭제성공", response.toString());
+                            Log.i("Comment 글 삭제성공2", response.body());
+                            if (response.code() == 200) {
+                                //TODO: DB에서 댓글을 삭제(PostActivity의 함수를 호출함(내용 새로고침하는 함수!!))
+                            }
+                            else
+                                Toast.makeText(context, "해당 댓글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                            Log.i("Comment 삭제서버 연결실패", t.getMessage());
+                            Toast.makeText(context, "해당 댓글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    //TODO: 삭제해야 하는 부분!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     commentList.remove(position);
                     notifyDataSetChanged();
                 });

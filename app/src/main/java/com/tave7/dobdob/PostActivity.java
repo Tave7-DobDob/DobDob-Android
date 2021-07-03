@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.gson.JsonObject;
 import com.tave7.dobdob.adapter.CommentRecyclerAdapter;
 import com.tave7.dobdob.adapter.PostPhotosPagerAdapter;
 import com.tave7.dobdob.data.CommentInfo;
@@ -206,10 +207,10 @@ public class PostActivity extends AppCompatActivity {
         });
 
         //TODO: 임시 comment들 생성
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비1", "한남동", ""), "2021-07-03T07:13:23.000Z", "@tave1 첫 번째 댓글입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비2", "신사동", ""), "2021-07-03T07:13:23.000Z", "두 번째 댓글@tave2 입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비", "XXXX동", ""), "2021-07-03T07:13:23.000Z", "@tave3 세 번째 댓글입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비3", "XXX동", ""), "2021-07-03T07:13:23.000Z", "네 번째 댓글입니다! @tave4 "));
+            postInfoDetail.getComments().add(new CommentInfo(1, new UserInfo(1, null, "테이비1", "한남동", ""), "2021-07-03T07:13:23.000Z", "@tave1 첫 번째 댓글입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(2, new UserInfo(1, null, "테이비2", "신사동", ""), "2021-07-03T07:13:23.000Z", "두 번째 댓글@tave2 입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(3, new UserInfo(1, null, "테이비", "XXXX동", ""), "2021-07-03T07:13:23.000Z", "@tave3 세 번째 댓글입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(4, new UserInfo(1, null, "테이비3", "XXX동", ""), "2021-07-03T07:13:23.000Z", "네 번째 댓글입니다! @tave4 "));
 
         postClickListener();
     }
@@ -273,16 +274,37 @@ public class PostActivity extends AppCompatActivity {
         tvAddComment.setOnClickListener(v -> {
             etWriteComment.setEnabled(false);
 
-            String writeComment = etWriteComment.getText().toString();
-            writeComment = writeComment.trim();
+            String writeComment = etWriteComment.getText().toString().trim();
             writeComment = writeComment.concat(" ");   //마지막에 멘션있을 시를 대비해 하나의 공백은 남겨둠
             if (writeComment.length() != 0) {
-                //TODO: DB에 댓글 저장(현재 시간 저장) -> DB에 시간을 형식 맞게 저장하자!
+                JsonObject commentInfo = new JsonObject();
+                commentInfo.addProperty("postId", postID);
+                commentInfo.addProperty("userId", myInfo.getUserID());
+                commentInfo.addProperty("content", writeComment);
+                RetrofitClient.getApiService().postComment(commentInfo).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("PostA 댓글 post 성공", response.toString());
+                        Log.i("PostA 댓글 post 성공2", response.body());
+                        if (response.code() == 201) {
+                            //TODO: 댓글 및 전체 글 새로고침!!!!!!!!!!!!!!!!!
+                        }
+                        else
+                            Toast.makeText(PostActivity.this, "죄송합니다. 다시 한번 댓글을 전송해주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.i("PostA 댓글 연결실패", t.getMessage());
+                        Toast.makeText(PostActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                //TODO: 삭제해야 함!!!!!!!!!!!!!*********************************(빼갈 부분은 빼가자)******************************************
                 Calendar calendar = Calendar.getInstance();
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
                 String date = sdf.format(calendar.getTime());
 
-                postInfoDetail.getComments().add(new CommentInfo(myInfo, date, writeComment));
+                postInfoDetail.getComments().add(new CommentInfo(1, myInfo, date, writeComment));
                 commentAdapter.notifyDataSetChanged();
 
                 tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
@@ -291,6 +313,7 @@ public class PostActivity extends AppCompatActivity {
                 svEntirePost.post(() -> {
                     svEntirePost.fullScroll(View.FOCUS_DOWN);       //화면 하단이 보이도록 함
                 });
+                //
             }
 
             etWriteComment.setEnabled(true);

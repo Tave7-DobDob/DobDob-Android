@@ -49,5 +49,11 @@ public interface RetrofitAPI {
     Call<String> patchIDPost(@Path("id") int postID, @Body JsonObject postData);     //서버로 수정할 포스트를 전달(이미지 제외)
 
     @DELETE("/post/{id}")
-    Call<String> deleteIDPost(@Path("id") int postID);              //서버로 해당 id의 포스트를 삭제하라고 함
+    Call<String> deleteIDPost(@Path("id") int postID);              //해당 id의 포스트를 삭제하라고 함
+
+    @POST("/comment")
+    Call<String> postComment(@Body JsonObject kakaoToken);          //서버로 해당 포스트글의 댓글 전달
+
+    @DELETE("/post/{id}")
+    Call<String> deleteIDComment(@Path("id") int commentID);        //해당 id의 댓글을 삭제하라고 함
 }
