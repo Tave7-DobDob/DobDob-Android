@@ -8,13 +8,18 @@ public class UserInfo implements Parcelable {
     private String userProfileUrl;
     private String userName;
     private String userTown;       //XX동 -> 마이페이지 설정 town 혹은 실제 writerTown이 저장될 수 있음
-    private String userAddress;
+    private String userAddress = null;
+
+    public UserInfo(int userID, String userProfileUrl, String userName, String userTown) {
+        this.userID = userID;
+        this.userProfileUrl = userProfileUrl;       //userProfileUrl값이 null이라면 기본 R.drawable.user 사용해야 함
+        this.userName = userName;
+        this.userTown = userTown;
+    }
 
     public UserInfo(int userID, String userProfileUrl, String userName, String userTown, String userAddress) {
         this.userID = userID;
-        //this.userProfileUrl = userProfileUrl;       //userProfileUrl값이 null이라면 기본 R.drawable.user_image 사용해야 함
-        //TODO: 변경해야 함!!!
-        this.userProfileUrl = "https://img1.daumcdn.net/thumb/R720x0.q80/?scode=mtistory2&fname=http%3A%2F%2Fcfile7.uf.tistory.com%2Fimage%2F24283C3858F778CA2EFABE";
+        this.userProfileUrl = userProfileUrl;       //userProfileUrl값이 null이라면 기본 R.drawable.user_image 사용해야 함
         this.userName = userName;
         this.userTown = userTown;
         this.userAddress = userAddress;

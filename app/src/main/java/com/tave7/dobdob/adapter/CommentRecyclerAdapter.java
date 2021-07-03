@@ -1,5 +1,6 @@
 package com.tave7.dobdob.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +26,11 @@ import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.R;
 import com.tave7.dobdob.data.CommentInfo;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -70,13 +75,18 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         holder.commenterName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(context, MyPageActivity.class);
             Bundle sppBundle = new Bundle();
-            //sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
-            sppBundle.putInt("userID", 3);      //TODO: 시험용
+                sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
             showProfilePage.putExtras(sppBundle);
             context.startActivity(showProfilePage);
         });
         holder.commenterTown.setText(commentList.get(position).getCommenterInfo().getUserTown());
-        holder.commentTime.setText(commentList.get(position).getCommentTime());
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        try {
+            Date date = sdf.parse(commentList.get(position).getCommentTime());
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+            String dateString = dateFormat.format(Objects.requireNonNull(date));
+            holder.commentTime.setText(dateString);
+        } catch (ParseException e) { e.printStackTrace(); }
         holder.comment.setText(commentList.get(position).getContent());
             Spannable span = (Spannable) holder.comment.getText();
             ClickableSpan clickableSpan = new ClickableSpan() {
@@ -85,8 +95,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                     //멘션 닉네임을 눌렀을 때 가능한 이벤트
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
                     Bundle sppBundle = new Bundle();
-                        //sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
-                        sppBundle.putInt("userID", 3);      //TODO: 시험용
+                        sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
                     showProfilePage.putExtras(sppBundle);
                     context.startActivity(showProfilePage);
                 }

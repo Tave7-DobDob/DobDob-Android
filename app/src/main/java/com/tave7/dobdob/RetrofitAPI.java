@@ -25,8 +25,9 @@ public interface RetrofitAPI {
     @GET("/user/{id}")
     Call<String> getUserInfo(@Path("id") int userID);               //서버로부터 해당 유저 id의 정보를 받음
 
+    @Multipart
     @PATCH("/user/{id}")
-    Call<String> patchUserInfo(@Path("id") int userID, @Body JsonObject userData);  //서버로 수정할 유저의 정보를 전달
+    Call<String> patchUserInfo(@Path("id") int userID, @Part MultipartBody.Part profileImage, @PartMap Map<String, RequestBody> data);  //서버로 수정할 유저의 정보를 전달
 
     @GET("/user/nickname/{nickname}")
     Call<String> checkExistNick(@Path("nickname") String nickname); //서버로부터 해당 nickname이 이미 존재하는 지를 확인받음

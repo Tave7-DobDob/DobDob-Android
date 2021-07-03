@@ -2,11 +2,15 @@ package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -25,16 +29,23 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.gson.JsonObject;
+import com.tave7.dobdob.data.PhotoInfo;
 import com.tave7.dobdob.data.UserInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,7 +58,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
     private JsonObject location;
 
     private UserInfo tmpUserInfo = null;
-    private Bitmap tmpChangeProfile;
+    private PhotoInfo tmpProfileImg = null;
     private boolean isChangeProfile = false, isChangeName = false;
 
     private CircleImageView civUserProfile;
@@ -105,16 +116,22 @@ public class ModifyProfileActivity extends AppCompatActivity {
         TextView tvOK = toolbar.findViewById(R.id.toolbar_mp_ok);
         tvOK.setOnClickListener(v -> {      //완료 버튼 클릭 시
             boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(myInfo.getUserAddress());
-            if (isChangeProfile || isChangeName || isChangeAddress) {      //TODO: 프로필 변경 시에도 추가되어야 함(변경 시에 추가, 아니면 말고!)
-                JsonObject userData = new JsonObject();
-                if (isChangeName)
-                    userData.addProperty("nickName", tmpUserInfo.getUserName());
-                else
-                    userData.addProperty("nickName", myInfo.getUserName());
+            if (isChangeProfile || isChangeName || isChangeAddress) {
+                MultipartBody.Part postImage = null;
+                if (isChangeProfile)
+                    postImage = MultipartBody.Part.createFormData("profileImage", tmpProfileImg.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tmpProfileImg.getPhotoFile()));
 
-                if (isChangeAddress)
-                    userData.add("location", location);     //TODO: 서버와 확인해봐야 함!!!!!!!!!!!!!!!!!!!!!!
-                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
+                Map<String, RequestBody> dataMap = new HashMap<>();
+                if (isChangeName)
+                    dataMap.put("nickName", RequestBody.create(MediaType.parse("text/plain"), tmpUserInfo.getUserName()));
+                else
+                    dataMap.put("nickName", RequestBody.create(MediaType.parse("text/plain"), myInfo.getUserName()));
+
+                if (isChangeAddress)    //TODO: 서버와 확인해봐야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(location)));
+
+                Log.i("확인용", dataMap.toString());
+                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), postImage, dataMap).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("MProfile 설정성공1", response.toString());
@@ -123,14 +140,12 @@ public class ModifyProfileActivity extends AppCompatActivity {
                             Intent giveChangedUserInfo = new Intent();
                             Bundle bUserInfo = new Bundle();
                             boolean isChanged = false;
-                            /*
                             if (isChangeProfile) {
                                 isChanged = true;
                                 bUserInfo.putBoolean("isChangeProfile", true);
-                                myInfo.setUserProfileUrl();
-                                //tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
+                                //myInfo.setUserProfileUrl();
+                                //TODO: tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
                             }
-                             */
                             if (isChangeName) {
                                 isChanged = true;
                                 bUserInfo.putBoolean("isChangeName", true);
@@ -166,7 +181,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
         TextView tvChangeProfile = findViewById(R.id.modify_tvChangeProfile);
         tvChangeProfile.setOnClickListener(v -> {
             //TODO: (기본 프로필 이미지로 변경!)이라는 버튼도 만들어야 함!
-            //TODO: 갤러리에서 사진을 불러와 그 이미지로 civUserProfile의 리소스를 변경하고 DB에 저장함
             Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -278,18 +292,18 @@ public class ModifyProfileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK){
             try {
+                Uri uri = Objects.requireNonNull(data).getData();
+                String photoPath = getRealPathFromURI(uri);
+
+                File file = new File(Objects.requireNonNull(photoPath));     //갤러리에서 선택한 파일
                 InputStream is = getContentResolver().openInputStream(Objects.requireNonNull(data).getData());
-                tmpChangeProfile = BitmapFactory.decodeStream(is);
+                Bitmap photoBM = BitmapFactory.decodeStream(is);
                 is.close();
 
                 isChangeProfile = true;
-
-                //TODO: 추가로 선택한 이미지를 변수로 저장한 후 수정완료 버튼 클릭 시 DB에 저장
-                //url을 tmpUserInfo.setUserProfileUrl("");을 통해 저장
-                civUserProfile.setImageBitmap(tmpChangeProfile);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
+                tmpProfileImg = new PhotoInfo(file, photoBM);
+                civUserProfile.setImageBitmap(photoBM);
+            } catch (Exception e){ e.printStackTrace(); }
         } else if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED){
             Toast.makeText(this,"사진 선택 취소", Toast.LENGTH_SHORT).show();
         }
@@ -298,12 +312,29 @@ public class ModifyProfileActivity extends AppCompatActivity {
         }
     }
 
+    //갤러리에서 선택한 사진의 절대경로를 반환함
+    private String getRealPathFromURI(Uri contentUri) {
+        if (contentUri.getPath().startsWith("/storage")) {
+            return contentUri.getPath();
+        }
+        String id = DocumentsContract.getDocumentId(contentUri).split(":")[1];
+        String[] columns = { MediaStore.Files.FileColumns.DATA };
+        String selection = MediaStore.Files.FileColumns._ID + " = " + id;
+        try (Cursor cursor = getContentResolver().query(MediaStore.Files.getContentUri("external"), columns, selection, null, null)) {
+            int columnIndex = cursor.getColumnIndex(columns[0]);
+            if (cursor.moveToFirst()) {
+                return cursor.getString(columnIndex);
+            }
+        }
+        return null;
+    }
+
     public void modifyPSettingTown(JsonObject loc) {
         location = loc;
 
         tvUserTown.setText(loc.get("dong").getAsString());
-        tvFullAddress.setText(loc.get("fullAddress").getAsString());
+        tvFullAddress.setText(loc.get("detail").getAsString());
         tmpUserInfo.setUserTown(loc.get("dong").getAsString());
-        tmpUserInfo.setUserAddress(loc.get("fullAddress").getAsString());
+        tmpUserInfo.setUserAddress(loc.get("detail").getAsString());
     }
 }

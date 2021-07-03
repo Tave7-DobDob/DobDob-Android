@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                     Log.i("Login 연결성공1", response.toString());
                     Log.i("Login 연결성공2", response.body());
                     if (response.code() == 200 || response.code() == 201) {
-                        PreferenceManager.setString(LoginActivity.this, "access_token", oAuthToken.getAccessToken());
+                        PreferenceManager.setString(LoginActivity.this, "access_token", oAuthToken.getAccessToken());   //TODO: 수정요망
                         try {
                             JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             int userID = loginInfo.getJSONObject("user").getInt("id");
@@ -100,41 +100,22 @@ public class LoginActivity extends AppCompatActivity {
                                 finish();
                             }
                             else {
-                                RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
-                                    @Override
-                                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                                        Log.i("Login user 정보받기 성공1", response.toString());
-                                        Log.i("Login user 정보받기 성공2", response.body());
-                                        if (response.code() == 200) {
-                                            try {
-                                                JSONObject userInfo = new JSONObject(Objects.requireNonNull(response.body()));
-                                                JSONObject user = userInfo.getJSONObject("user");
-                                                /*  TODO: location이 완료되면 이걸로 출력해야함!!!
-                                                UserInfo myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
-                                                        user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("fullAddress"));
-                                                 */
-                                                if (user.isNull("profileUrl"))
-                                                    myInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");
-                                                else
-                                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), "역삼동", "강남구 역삼동 200");
+                                JSONObject user = loginInfo.getJSONObject("user");
+                                /*  TODO: location이 완료되면 이걸로 출력해야함!!!
+                                UserInfo myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
+                                        user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("detail"));
+                                 */
 
-                                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                                finish();
-                                            } catch (JSONException e) { e.printStackTrace(); }
-                                        }
-                                        else {
-                                            Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
+                                if (user.isNull("profileUrl"))
+                                    myInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");
+                                else
+                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), "역삼동", "강남구 역삼동 200");
 
-                                    @Override
-                                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                                        Log.i("Login user 정보받기 실패", t.getMessage());
-                                        Toast.makeText(LoginActivity.this, "서버에 연결이 되지 않았습니다.\n 다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                finish();
                             }
                         } catch (JSONException e) { e.printStackTrace(); }
+
                     }
                     else {
                         Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();

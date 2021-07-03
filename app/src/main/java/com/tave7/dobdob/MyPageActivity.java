@@ -94,7 +94,7 @@ public class MyPageActivity extends AppCompatActivity {
                             JSONObject user = userInfo.getJSONObject("user");
                             /*  TODO: location이 완료되면 이걸로 출력해야함!!!
                             otherInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
-                                    user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("fullAddress"));
+                                    user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("detail"));
                              */
                             if (user.isNull("profileUrl"))
                                 otherInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");

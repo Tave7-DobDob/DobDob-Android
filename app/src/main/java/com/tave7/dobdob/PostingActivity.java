@@ -293,7 +293,6 @@ public class PostingActivity extends AppCompatActivity {
                 Toast.makeText(PostingActivity.this, "글 수정 시에는 사진을 추가할 수 없습니다.", Toast.LENGTH_SHORT).show();
             }
             else {
-                //사진 불러오기
                 if (tmpPhotos.size() < 5) {
                     Intent intent = new Intent();
                     intent.setType("image/*");
@@ -412,7 +411,7 @@ public class PostingActivity extends AppCompatActivity {
     //동네 설정 후 화면 설정
     public void postingSettingTown(JsonObject loc) {
         location = loc;
-        tmpFullAddress = loc.get("fullAddress").getAsString();
+        tmpFullAddress = loc.get("detail").getAsString();
         tvTown.setText(loc.get("dong").getAsString());
     }
 }

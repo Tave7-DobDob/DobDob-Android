@@ -134,8 +134,8 @@ public class PostActivity extends AppCompatActivity {
         llTag = findViewById(R.id.post_LinearTag);
             if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0)
                 settingTags();
-            else
-                llTag.setVisibility(View.GONE);
+            //else
+                //llTag.setVisibility(View.GONE);
         llWriteComment = findViewById(R.id.post_writeCommentL);
 
         Toolbar toolbar = findViewById(R.id.post_toolbar);      //툴바 설정
@@ -165,10 +165,10 @@ public class PostActivity extends AppCompatActivity {
         
 
         //TODO: 임시 comment들 생성
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(-1, null, "테이비1", "한남동", ""), "2021.05.16 20:00", "@tave1 첫 번째 댓글입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(-1, null, "테이비2", "신사동", ""), "2021.05.17 13:00", "두 번째 댓글@tave2 입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(-1, null, "테이비", "XXXX동", ""), "2021.05.18 15:00", "@tave3 세 번째 댓글입니다!"));
-            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(-1, null, "테이비3", "XXX동", ""), "2021.05.19 17:00", "네 번째 댓글입니다! @tave4 "));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비1", "한남동", ""), "2021-07-03T07:13:23.000Z", "@tave1 첫 번째 댓글입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비2", "신사동", ""), "2021-07-03T07:13:23.000Z", "두 번째 댓글@tave2 입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비", "XXXX동", ""), "2021-07-03T07:13:23.000Z", "@tave3 세 번째 댓글입니다!"));
+            postInfoDetail.getComments().add(new CommentInfo(new UserInfo(1, null, "테이비3", "XXX동", ""), "2021-07-03T07:13:23.000Z", "네 번째 댓글입니다! @tave4 "));
 
         rvComments = findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);

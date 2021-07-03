@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class PostInfoSimple implements Parcelable {
-    private int postID = -1;     //TODO: 넣어야 함!!
+    private int postID;
     private UserInfo writerInfo;
     private String postTime = "";                   //포스트가 올려진 시간(TODO: Date로 바뀌어야 함!)
     private String postTitle;
@@ -15,7 +15,8 @@ public class PostInfoSimple implements Parcelable {
     private int commentNum = 0;
     private ArrayList<String> postTag = null;
 
-    public PostInfoSimple(UserInfo writerInfo, String postTime, String postTitle, ArrayList<String> heartUsers, int commentNum, ArrayList<String> postTag){
+    public PostInfoSimple(int postID, UserInfo writerInfo, String postTime, String postTitle, ArrayList<String> heartUsers, int commentNum, ArrayList<String> postTag){
+        this.postID = postID;
         this.writerInfo = writerInfo;
         this.postTime = postTime;
         this.postTitle = postTitle;

@@ -26,8 +26,12 @@ import com.tave7.dobdob.data.UserInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -168,10 +172,11 @@ public class InitialSettingActivity extends AppCompatActivity {
             else if (!isSetTown)            //동네 설정을 하지 않은 경우
                 tvTownError.setVisibility(View.VISIBLE);
             else {  //서버에 유저 정보를 전달함
-                JsonObject userData = new JsonObject();
-                userData.addProperty("nickName", etName.getText().toString().trim());
-                userData.add("location", location);
-                RetrofitClient.getApiService().patchUserInfo(userID, userData).enqueue(new Callback<String>() {       //DB전달
+                String nickName = etName.getText().toString().trim();
+                Map<String, RequestBody> dataMap = new HashMap<>();
+                dataMap.put("nickName", RequestBody.create(MediaType.parse("text/plain"), nickName));
+                dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(location)));
+                RetrofitClient.getApiService().patchUserInfo(userID, null, dataMap).enqueue(new Callback<String>() {       //DB전달
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("Initial 설정성공1", response.toString());
@@ -179,7 +184,7 @@ public class InitialSettingActivity extends AppCompatActivity {
                         if (response.code() == 200) {
                             //TODO: 현재 위치가 저장이 안되고 있음 확인해야 함!!          --> 창우님이 해결해주셔야 함!!!!
                             //UserId를 넘겨줘야 함!!
-                            myInfo = new UserInfo(userID, null, etName.getText().toString().trim(), location.get("dong").getAsString(), location.get("fullAddress").getAsString());
+                            myInfo = new UserInfo(userID, null, nickName, location.get("dong").getAsString(), location.get("detail").getAsString());
                             startActivity(new Intent(InitialSettingActivity.this, MainActivity.class));
                             finish();
                         }
@@ -215,6 +220,6 @@ public class InitialSettingActivity extends AppCompatActivity {
         tvResultTown.setVisibility(View.VISIBLE);
             tvResultTown.setText(loc.get("dong").getAsString());
         tvFullAddress.setVisibility(View.VISIBLE);
-            tvFullAddress.setText(loc.get("fullAddress").getAsString());
+            tvFullAddress.setText(loc.get("detail").getAsString());
     }
 }

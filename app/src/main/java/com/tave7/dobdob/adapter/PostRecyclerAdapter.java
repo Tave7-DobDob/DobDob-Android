@@ -25,7 +25,10 @@ import com.tave7.dobdob.R;
 import com.tave7.dobdob.TagPostActivity;
 import com.tave7.dobdob.data.PostInfoSimple;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -74,7 +77,13 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         holder.writerProfile.setImageBitmap(writerProfile);
         holder.writerName.setText(postList.get(position).getWriterName());
         holder.writerTown.setText(postList.get(position).getWriterTown());
-        holder.postTime.setText(postList.get(position).getPostTime());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        try {
+            Date date = sdf.parse(postList.get(position).getPostTime());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");      //TODO: 초 확인!
+            String dateString = dateFormat.format(date);
+            holder.postTime.setText(dateString);
+        } catch (ParseException e) { e.printStackTrace(); }
         holder.postTitle.setText(postList.get(position).getPostTitle());
 
         boolean isClickedHeart = false;
@@ -138,19 +147,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
     @Override
     public int getItemCount() {
         return postList.size();
-    }
-
-    public void changeWriterName(String beforeName, String afterName) {     //MyPage에서 이름 변경 적용 시
-        for (PostInfoSimple pi : postList){
-            pi.setWriterName(afterName);
-
-            for (int i=0; i<pi.getHeartUsers().size(); i++) {
-                if (pi.getHeartUsers().get(i).equals(beforeName))
-                    pi.getHeartUsers().set(i, afterName);
-            }
-        }
-        //TODO: 댓글에 writer가 존재하는 경우에는 post를 서버에서 받아오는 것으로 하자!(댓글은 PostDetail이기 때문에 Post를 클릭 시 DB에서 댓글 내용을 받아옴으로 괜찮음)
-        notifyDataSetChanged();
     }
 
     public ArrayList<PostInfoSimple> searchTagPosts(String searchText) {     //태그가 포함된 검색

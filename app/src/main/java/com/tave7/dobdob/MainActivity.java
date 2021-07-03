@@ -41,6 +41,10 @@ import com.tave7.dobdob.adapter.PostRecyclerAdapter;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -75,11 +79,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //TODO: UserInfo를 받은 값을 넘겨받아야 함!!! (extra로 넘겨받은 id값을 userID로 넣고 정보를 받아옴!!)
-        /*
-        //userInfo = new UserInfo(-1, null, userName, userTown, userAddress);
         //location = new JsonObject();    //TODO: location을 저장해서 들고 있어야 함!!!
-         */
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -92,41 +92,11 @@ public class MainActivity extends AppCompatActivity {
 
         postList = new ArrayList<>();
         totalPostList = new ArrayList<>();
-        //TODO: 임시 postList 생성
-            ArrayList<String> tmpTag = new ArrayList<>();
-                tmpTag.add("산책");
-                tmpTag.add("동네산책");
-                tmpTag.add("4명모집");
-            ArrayList<String> tmpHeartUsers = new ArrayList<>();
-                tmpHeartUsers.add("생귤");
-                tmpHeartUsers.add("테이비");     tmpHeartUsers.add("테이비2");
-                tmpHeartUsers.add("테이비3");     tmpHeartUsers.add("테이비4");
-            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비", "신사동", ""), "2021.05.16 20:00", "오늘 저녁에 산책할 사람 구해요!", tmpHeartUsers, 4, tmpTag));
-            ArrayList<String> tmpTag2 = new ArrayList<>();
-                tmpTag2.add("자전거타기");
-            ArrayList<String> tmpTag3 = new ArrayList<>();
-                tmpTag3.add("빨대");
-                tmpTag3.add("공구");
-            ArrayList<String> tmpHeartUsers2 = new ArrayList<>();
-                tmpHeartUsers2.add("테이브");      tmpHeartUsers2.add("테이비7");
-                tmpHeartUsers2.add("테이비");      tmpHeartUsers2.add("테이비2");
-                tmpHeartUsers2.add("테이비3");     tmpHeartUsers2.add("테이비4");
-            ArrayList<String> tmpHeartUsers3 = new ArrayList<>();
-                tmpHeartUsers3.add("테이비");      tmpHeartUsers3.add("테이비5");
-                tmpHeartUsers3.add("테이비3");     tmpHeartUsers3.add("테이비7");
-            ArrayList<String> tmpHeartUsers4 = new ArrayList<>();
-                tmpHeartUsers4.add("생귤");
-                tmpHeartUsers4.add("테이비3");     tmpHeartUsers4.add("테이비7");
-            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "자전거탄풍경", "개포동", ""), "2021.05.21 21:00", "오늘 저녁에 같이 자전거 탈 사람 구해요!", tmpHeartUsers2, 0, tmpTag2));
-            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비1", "인사동", ""), "2021.05.18 15:00", "개별 포장 빨대 200개 공구하실 분 구합니다!", tmpHeartUsers3, 2, tmpTag3));
-            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비2", "청파동", ""), "2021.05.20 11:30", "맥모닝 같이 먹을 사람 구해요!", null, 0, null));
-            totalPostList.add(new PostInfoSimple(new UserInfo(-1, null, "테이비", "한남동", ""), "2021.05.21 13:10", "동네에 맛있는 반찬 가게 알려주세요!", tmpHeartUsers4, 39, null));
-            postList.addAll(totalPostList);     //TODO: 삭제했을 때 영향 미치는 지 확인해야 함
 
         srlPost = findViewById(R.id.main_swipeRL);
         srlPost.setDistanceToTriggerSync(400);
         srlPost.setOnRefreshListener(() -> {
-            //TODO: allPosts로 들고 옴!!!
+            //TODO: allPosts로 들고 옴!!!(지역 전달해야함!!)
             updatePostList(true);
         });
         rvPost = findViewById(R.id.mainPost);
@@ -174,7 +144,8 @@ public class MainActivity extends AppCompatActivity {
         sv.setOnCloseListener(() -> {
             isSearchFocus = false;
             actionBar.setDisplayShowCustomEnabled(true);
-            searchTitleTag("");    //초기로 돌려놓음
+            searchTitleTag("");    //초기로 돌려놓음(삭제요망)
+            //TODO: DB에 키워드를 전달해 값을 반환받음!!(totalPostList 초기화 해야 함!!)
             sv.onActionViewCollapsed();
 
             return true;
@@ -182,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {    //SearchView의 검색 이벤트
             @Override
             public boolean onQueryTextSubmit(String query) {        //검색버튼을 눌렀을 경우
-                searchTitleTag(query);
+                searchTitleTag(query);      //TODO: DB에 키워드를 전달해 값을 반환받음!!
 
                 return true;
             }
@@ -191,8 +162,6 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {      //텍스트가 바뀔때마다 호출
                 if (newText.length() == 0)
                     searchTitleTag("");  //초기로 돌려놓음
-                else
-                    searchTitleTag(newText);
 
                 return true;
             }
@@ -213,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         });
         MenuItem mLogout = menu.findItem(R.id.logout);
         mLogout.setOnMenuItemClickListener(item -> {     //로그아웃  TODO: Main에서 바로 Login으로 갈 수 있는 지??! 중간에 쌓인 스택들은 없는 지 확인!
-            PreferenceManager.removeKey(MainActivity.this, "access_token");     //어세스 토크 삭제
+            PreferenceManager.removeKey(MainActivity.this, "access_token");         //어세스 토크 삭제 TODO: 수정 요망!!!!!!!!!!
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
 
             finish();
@@ -296,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == MYPAGE_REQUEST) {        //MyPage에서 User 정보 변경 시 적용 위함
-                if (data.hasExtra("isChanged")) {
+                if (Objects.requireNonNull(data).hasExtra("isChanged")) {
                     setMyPageIcon();
                     tvTown.setText(myInfo.getUserTown());
                     updatePostList(false);       //리팩토링 해야 함!!
@@ -340,10 +309,33 @@ public class MainActivity extends AppCompatActivity {
                     srlPost.setRefreshing(false);
 
                 if (response.code() == 200) {
-                    //totalPostList.clear();
-                    //postList.clear();
-                    //TODO: 글 모두 저장함(totalPostList에 넣고 postList에 addAll함!
-                    //adapter.notifyDataSetChanged(); 해줘야 함!!
+                    totalPostList.clear();
+                    postList.clear();
+                    try {
+                        JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
+                        JSONArray jsonPosts = result.getJSONArray("posts");
+                        for (int i=0; i < jsonPosts.length(); i++) {
+                            JSONObject postObject = jsonPosts.getJSONObject(i);
+
+                            int postID = postObject.getInt("id");
+                            JSONObject userObject = postObject.getJSONObject("User");
+                            //TODO: 동네도 넣어야 함!!!!!!!!!!!!!!!!!!!!!!!!
+                            UserInfo writerInfo;
+                            if (userObject.isNull("profileUrl"))
+                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), "");
+                            else
+                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), "");
+                            String postTime = postObject.getString("createdAt");
+                            String title = postObject.getString("title");
+                            //하트 수
+                            int commentNum = 3;     //TODO: 서버로부터 받아와야 함!!
+                            //태그 받아옴!
+                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, null, commentNum, null);
+                            totalPostList.add(post);
+                        }
+                        postList.addAll(totalPostList);
+                    } catch (JSONException e) { e.printStackTrace(); }
+                    adapter.notifyDataSetChanged();
                 }
                 else {
                     Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();

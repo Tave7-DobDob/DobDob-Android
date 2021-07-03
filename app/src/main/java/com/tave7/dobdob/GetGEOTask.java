@@ -87,7 +87,7 @@ public class GetGEOTask extends AsyncTask<String, Void, String> {
             Double locationY = Double.valueOf(roadAddress.getString("y"));
 
             JsonObject loc = new JsonObject();
-            loc.addProperty("fullAddress", fullAddress);
+            loc.addProperty("detail", fullAddress);
             loc.addProperty("si", si);
             loc.addProperty("gu", gu);
             loc.addProperty("dong", dong);
