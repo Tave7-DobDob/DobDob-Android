@@ -204,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
             isSearchFocus = false;
             searchTitleTag("");     //TODO: 변경할 것 인지 고민해보자!
             svSearch.onActionViewCollapsed();
-            Log.i("확인용", "1");
             llTown.setVisibility(View.VISIBLE);
         }
         else
@@ -245,9 +244,6 @@ public class MainActivity extends AppCompatActivity {
                 new GetGEOTask(this, "main", Objects.requireNonNull(data).getExtras().getString("address")).execute();
             }
         }
-        //TODO: 이후에 post글 추가를 한다면 동네에 대한 post를 최신으로 새로고침해야 함
-        //마이페이지를 봤다면 그대로 내버려둠
-        //글의 세부 내용을 보는 거라면 그대로 내버려둠
     }
 
     public void mainSettingTown(JsonObject loc) {

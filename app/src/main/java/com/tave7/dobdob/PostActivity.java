@@ -29,6 +29,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -70,7 +71,7 @@ public class PostActivity extends AppCompatActivity {
     Menu menu;
     boolean isWriter = false;
     boolean isClickedHeart = false;     //현재 글 수정중인지 || 현재 글에 대해 하트를 눌렀는 지
-    boolean isDeleted = false;          //MainActivity에 전달해야 함(글을 삭제했는 지)
+    boolean isDeleted = false, isEdited = false;          //MainActivity에 전달해야 함(글을 삭제했는 지)
 
     CircleIndicator3 indicator;
     CommentRecyclerAdapter commentAdapter;
@@ -320,11 +321,10 @@ public class PostActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("SetTextI18n")
     public void settingTags() {
         for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
             TextView tvTag = new TextView(PostActivity.this);
-            tvTag.setText("#"+tagName+" ");
+            tvTag.setText("#".concat(tagName).concat(" "));
             tvTag.setTypeface(null, Typeface.NORMAL);
             tvTag.setTextColor(Color.parseColor("#1b73d8"));
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -351,7 +351,7 @@ public class PostActivity extends AppCompatActivity {
     public void finish() {
         //변경 내용이 있다면 보내줌(있으면 true 전달, 없으면 false 전달 -> Main에서 처리하게 함!, MyPage에서 처리!)
         Intent returnIntent = new Intent();
-        if (isDeleted)       //글을 삭제했다고 Main에 전달해야 함!!(메인의 postList를 갱신해야 함)
+        if (isDeleted || isEdited)       //글 삭제 or 글 수정인 경우
             setResult(RESULT_OK, returnIntent);
         else
             setResult(RESULT_CANCELED, returnIntent);
@@ -376,7 +376,7 @@ public class PostActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case android.R.id.home:{    //toolbar의 back키 눌렀을 때 동작
+            case android.R.id.home: {
                 finish();
                 return true;
             }
@@ -414,10 +414,12 @@ public class PostActivity extends AppCompatActivity {
                             Toast.makeText(PostActivity.this, "해당 글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
                         }
                     }));
-                builder.setNegativeButton("취소", (dialog, id) -> {
-                    dialog.cancel();    //삭제가 되지 않음
-                });
+                builder.setNegativeButton("취소", (dialog, id) -> dialog.cancel());
                 AlertDialog alertDialog = builder.create();
+                alertDialog.setOnShowListener(dialogInterface -> {
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.yellow2));
+                    alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.yellow2));
+                });
                 alertDialog.show();
 
                 return true;
@@ -431,6 +433,7 @@ public class PostActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == POST_EDIT_REQUEST && resultCode == RESULT_OK) {
+            isEdited = true;
             RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -438,6 +441,7 @@ public class PostActivity extends AppCompatActivity {
                     Log.i("PostA 글 성공2", response.body());
                     if (response.code() == 200) {
                         //TODO: UI를 변경해야 함!!!
+                        //댓글과 post글을 다시 불러와야 함!!
                     }
                     else {
                         Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();

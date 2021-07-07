@@ -307,9 +307,8 @@ public class PostingActivity extends AppCompatActivity {
         etTag.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //스페이스바를 누를 시에 태그가 추가됨
-                if (s.length()>0 && s.charAt(s.length()-1)==' ') {
-                    String tag = s.toString().trim();   //앞뒤 공백 제거
+                if (s.length()>0 && s.charAt(s.length()-1)==' ') {      //스페이스바를 누를 시에 태그가 추가됨
+                    String tag = s.toString().trim();
                     if (tag.length() > 0) {
                         boolean canAddTag = false;
                         if (!tmpTag.contains(tag)) {
@@ -341,11 +340,10 @@ public class PostingActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK){
+        if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK) {
             try {
                 Uri uri = Objects.requireNonNull(data).getData();
                 String photoPath = getRealPathFromURI(uri);
@@ -357,7 +355,7 @@ public class PostingActivity extends AppCompatActivity {
 
                 PhotoInfo photo = new PhotoInfo(file, photoBM);
                 tmpPhotos.add(photo);
-                tvPhotos.setText("사진("+tmpPhotos.size()+"/5)");
+                tvPhotos.setText("사진(".concat(String.valueOf(tmpPhotos.size())).concat("/5)"));
 
                 if (tmpPhotos.size() == 1)
                     llShowPhotos.setVisibility(View.VISIBLE);
@@ -373,17 +371,17 @@ public class PostingActivity extends AppCompatActivity {
                 ivCancel.setOnClickListener(v -> {
                     llShowPhotos.removeView((View) v.getParent());
                     tmpPhotos.remove(photo);
-                    tvPhotos.setText("사진("+tmpPhotos.size()+"/5)");
+                    tvPhotos.setText("사진(".concat(String.valueOf(tmpPhotos.size())).concat("/5)"));
 
                     if (tmpPhotos.size() == 0)
                         llShowPhotos.setVisibility(View.GONE);
                 });
                 llShowPhotos.addView(view);
             } catch (Exception e){ e.printStackTrace(); }
-        } else if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED){
+        }
+        else if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED) {
             Toast.makeText(this,"사진 선택 취소", Toast.LENGTH_SHORT).show();
         }
-
         else if (requestCode == DAUMADDRESS_REQUEST && resultCode == RESULT_OK) {
             new GetGEOTask(this, "posting", Objects.requireNonNull(data).getExtras().getString("address")).execute();
         }

@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tave7.dobdob.DownloadFileTask;
@@ -169,9 +170,13 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                     notifyDataSetChanged();
                 });
                 builder.setNegativeButton("취소", (dialog, id) -> {
-                    dialog.cancel();    //삭제가 되지 않음
+                    dialog.cancel();
                 });
                 AlertDialog alertDialog = builder.create();
+                alertDialog.setOnShowListener(dialogInterface -> {
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(context, R.color.yellow2));
+                    alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(context, R.color.yellow2));
+                });
                 alertDialog.show();
             });
         }
