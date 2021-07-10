@@ -40,18 +40,12 @@ import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder> {
     private Context context;
-    private boolean isMain = true;
+    private char whereActivity;
     private ArrayList<PostInfoSimple> postList;
-    private ArrayList<PostInfoSimple> totalPostList = null;    //메인에서 보여줄 postList의 복사본
 
-    public PostRecyclerAdapter(ArrayList<PostInfoSimple> postList) {      //MyPageActivity에서 호출
-        isMain = false;        //태그 클릭 시 태그에 대한 게시물 검색이 안됨
+    public PostRecyclerAdapter(char whereActivity, ArrayList<PostInfoSimple> postList) {
+        this.whereActivity = whereActivity;     //m: MainActivity, p: MyPageActivity, t: TagPostActivity
         this.postList = postList;
-    }
-
-    public PostRecyclerAdapter(ArrayList<PostInfoSimple> postList, ArrayList<PostInfoSimple> totalPostList) {   //MainActivity에서 호출
-        this.postList = postList;
-        this.totalPostList = totalPostList;
     }
 
     @NonNull
@@ -60,14 +54,12 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         context = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        //전개자(Inflater)를 통해 얻은 참조 객체를 통해 뷰홀더 객체 생성
-        View view = inflater.inflate(R.layout.postrow, parent, false);
+        View view = inflater.inflate(R.layout.item_post, parent, false);
         PostViewHolder viewHolder = new PostViewHolder(view);
 
         return viewHolder;
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Bitmap writerProfile = BitmapFactory.decodeResource(context.getResources(), R.drawable.user);
@@ -131,28 +123,26 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         holder.heartNum.setText(String.valueOf(postList.get(position).getLikeNum()));
         holder.commentNum.setText(String.valueOf(postList.get(position).getCommentNum()));
 
-        holder.tags.removeAllViews();       //기존에 있는 태그들 초기화
+        holder.tags.removeAllViews();
         if (postList.get(position).getPostTag() != null && postList.get(position).getPostTag().size() != 0) {
             for (String tagName : postList.get(position).getPostTag()){
                 TextView tvTag = new TextView(context);
-                tvTag.setText("#"+tagName+" ");
+                tvTag.setText("#".concat(tagName));
                 tvTag.setTypeface(null, Typeface.NORMAL);
                 tvTag.setTextColor(Color.parseColor("#1b73d8"));
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.setMarginEnd(20);
                 tvTag.setLayoutParams(layoutParams);
                 holder.tags.addView(tvTag);
 
                 tvTag.setOnClickListener(v -> {
-                    if (isMain) {       //TODO: 마이페이지에서 태그 검색이 가능하게 할 것인가?
-                        String searchTag = tvTag.getText().toString().substring(1, tvTag.getText().length()-1);
+                    String searchTag = tvTag.getText().toString().substring(1);
 
-                        Intent showContainTagPost = new Intent(context, TagPostActivity.class);
-                        Bundle sctBundle = new Bundle();
-                            sctBundle.putString("tagName", searchTag);
-                            sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));
-                        showContainTagPost.putExtras(sctBundle);
-                        context.startActivity(showContainTagPost);
-                    }
+                    Intent showContainTagPost = new Intent(context, TagPostActivity.class);
+                    Bundle sctBundle = new Bundle();
+                        sctBundle.putString("tagName", searchTag);
+                    showContainTagPost.putExtras(sctBundle);
+                    context.startActivity(showContainTagPost);
                 });
             }
         }
@@ -165,19 +155,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
     @Override
     public int getItemCount() {
         return postList.size();
-    }
-
-    public ArrayList<PostInfoSimple> searchTagPosts(String searchText) {     //태그가 포함된 검색
-        ArrayList<PostInfoSimple> tmpTagPosts = new ArrayList<>();
-
-        for (PostInfoSimple pi : totalPostList) {
-            for (String tag : pi.getPostTag()) {
-                if (tag.equals(searchText))
-                    tmpTagPosts.add(pi);
-            }
-        }
-
-        return tmpTagPosts;
     }
 
     public class PostViewHolder extends RecyclerView.ViewHolder {
@@ -203,12 +180,16 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             itemView.setOnClickListener(v -> {
                 int pos = getAdapterPosition();
                 if (pos != RecyclerView.NO_POSITION) {
-                    //선택한 post의 세부 내용을 다른 화면에 보여줌
                     Intent showPostPage = new Intent(context, PostActivity.class);
                     Bundle sppBundle = new Bundle();
                         sppBundle.putParcelable("postInfo", postList.get(pos));
                     showPostPage.putExtras(sppBundle);
-                    ((MainActivity)context).startActivityForResult(showPostPage, POST_REQUEST);     //해당 글 창으로 넘어감  -> 안됨!!!!!!!!!!
+                    if (whereActivity == 'm')
+                        ((MainActivity) context).startActivityForResult(showPostPage, POST_REQUEST);
+                    else if (whereActivity == 'p')
+                        ((MyPageActivity) context).startActivityForResult(showPostPage, POST_REQUEST);
+                    else
+                        ((TagPostActivity) context).startActivityForResult(showPostPage, POST_REQUEST);
                 }
             });
         }

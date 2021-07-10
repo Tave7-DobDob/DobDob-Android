@@ -73,7 +73,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_profile);
 
-        tmpUserInfo = new UserInfo(myInfo.getUserID(), null, "", "", "");
+        tmpUserInfo = new UserInfo(myInfo.getUserID(), null, "", "", "", -1, -1);
 
         Toolbar toolbar = findViewById(R.id.modify_toolbar);
         setSupportActionBar(toolbar);
@@ -115,7 +115,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
         });
         
         TextView tvOK = toolbar.findViewById(R.id.toolbar_mp_ok);
-        tvOK.setOnClickListener(v -> {      //완료 버튼 클릭 시
+        tvOK.setOnClickListener(v -> {
             boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(myInfo.getUserAddress());
 
             if (isChangeProfile) {      //TODO: null이 되는 지를 확인해야 함!!!!
@@ -128,8 +128,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().patchUserProfileImg(myInfo.getUserID(), postImage).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("MProfileImg 설정성공1", response.toString());
-                        Log.i("MProfileImg 설정성공2", response.body());
+                        Log.i("MProfileImg 설정 성공", response.body());
                         if (response.code() == 200) {
                             String profileUrl = null;
                             try {
@@ -154,8 +153,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                                 RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
                                     @Override
                                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                                        Log.i("MProfile 설정성공1", response.toString());
-                                        Log.i("MProfile 설정성공2", response.body());
+                                        Log.i("MProfile 설정 성공", response.body());
                                         if (response.code() == 200) {
                                             tvOK.setEnabled(true);
 
@@ -167,6 +165,8 @@ public class ModifyProfileActivity extends AppCompatActivity {
                                                 bUserInfo.putBoolean("isChangeAddress", true);
                                                 myInfo.setUserTown(tmpUserInfo.getUserTown());
                                                 myInfo.setUserAddress(tmpUserInfo.getUserAddress());
+                                                myInfo.setLocationX(tmpUserInfo.getLocationX());
+                                                myInfo.setLocationY(tmpUserInfo.getLocationY());
                                             }
                                             bUserInfo.putBoolean("isChanged", true);
                                             giveChangedUserInfo.putExtras(bUserInfo);
@@ -179,7 +179,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
                                     @Override
                                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                                        Log.i("MProfile 설정실패", t.getMessage());
                                         Toast.makeText(ModifyProfileActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                                     }
                                 });
@@ -199,7 +198,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Log.i("MProfileImg 설정실패", t.getMessage());
                         Toast.makeText(ModifyProfileActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -214,8 +212,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("MProfile 설정성공1", response.toString());
-                        Log.i("MProfile 설정성공2", response.body());
+                        Log.i("MProfile 설정 성공", response.body());
                         if (response.code() == 200) {
                             tvOK.setEnabled(true);
 
@@ -229,6 +226,8 @@ public class ModifyProfileActivity extends AppCompatActivity {
                                 bUserInfo.putBoolean("isChangeAddress", true);
                                 myInfo.setUserTown(tmpUserInfo.getUserTown());
                                 myInfo.setUserAddress(tmpUserInfo.getUserAddress());
+                                myInfo.setLocationX(tmpUserInfo.getLocationX());
+                                myInfo.setLocationY(tmpUserInfo.getLocationY());
                             }
                             bUserInfo.putBoolean("isChanged", true);
                             giveChangedUserInfo.putExtras(bUserInfo);
@@ -241,7 +240,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Log.i("MProfile 설정실패", t.getMessage());
                         Toast.makeText(ModifyProfileActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -338,9 +336,8 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().checkExistNick(username).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("MProfile 닉중복확인 성공1", response.toString());
-                        Log.i("MProfile 닉중복확인 성공2", response.body());
-                        if (response.code() == 200) {   //로그인 사용 가능
+                        Log.i("MProfile 닉중복확인 성공", response.body());
+                        if (response.code() == 200) {
                             try {
                                 JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
 
@@ -358,14 +355,12 @@ public class ModifyProfileActivity extends AppCompatActivity {
                                 }
                             } catch (JSONException e) { e.printStackTrace(); }
                         }
-                        else {
+                        else
                             Toast.makeText(ModifyProfileActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
-                        }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Log.i("MProfile 닉중복확인 연결실패", t.getMessage());
                         Toast.makeText(ModifyProfileActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -435,5 +430,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
         tvFullAddress.setText(loc.get("detail").getAsString());
         tmpUserInfo.setUserTown(loc.get("dong").getAsString());
         tmpUserInfo.setUserAddress(loc.get("detail").getAsString());
+        tmpUserInfo.setLocationX(loc.get("locationX").getAsDouble());
+        tmpUserInfo.setLocationY(loc.get("locationY").getAsDouble());
     }
 }

@@ -59,7 +59,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         context = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View view = inflater.inflate(R.layout.commentrow, parent, false);
+        View view = inflater.inflate(R.layout.item_comment, parent, false);
         CommentRecyclerAdapter.CommentViewHolder viewHolder = new CommentRecyclerAdapter.CommentViewHolder(view);
 
         return viewHolder;
@@ -145,8 +145,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                     RetrofitClient.getApiService().deleteIDComment(commentList.get(position).getCommentID()).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("Comment 글 삭제성공", response.toString());
-                            Log.i("Comment 글 삭제성공2", response.body());
+                            Log.i("Comment 글 삭제 성공", response.body());
                             if (response.code() == 200)
                                 ((PostActivity) context).showPost(false);
                             else
@@ -155,7 +154,6 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
 
                         @Override
                         public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                            Log.i("Comment 삭제서버 연결실패", t.getMessage());
                             Toast.makeText(context, "해당 댓글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
                         }
                     });

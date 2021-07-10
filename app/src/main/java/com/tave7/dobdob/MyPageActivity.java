@@ -48,7 +48,7 @@ public class MyPageActivity extends AppCompatActivity {
     boolean isMyPage = true;
     boolean isChangeProfile = false, isChangeName = false, isChangeAddress = false;
     UserInfo otherInfo = null;
-    ArrayList<PostInfoSimple> userPostList = null;        //user가 올린 글 모음
+    ArrayList<PostInfoSimple> userPostList = null;
 
     CircleImageView civUserProfile;
     ImageView ivEdit;
@@ -78,30 +78,27 @@ public class MyPageActivity extends AppCompatActivity {
         rvMyPagePosts = findViewById(R.id.myPagePosts);
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);
-        adapter = new PostRecyclerAdapter(userPostList);
+        adapter = new PostRecyclerAdapter('p', userPostList);
         rvMyPagePosts.setAdapter(adapter);
         DividerItemDecoration devider = new DividerItemDecoration(MyPageActivity.this, 1);
         devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
-        rvMyPagePosts.addItemDecoration(devider); //리스트 사이의 구분선 설정
+        rvMyPagePosts.addItemDecoration(devider);
 
         if (!isMyPage) {
             int userID = getIntent().getExtras().getInt("userID");
             RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    Log.i("MyPage user정보받기 성공1", response.toString());
-                    Log.i("MyPage user정보받기 성공2", response.body());
+                    Log.i("MyPage user정보받기 성공", response.body());
                     if (response.code() == 200) {
                         try {
                             JSONObject userInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             JSONObject user = userInfo.getJSONObject("user");
 
                             if (user.isNull("profileUrl"))
-                                otherInfo = new UserInfo(userID, null, user.getString("nickName"),
-                                        user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("detail"));
+                                otherInfo = new UserInfo(userID, null, user.getString("nickName"), user.getJSONObject("Location").getString("dong"));
                             else
-                                otherInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
-                                        user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("detail"));
+                                otherInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), user.getJSONObject("Location").getString("dong"));
 
                             if (otherInfo.getUserProfileUrl() == null)
                                 civUserProfile.setImageResource(R.drawable.user);
@@ -160,7 +157,7 @@ public class MyPageActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {//toolbar의 back키 눌렀을 때 동작
+        if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
         }
@@ -170,7 +167,6 @@ public class MyPageActivity extends AppCompatActivity {
     @Override
     public void finish() {
         if (isMyPage) {
-            //TODO: 메인인지를 구별해야 함!!(MainActivity일 때!라는 코드가 있어야 함!)
             Intent giveChangedUserInfo = new Intent();
             Bundle bUserInfo = new Bundle();
             if (isChangeProfile || isChangeName || isChangeAddress)
@@ -220,8 +216,7 @@ public class MyPageActivity extends AppCompatActivity {
         RetrofitClient.getApiService().getUserPosts(whoseID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("MyPage user글받기 성공1", response.toString());
-                Log.i("MyPage user글받기 성공2", response.body());
+                Log.i("MyPage user글받기 성공", response.body());
                 if (response.code() == 200) {
                     userPostList.clear();
                     try {

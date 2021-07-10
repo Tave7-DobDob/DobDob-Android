@@ -186,7 +186,6 @@ public class PostingActivity extends AppCompatActivity {
                         RetrofitClient.getApiService().patchIDPost(editPostInfo.getPostInfoSimple().getPostID(), postData).enqueue(new Callback<String>() {       //DB전달
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                                Log.i("Posting 수정성공1", response.toString());
                                 Log.i("Posting 수정성공2", response.body());
                                 if (response.code() == 200)
                                     finish();
@@ -197,7 +196,6 @@ public class PostingActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                                Log.i("Posting 수정실패", t.getMessage());
                                 Toast.makeText(PostingActivity.this, "다시 수정 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -225,15 +223,13 @@ public class PostingActivity extends AppCompatActivity {
                             Log.i("Posting 연결성공1", response.toString());
                             Log.i("Posting 연결성공2", response.body());
                             if (response.code() == 201) {
-                                //TODO: DB에 글 업로드 완료:)라는 의미임
-                                //postId를 받아 저장해야 하며, 이미지의 url로 바꿔야 함!!!
                                 finish();
                             }
                         }
 
                         @Override
                         public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                            Log.i("Posting 연결실패", t.getMessage());
+                            Toast.makeText(PostingActivity.this, "다시 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -243,13 +239,8 @@ public class PostingActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        if (isCompleted) {      //글 추가를 한 것이므로 새로고침 해야 함!
+        if (isCompleted) {
             Intent intentComplete = new Intent();
-            if (isEditingPost) {
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("postInfo", editPostInfo);     //TODO: 삭제해야하는 부분!!!
-                intentComplete.putExtras(bundle);
-            }
             setResult(RESULT_OK, intentComplete);
         }
         else {

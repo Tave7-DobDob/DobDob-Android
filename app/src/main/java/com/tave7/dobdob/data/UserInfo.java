@@ -19,14 +19,6 @@ public class UserInfo implements Parcelable {
         this.userTown = userTown;
     }
 
-    public UserInfo(int userID, String userProfileUrl, String userName, String userTown, String userAddress) {
-        this.userID = userID;
-        this.userProfileUrl = userProfileUrl;
-        this.userName = userName;
-        this.userTown = userTown;
-        this.userAddress = userAddress;
-    }
-
     public UserInfo(int userID, String userProfileUrl, String userName, String userTown, String userAddress, double locationX, double locationY) {
         this.userID = userID;
         this.userProfileUrl = userProfileUrl;
@@ -68,6 +60,8 @@ public class UserInfo implements Parcelable {
     public void setUserName(String userName) { this.userName = userName; }
     public void setUserTown(String userTown) { this.userTown = userTown; }
     public void setUserAddress(String userAddress) { this.userAddress = userAddress; }
+    public void setLocationX(double locationX) { this.locationX = locationX; }
+    public void setLocationY(double locationY) { this.locationY = locationY; }
 
     @Override
     public int describeContents() { return 0; }

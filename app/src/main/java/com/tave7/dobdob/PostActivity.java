@@ -79,9 +79,12 @@ public class PostActivity extends AppCompatActivity {
     private LinearLayout llTag;
     private NestedScrollView svEntirePost;
     private PostPhotosPagerAdapter photoAdapter;
-    private RecyclerView rvComments;
     private SwipeRefreshLayout srlPost;
-    private TextView tvWriterTown, tvTitle, tvContent, tvHeartNums, tvCommentNums, tvNoComment;
+    private TextView tvTitle;
+    private TextView tvContent;
+    private TextView tvHeartNums;
+    private TextView tvCommentNums;
+    private TextView tvNoComment;
     
     @SuppressLint("SetTextI18n")
     @Override
@@ -103,10 +106,7 @@ public class PostActivity extends AppCompatActivity {
 
         srlPost = findViewById(R.id.post_swipeRL);
         srlPost.setDistanceToTriggerSync(400);
-        srlPost.setOnRefreshListener(() -> {
-            //TODO: Post 새로고침!!!
-            showPost(true);
-        });
+        srlPost.setOnRefreshListener(() -> showPost(true));
         svEntirePost = findViewById(R.id.post_scrollView);
         CircleImageView civWriterProfile = findViewById(R.id.post_writerProfile);
         if (postInfoDetail.getPostInfoSimple().getWriterProfileUrl() != null) {
@@ -118,7 +118,7 @@ public class PostActivity extends AppCompatActivity {
         }
         TextView tvWriterName = findViewById(R.id.post_writerName);
             tvWriterName.setText(postInfoDetail.getPostInfoSimple().getWriterName());
-        tvWriterTown = findViewById(R.id.post_writerTown);
+        TextView tvWriterTown = findViewById(R.id.post_writerTown);
             tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
         tvTitle = findViewById(R.id.post_title);
         TextView tvPostTime = findViewById(R.id.post_time);
@@ -145,12 +145,21 @@ public class PostActivity extends AppCompatActivity {
         llTag = findViewById(R.id.post_LinearTag);
 
         tvNoComment = findViewById(R.id.postNoComment);
-        rvComments = findViewById(R.id.postComments);
+        RecyclerView rvComments = findViewById(R.id.postComments);
         LinearLayoutManager manager = new LinearLayoutManager(PostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvComments.setLayoutManager(manager);
         commentAdapter = new CommentRecyclerAdapter(postInfoDetail.getComments());
-        rvComments.setAdapter(commentAdapter);      //어댑터 등록
+        rvComments.setAdapter(commentAdapter);
         rvComments.addItemDecoration(new DividerItemDecoration(PostActivity.this, 1));
+
+        CircleImageView civCommenterProfile = findViewById(R.id.post_commenterProfile);
+        if (myInfo.getUserProfileUrl() != null) {
+            Bitmap myProfile = BitmapFactory.decodeResource(getResources(), R.drawable.user);
+            try {
+                myProfile = new DownloadFileTask(myInfo.getUserProfileUrl()).execute().get();
+            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+            civCommenterProfile.setImageBitmap(myProfile);
+        }
 
         showPost(false);
         postClickListener();
@@ -160,8 +169,7 @@ public class PostActivity extends AppCompatActivity {
         RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("PostA 글 성공", response.toString());
-                Log.i("PostA 글 성공2", response.body());
+                Log.i("PostA 글 성공", response.body());
                 if (response.code() == 200) {
                     postInfoDetail.getPostImages().clear();
                     postInfoDetail.getComments().clear();
@@ -256,7 +264,6 @@ public class PostActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 if (isSwipe)
                     srlPost.setRefreshing(false);
-                Log.i("PostA 서버 연결실패", t.getMessage());
                 Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -334,8 +341,7 @@ public class PostActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().postComment(commentInfo).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("PostA 댓글 post 성공", response.toString());
-                        Log.i("PostA 댓글 post 성공2", response.body());
+                        Log.i("PostA 댓글 post 성공", response.body());
                         etWriteComment.setEnabled(true);
                         if (response.code() == 201) {
                             showPost(false);     //**********************테스트해야 함!!!!!!!!!!!!!!!!
@@ -351,7 +357,6 @@ public class PostActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                         etWriteComment.setEnabled(true);
-                        Log.i("PostA 댓글 연결실패", t.getMessage());
                         Toast.makeText(PostActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -363,26 +368,24 @@ public class PostActivity extends AppCompatActivity {
         llTag.removeAllViews();
         for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
             TextView tvTag = new TextView(PostActivity.this);
-            tvTag.setText("#".concat(tagName).concat(" "));
+            tvTag.setText("#".concat(tagName));
             tvTag.setTypeface(null, Typeface.NORMAL);
             tvTag.setTextColor(Color.parseColor("#1b73d8"));
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            layoutParams.setMarginEnd(20);
             tvTag.setLayoutParams(layoutParams);
             llTag.addView(tvTag);
 
-            /*  TODO: 태그 검색이 가능하게 할 것인가?!
             tvTag.setOnClickListener(v -> {
-                String searchTag = tvTag.getText().toString().substring(1, tvTag.getText().length()-1);
+                String searchTag = tvTag.getText().toString().substring(1);
 
                 Intent showContainTagPost = new Intent(PostActivity.this, TagPostActivity.class);
                 Bundle sctBundle = new Bundle();
                     sctBundle.putString("tagName", searchTag);
-                    sctBundle.putParcelableArrayList("tagPostLists", searchTagPosts(searchTag));       //어떻게?
                 showContainTagPost.putExtras(sctBundle);
                 startActivity(showContainTagPost);
                 finish();
             });
-             */
         }
     }
 
@@ -476,8 +479,7 @@ public class PostActivity extends AppCompatActivity {
             RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    Log.i("PostA 글 성공", response.toString());
-                    Log.i("PostA 글 성공2", response.body());
+                    Log.i("PostA 글 성공", response.body());
                     if (response.code() == 200)
                         showPost(false);
                     else
@@ -486,7 +488,6 @@ public class PostActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    Log.i("PostA 서버 연결실패", t.getMessage());
                     Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
                 }
             });

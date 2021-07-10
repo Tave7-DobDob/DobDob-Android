@@ -182,8 +182,8 @@ public class InitialSettingActivity extends AppCompatActivity {
                         Log.i("Initial 설정성공1", response.toString());
                         Log.i("Initial 설정성공2", response.body());
                         if (response.code() == 200) {
-                            //TODO: 현재 위치가 저장이 안되고 있음 확인해야 함!!          --> 창우님이 해결해주셔야 함!!!!
-                            myInfo = new UserInfo(userID, null, nickName, location.get("dong").getAsString(), location.get("detail").getAsString());
+                            myInfo = new UserInfo(userID, null, nickName, location.get("dong").getAsString(),
+                                    location.get("detail").getAsString(), location.get("locationX").getAsDouble(), location.get("locationY").getAsDouble());
                             startActivity(new Intent(InitialSettingActivity.this, MainActivity.class));
                             finish();
                         }

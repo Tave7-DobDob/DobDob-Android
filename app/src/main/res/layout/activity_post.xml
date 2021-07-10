@@ -85,18 +85,16 @@
                                     android:layout_height="13dp"
                                     android:src="@drawable/pin_gray"
                                     android:scaleType="fitCenter"
-                                    android:layout_marginRight="2dp"
+                                    android:layout_marginEnd="2dp"
                                     android:adjustViewBounds="true" />
                                 <TextView
                                     android:id="@+id/post_writerTown"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginEnd="10dp"
-                                    android:text="상도동"
+                                    android:text="XX동"
                                     android:textColor="#A3A3A3"
                                     android:textSize="12dp"/>
-
-
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -105,7 +103,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="10dp"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
                         android:text="post 제목"
@@ -118,7 +116,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
-                        android:layout_marginTop="10dp"
                         android:text="2021.05.16 20:00"
                         android:textSize="12dp"
                         android:textColor="#666666"/>
@@ -129,7 +126,8 @@
                         android:layout_height="wrap_content"
                         android:gravity="top"
                         android:lineHeight="20dp"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="25dp"
+                        android:layout_marginBottom="25dp"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
                         android:textColor="#000000" />
@@ -138,7 +136,8 @@
                         android:id="@+id/post_flImages"
                         android:layout_width="match_parent"
                         android:layout_height="300dp"
-                        android:layout_marginTop="20dp">
+                        android:layout_marginBottom="20dp">
+
                         <androidx.viewpager2.widget.ViewPager2
                             android:id="@+id/vpPostPhotos"
                             android:layout_gravity="center"
@@ -161,17 +160,16 @@
                         android:id="@+id/post_LinearTag"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
                         android:orientation="horizontal">
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingLeft="3dp">
+                        android:paddingStart="3dp">
 
                         <ImageView
                             android:id="@+id/post_ivHeart"
@@ -186,7 +184,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
                             android:layout_marginTop="3dp"
-                            android:text="12"
+                            android:text="0"
                             android:textColor="#000000"
                             android:textSize="12dp" />
 
@@ -203,7 +201,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="5dp"
                             android:layout_marginTop="3dp"
-                            android:text="3"
+                            android:text="0"
                             android:textColor="#000000"
                             android:textSize="12dp" />
                     </LinearLayout>
