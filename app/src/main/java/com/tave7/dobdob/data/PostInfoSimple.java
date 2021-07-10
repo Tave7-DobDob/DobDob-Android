@@ -9,26 +9,30 @@ import java.util.ArrayList;
 public class PostInfoSimple implements Parcelable {
     private int postID;
     private UserInfo writerInfo;
-    private String postTime = "";                   //포스트가 올려진 시간(TODO: Date로 바뀌어야 함!)
+    private String postTime = "";
     private String postTitle;
-    private ArrayList<String> heartUsers = null;    //사용자 이름들 저장
+    private int likeNum = 0;
     private int commentNum = 0;
     private ArrayList<String> postTag = null;
 
-    public PostInfoSimple(int postID, UserInfo writerInfo, String postTime, String postTitle, ArrayList<String> heartUsers, int commentNum, ArrayList<String> postTag){
+    public PostInfoSimple(int postID, UserInfo writerInfo, String postTime, String postTitle, int likeNum, int commentNum, ArrayList<String> postTag){
         this.postID = postID;
         this.writerInfo = writerInfo;
         this.postTime = postTime;
         this.postTitle = postTitle;
 
+        /* TODO: 삭제 요망!!!!!!!!!!!!!!
         this.heartUsers = new ArrayList<String>();
         if (heartUsers != null)
             this.heartUsers = heartUsers;
-
+         */
+        this.likeNum = likeNum;
         this.commentNum = commentNum;
 
+        /*
         this.postTag = new ArrayList<String>();
         if (postTag != null)
+         */
             this.postTag = postTag;
     }
 
@@ -37,7 +41,7 @@ public class PostInfoSimple implements Parcelable {
         writerInfo = in.readParcelable(UserInfo.class.getClassLoader());
         postTime = in.readString();
         postTitle = in.readString();
-        heartUsers = in.createStringArrayList();
+        likeNum = in.readInt();
         commentNum = in.readInt();
         postTag = in.createStringArrayList();
     }
@@ -59,7 +63,7 @@ public class PostInfoSimple implements Parcelable {
     public String getWriterAddress() { return writerInfo.getUserAddress(); }
     public String getPostTime() { return postTime; }
     public String getPostTitle() { return postTitle; }
-    public ArrayList<String> getHeartUsers() { return heartUsers; }
+    public int getLikeNum() { return likeNum; }
     public int getCommentNum() { return commentNum; }
     public ArrayList<String> getPostTag() { return postTag; }
 
@@ -67,6 +71,8 @@ public class PostInfoSimple implements Parcelable {
     public void setWriterName(String writerName) { this.writerInfo.setUserName(writerName); }
     public void setWriterTown(String writerTown) { this.writerInfo.setUserTown(writerTown); }
     public void setPostTitle(String postTitle) { this.postTitle = postTitle; }
+    public void setLikeNum(int likeNum) { this.likeNum = likeNum; }
+    public void setCommentNum(int commentNum) { this.commentNum = commentNum; }
     public void setPostTag(ArrayList<String> postTag) { this.postTag = postTag; }       //TODO: 삭제해야 함!!
 
     @Override
@@ -78,7 +84,7 @@ public class PostInfoSimple implements Parcelable {
         dest.writeParcelable(writerInfo, flags);
         dest.writeString(postTime);
         dest.writeString(postTitle);
-        dest.writeStringList(heartUsers);
+        dest.writeInt(likeNum);
         dest.writeInt(commentNum);
         dest.writeStringList(postTag);
     }

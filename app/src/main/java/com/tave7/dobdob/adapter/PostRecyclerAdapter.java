@@ -97,18 +97,23 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         holder.postTitle.setText(postList.get(position).getPostTitle());
 
         boolean isClickedHeart = false;
+
+        /*      TODO: 바꿔야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         for (String user: postList.get(position).getHeartUsers()) {
             if (user.equals(myInfo.getUserName())) {
                 isClickedHeart = true;
                 break;
             }
         }
+         */
+
         if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
             holder.ivHeart.setImageResource(R.drawable.heart_click);
         else
             holder.ivHeart.setImageResource(R.drawable.heart);
 
         boolean IsHeartFull = isClickedHeart;
+        /*  TODO: 바꿔야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         holder.ivHeart.setOnClickListener(v -> {
             if (IsHeartFull) {       //기존에는 하트가 눌렸었지만 하트를 취소함
                 postList.get(position).getHeartUsers().remove(myInfo.getUserName());
@@ -121,8 +126,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
             notifyDataSetChanged();
         });
-        holder.heartNum.setText(String.valueOf(postList.get(position).getHeartUsers().size()));
-
+         */
+        //holder.heartNum.setText(String.valueOf(postList.get(position).getHeartUsers().size()));
+        holder.heartNum.setText(String.valueOf(postList.get(position).getLikeNum()));
         holder.commentNum.setText(String.valueOf(postList.get(position).getCommentNum()));
 
         holder.tags.removeAllViews();       //기존에 있는 태그들 초기화

@@ -54,6 +54,12 @@ public interface RetrofitAPI {
     @POST("/comment")
     Call<String> postComment(@Body JsonObject kakaoToken);          //서버로 해당 포스트글의 댓글 전달
 
-    @DELETE("/post/{id}")
+    @DELETE("/comment/{id}")
     Call<String> deleteIDComment(@Path("id") int commentID);        //해당 id의 댓글을 삭제하라고 함
+
+    @POST("/like")
+    Call<String> postLike(@Body JsonObject ids);                    //서버로 해당 포스트글의 좋아요
+
+    @POST("/like/{id}")
+    Call<String> deleteIDLike(@Body JsonObject ids);                //서버로 해당 포스트글의 좋아요 삭제
 }

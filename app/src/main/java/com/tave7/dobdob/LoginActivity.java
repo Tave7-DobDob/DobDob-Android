@@ -76,8 +76,6 @@ public class LoginActivity extends AppCompatActivity {
     //카카오 로그인 콜백
     Function2<OAuthToken, Throwable, Unit> kakaoCallback = (oAuthToken, throwable) -> {
         if (oAuthToken != null) {
-            Log.i("Login 기본 토큰", oAuthToken.toString());
-
             JsonObject kakaoToken = new JsonObject();
             kakaoToken.addProperty("access_token", oAuthToken.getAccessToken());
             RetrofitClient.getApiService().postKakaoToken(kakaoToken).enqueue(new Callback<String>() {
@@ -86,12 +84,12 @@ public class LoginActivity extends AppCompatActivity {
                     Log.i("Login 연결성공1", response.toString());
                     Log.i("Login 연결성공2", response.body());
                     if (response.code() == 200 || response.code() == 201) {
-                        PreferenceManager.setString(LoginActivity.this, "access_token", oAuthToken.getAccessToken());   //TODO: 수정요망
+                        PreferenceManager.setString(LoginActivity.this, "access_token", oAuthToken.getAccessToken());
                         try {
                             JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             int userID = loginInfo.getJSONObject("user").getInt("id");
 
-                            if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {      //닉네임 설정 안됨
+                            if (loginInfo.getJSONObject("user").getString("nickname").equals("")) {
                                 Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
                                 Bundle bundle = new Bundle();
                                     bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!
@@ -101,15 +99,12 @@ public class LoginActivity extends AppCompatActivity {
                             }
                             else {
                                 JSONObject user = loginInfo.getJSONObject("user");
-                                /*  TODO: location이 완료되면 이걸로 출력해야함!!!
-                                UserInfo myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
-                                        user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("detail"));
-                                 */
-
                                 if (user.isNull("profileUrl"))
-                                    myInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");
+                                    myInfo = new UserInfo(userID, null, user.getString("nickname"),
+                                            user.getJSONObject("Location").getString("dong"), user.getJSONObject("Location").getString("detail"));
                                 else
-                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), "역삼동", "강남구 역삼동 200");
+                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickname"),
+                                            user.getJSONObject("Location").getString("dong"), user.getJSONObject("Location").getString("detail"));
 
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                 finish();
@@ -117,9 +112,8 @@ public class LoginActivity extends AppCompatActivity {
                         } catch (JSONException e) { e.printStackTrace(); }
 
                     }
-                    else {
+                    else
                         Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
-                    }
                 }
 
                 @Override

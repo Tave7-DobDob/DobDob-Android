@@ -139,22 +139,45 @@ public class PostActivity extends AppCompatActivity {
                 Log.i("PostA 글 성공2", response.body());
                 if (response.code() == 200) {
                     postInfoDetail.getPostImages().clear();
-                    //postInfoDetail.getComments().clear();
+                    postInfoDetail.getComments().clear();
                     try {
                         JSONObject postInfo = new JSONObject(Objects.requireNonNull(response.body())).getJSONObject("post");
                         if (!postInfoDetail.getPostInfoSimple().getPostTitle().equals(postInfo.getString("title"))){
                             postInfoDetail.getPostInfoSimple().setPostTitle(postInfo.getString("title"));
                             tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
                         }
-                        //if (!postInfoDetail.getPostInfoSimple().getHeartUsers())        TODO: 하트 수가 다를 시!
-                        //      postInfoDetail.getPostInfoSimple().getHeartUsers =
-                        //if (!postInfoDetail.getPostInfoSimple().getPostTag())           TODO: 태그 전체를 비교 시, 다를 시에는 추가함!
                         postInfoDetail.setPostContent(postInfo.getString("content"));
+
                         JSONArray postImages = postInfo.getJSONArray("PostImages");
                         for (int i=0; i<postImages.length(); i++) {
                             postInfoDetail.getPostImages().add(postImages.getJSONObject(i).getString("url"));
                         }
-                        //if (!postInfoDetail.getPostInfoSimple().getCommentNum())        TODO: 댓글 저장해야 함!
+
+                        JSONArray tagsArray = postInfo.getJSONArray("Tags");
+                        postInfoDetail.getPostInfoSimple().getPostTag().clear();
+                        for (int i=0; i<tagsArray.length(); i++) {
+                            JSONObject tagObject = tagsArray.getJSONObject(i);
+                            postInfoDetail.getPostInfoSimple().getPostTag().add(tagObject.getString("name"));
+                        }
+
+                        //if (!postInfoDetail.getPostInfoSimple().getHeartUsers())        TODO: 하트 수가 다를 시!
+                        //      postInfoDetail.getPostInfoSimple().getHeartUsers =
+
+                        JSONArray commentArray = postInfo.getJSONArray("Comments");
+                        postInfoDetail.getComments().clear();
+                        for (int i=0; i<commentArray.length(); i++) {
+                            JSONObject commentObject = commentArray.getJSONObject(i);
+                            JSONObject commenterObject = commentObject.getJSONObject("User");
+                            UserInfo commenterInfo;
+                            if (commenterObject.isNull("profileUrl"))
+                                commenterInfo = new UserInfo(commenterObject.getInt("id"), null, commenterObject.getString("nickName"), commenterObject.getJSONObject("Location").getString("dong"));
+                            else
+                                commenterInfo = new UserInfo(commenterObject.getInt("id"), commenterObject.getString("profileUrl"), commenterObject.getString("nickName"), commenterObject.getJSONObject("Location").getString("dong"));
+                            CommentInfo comment = new CommentInfo(commentObject.getInt("id"), commenterInfo, commentObject.getString("createdAt"), commentObject.getString("content"));
+                            postInfoDetail.getComments().add(comment);
+                        }
+                        if (postInfoDetail.getPostInfoSimple().getCommentNum() != postInfoDetail.getComments().size())
+                            postInfoDetail.getPostInfoSimple().setCommentNum(postInfoDetail.getComments().size());
                     } catch (JSONException e) { e.printStackTrace(); }
 
                     tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
@@ -171,17 +194,20 @@ public class PostActivity extends AppCompatActivity {
                         photoAdapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
                     }
 
-                    for (String user: postInfoDetail.getPostInfoSimple().getHeartUsers()) {     //TODO: 하트 확인!!!!!!!!!!!!!!!!
+                    /*      TODO: 수정 요망!!!!!!!!!!!!!!!!!!!!
+                    for (String user: postInfoDetail.getPostInfoSimple().getHeartUsers()) {
                         if (user.equals(myInfo.getUserName())) {
                             isClickedHeart = true;
                             break;
                         }
                     }
+                     */
                     if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
                         ivHeart.setImageResource(R.drawable.heart_click);
                     else
                         ivHeart.setImageResource(R.drawable.heart);
-                    tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
+                    tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));       //TODO: 수정 요망!
+                    //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
                     tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
 
                     if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0)
@@ -195,9 +221,8 @@ public class PostActivity extends AppCompatActivity {
                     rvComments.setAdapter(commentAdapter);      //어댑터 등록
                     rvComments.addItemDecoration(new DividerItemDecoration(PostActivity.this, 1));
                 }
-                else {
+                else
                     Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
-                }
             }
 
             @Override
@@ -242,15 +267,18 @@ public class PostActivity extends AppCompatActivity {
 
             if (isClickedHeart) {
                 ivHeart.setImageResource(R.drawable.heart_click);
-                postInfoDetail.getPostInfoSimple().getHeartUsers().add(myInfo.getUserName());
-                tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
+                //TODO: 수정 요망!!!!!!!!!!!!
+                //postInfoDetail.getPostInfoSimple().getHeartUsers().add(myInfo.getUserName());
+                //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
+                tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
 
                 //TODO: DB에 저장하고 수정 + MainActivity에서도 변경된 값을 갖고 있도록 해야함!
             }
             else {
                 ivHeart.setImageResource(R.drawable.heart);
-                postInfoDetail.getPostInfoSimple().getHeartUsers().remove(myInfo.getUserName());
-                tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
+                //postInfoDetail.getPostInfoSimple().getHeartUsers().remove(myInfo.getUserName());
+                //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
+                tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
 
                 //TODO: DB에 저장하고 수정
             }
@@ -322,6 +350,7 @@ public class PostActivity extends AppCompatActivity {
     }
 
     public void settingTags() {
+        llTag.removeAllViews();
         for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
             TextView tvTag = new TextView(PostActivity.this);
             tvTag.setText("#".concat(tagName).concat(" "));

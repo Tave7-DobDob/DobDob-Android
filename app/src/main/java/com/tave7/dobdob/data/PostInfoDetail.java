@@ -16,7 +16,6 @@ public class PostInfoDetail implements Parcelable {
 
         postImages = new ArrayList<>();
         comments = new ArrayList<>();
-        //this.comments = comments;
     }
 
     protected PostInfoDetail(Parcel in) {

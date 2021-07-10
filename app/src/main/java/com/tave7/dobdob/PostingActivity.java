@@ -183,7 +183,6 @@ public class PostingActivity extends AppCompatActivity {
                         postData.add("location", location);
                         postData.addProperty("title", etTitle.getText().toString().trim());
                         postData.addProperty("content", etContent.getText().toString().trim());
-                        postData.addProperty("editedAt", String.valueOf(new Date(System.currentTimeMillis())));     //TODO: 확인해야 함!!!
                         postData.addProperty("tags", new Gson().toJson(tmpTag));
                         RetrofitClient.getApiService().patchIDPost(editPostInfo.getPostInfoSimple().getPostID(), postData).enqueue(new Callback<String>() {       //DB전달
                             @Override
@@ -218,7 +217,6 @@ public class PostingActivity extends AppCompatActivity {
                 else {      //글쓰기 완료
                     isCompleted = true;
 
-                    //TODO: 사진 확인해봐야함!!!
                     ArrayList<MultipartBody.Part> postImage = new ArrayList<>();
                     for (PhotoInfo photo : tmpPhotos) {
                         postImage.add(MultipartBody.Part.createFormData("postImage", photo.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), photo.getPhotoFile())));

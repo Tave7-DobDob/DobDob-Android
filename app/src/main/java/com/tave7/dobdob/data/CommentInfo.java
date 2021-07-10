@@ -7,14 +7,12 @@ public class CommentInfo implements Parcelable {
     private int commentID = -1;
     private UserInfo commenterInfo;
     private String commentTime = "";    //포스트가 올려진 시간
-    //private ArrayList<String> mention = null;      (멘션된 사용자의 id가 포함되어야 함)
     private String content = "";
 
     public CommentInfo(int commentID, UserInfo commenterInfo, String commentTime, String content) {
         this.commentID = commentID;
         this.commenterInfo = commenterInfo;
         this.commentTime = commentTime;
-        //this.mention = mention;
         this.content = content;
     }
 
@@ -36,7 +34,6 @@ public class CommentInfo implements Parcelable {
     public int getCommentID() { return commentID; }
     public UserInfo getCommenterInfo() { return commenterInfo; }
     public String getCommentTime() { return commentTime; }
-    //public String getMention() { return mention; }
     public String getContent() { return content; }
 
     @Override

@@ -94,13 +94,13 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager manager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL,false);
         rvPost.setLayoutManager(manager);
         adapter = new PostRecyclerAdapter(postList, totalPostList);
-        rvPost.setAdapter(adapter);      //어댑터 등록
+        rvPost.setAdapter(adapter);
         DividerItemDecoration devider=new DividerItemDecoration(MainActivity.this, 1);
         devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
-        rvPost.addItemDecoration(devider); //리스트 사이의 구분선 설정
+        rvPost.addItemDecoration(devider);
 
         FloatingActionButton fabAddPost = findViewById(R.id.mainFabAddPost);
-        fabAddPost.setOnClickListener(v -> {    //글쓰기 창으로 화면이 넘어감
+        fabAddPost.setOnClickListener(v -> {
             startActivityForResult(new Intent(MainActivity.this, PostingActivity.class), POSTING_REQUEST);
         });
 
@@ -270,32 +270,37 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
                         JSONArray jsonPosts = result.getJSONArray("posts");
-                        for (int i=0; i < jsonPosts.length(); i++) {
+                        for (int i=0; i<jsonPosts.length(); i++) {
                             JSONObject postObject = jsonPosts.getJSONObject(i);
 
                             int postID = postObject.getInt("id");
                             JSONObject userObject = postObject.getJSONObject("User");
-                            //TODO: 동네도 넣어야 함!!!!!!!!!!!!!!!!!!!!!!!!
                             UserInfo writerInfo;
                             if (userObject.isNull("profileUrl"))
-                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), "");
+                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
                             else
-                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), "");
+                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
-                            //하트 수
-                            int commentNum = 3;     //TODO: 서버로부터 받아와야 함!!
-                            //태그 받아옴!
-                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, null, commentNum, null);
+                            int likeNum = postObject.getInt("likeCount");
+                            int commentNum = postObject.getInt("commentCount");
+
+                            ArrayList<String> tags = new ArrayList<>();
+                            JSONArray tagsArray = postObject.getJSONArray("Tags");
+                            for (int j=0; j<tagsArray.length(); j++){
+                                JSONObject tagObject = tagsArray.getJSONObject(j);
+                                tags.add(tagObject.getString("name"));
+                            }
+
+                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
                             totalPostList.add(post);
                         }
                         postList.addAll(totalPostList);
                     } catch (JSONException e) { e.printStackTrace(); }
                     adapter.notifyDataSetChanged();
                 }
-                else {
+                else
                     Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
-                }
             }
 
             @Override

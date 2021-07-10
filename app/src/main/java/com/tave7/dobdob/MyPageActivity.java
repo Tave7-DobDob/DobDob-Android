@@ -96,14 +96,13 @@ public class MyPageActivity extends AppCompatActivity {
                         try {
                             JSONObject userInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             JSONObject user = userInfo.getJSONObject("user");
-                            /*  TODO: location이 완료되면 이걸로 출력해야함!!!
-                            otherInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
-                                    user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("detail"));
-                             */
+
                             if (user.isNull("profileUrl"))
-                                otherInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");
+                                otherInfo = new UserInfo(userID, null, user.getString("nickName"),
+                                        user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("detail"));
                             else
-                                otherInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"), "역삼동", "강남구 역삼동 200");
+                                otherInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
+                                        user.getJSONObject("location").getString("dong"), user.getJSONObject("location").getString("detail"));
 
                             if (otherInfo.getUserProfileUrl() == null)
                                 civUserProfile.setImageResource(R.drawable.user);
@@ -243,10 +242,10 @@ public class MyPageActivity extends AppCompatActivity {
                                 writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), "");
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
-                            //하트 수
-                            int commentNum = 3;     //TODO: 서버로부터 받아와야 함!!
+                            int likeNum = postObject.getInt("likeCount");
+                            int commentNum = postObject.getInt("commentCount");
                             //태그 받아옴!
-                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, null, commentNum, null);
+                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, null);
                             userPostList.add(post);
                         }
                         adapter.notifyDataSetChanged();
