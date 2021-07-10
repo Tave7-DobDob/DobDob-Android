@@ -52,16 +52,16 @@ public class MainActivity extends AppCompatActivity {
     public static final int POST_REQUEST = 7000;
     public static final int MYPAGE_REQUEST = 8000;
 
-    public static UserInfo myInfo = null;       //로그인한 사용자의 정보
+    public static UserInfo myInfo = null;
     private JsonObject location;
-    private ArrayList<PostInfoSimple> postList = null;        //메인에서 보여줄 postList
-    private ArrayList<PostInfoSimple> totalPostList = null;   //메인에서 보여줄 postList의 복사본
+    private ArrayList<PostInfoSimple> postList = null;
+    private ArrayList<PostInfoSimple> totalPostList = null;
     private boolean isSearchFocus = false;
 
     private CircleImageView civSubMenuUser;
     private LinearLayout llTown;
     private SearchView svSearch;
-    private TextView tvTown;
+    private TextView tvNoPost, tvTown;
     private SwipeRefreshLayout srlPosts;
     private PostRecyclerAdapter adapter;
 
@@ -70,11 +70,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
             actionBar.setDisplayShowCustomEnabled(true);
-            actionBar.setDisplayShowTitleEnabled(false);    //기본 제목을 없앰
+            actionBar.setDisplayShowTitleEnabled(false);
         @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
         actionBar.setCustomView(customView);
         toolbarListener(toolbar);
@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         postList = new ArrayList<>();
         totalPostList = new ArrayList<>();
 
+        tvNoPost = findViewById(R.id.main_noPost);
         srlPosts = findViewById(R.id.main_swipeRL);
         srlPosts.setDistanceToTriggerSync(400);
         srlPosts.setOnRefreshListener(() -> updatePostList(true));
@@ -101,21 +102,21 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fabAddPost = findViewById(R.id.mainFabAddPost);
         fabAddPost.setOnClickListener(v -> startActivityForResult(new Intent(MainActivity.this, PostingActivity.class), POSTING_REQUEST));
 
-        updatePostList(false);   //추후에 지역을 전달해서 allPost를 받아와야 함!
+        updatePostList(false);
     }
 
     public void toolbarListener(Toolbar toolbar){
         tvTown = toolbar.findViewById(R.id.toolbar_town);
-        tvTown.setText(myInfo.getUserTown());     //초기에 user가 설정한 동네로 보여줌
+        tvTown.setText(myInfo.getUserTown());
 
         llTown = toolbar.findViewById(R.id.toolbar_main_town);
         llTown.setOnClickListener(v -> {
-            Intent itAddress = new Intent(MainActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
+            Intent itAddress = new Intent(MainActivity.this, DaumAddressActivity.class);
             startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
         });
 
         svSearch = findViewById(R.id.toolbar_search);
-        svSearch.setQueryHint("제목 및 태그 검색");
+        svSearch.setQueryHint("제목 및 #태그 검색");
         svSearch.setOnSearchClickListener(v -> {
             isSearchFocus = true;
             llTown.setVisibility(View.GONE);
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
             postList.clear();
             postList.addAll(totalPostList);
+            tvNoPost.setVisibility(View.GONE);
             adapter.notifyDataSetChanged();
 
             svSearch.onActionViewCollapsed();
@@ -134,61 +136,70 @@ public class MainActivity extends AppCompatActivity {
         });
         svSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {        //검색버튼을 눌렀을 경우
+            public boolean onQueryTextSubmit(String query) {
                 if (query.trim().charAt(0) == '#') {   //태그 검색
                     String searchTag = query.trim().substring(1);
-                    RetrofitClient.getApiService().getTagPost(searchTag).enqueue(new Callback<String>() {
-                        @Override
-                        public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("MainA 태그검색 성공2", response.body());
-                            if (response.code() == 200) {
-                                postList.clear();
-                                try {
-                                    JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
-                                    JSONArray jsonPosts = result.getJSONArray("posts");
-                                    for (int i=0; i<jsonPosts.length(); i++) {
-                                        JSONObject postObject = jsonPosts.getJSONObject(i);
+                    if (searchTag.length() > 0) {
+                        RetrofitClient.getApiService().getTagPost(searchTag).enqueue(new Callback<String>() {
+                            @Override
+                            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                                Log.i("MainA 태그검색 성공", response.body());
+                                if (response.code() == 200) {
+                                    //TODO: 태그 내용 없을 시에 대한 상황 설정!!!!!!!!!!!!!!!필요!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+                                    postList.clear();
+                                    try {
+                                        JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
+                                        JSONArray jsonPosts = result.getJSONArray("posts");
+                                        for (int i=0; i<jsonPosts.length(); i++) {
+                                            JSONObject postObject = jsonPosts.getJSONObject(i);
 
-                                        int postID = postObject.getInt("id");
-                                        JSONObject userObject = postObject.getJSONObject("User");
-                                        UserInfo writerInfo;
-                                        if (userObject.isNull("profileUrl"))
-                                            writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
-                                        else
-                                            writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
-                                        String postTime = postObject.getString("createdAt");
-                                        String title = postObject.getString("title");
-                                        int likeNum = postObject.getInt("likeCount");
-                                        int commentNum = postObject.getInt("commentCount");
+                                            int postID = postObject.getInt("id");
+                                            JSONObject userObject = postObject.getJSONObject("User");
+                                            UserInfo writerInfo;
+                                            if (userObject.isNull("profileUrl"))
+                                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                            else
+                                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                            String postTime = postObject.getString("createdAt");
+                                            String title = postObject.getString("title");
+                                            int likeNum = postObject.getInt("likeCount");
+                                            int commentNum = postObject.getInt("commentCount");
 
-                                        ArrayList<String> tags = new ArrayList<>();
-                                        JSONArray tagsArray = postObject.getJSONArray("Tags");
-                                        for (int j=0; j<tagsArray.length(); j++){
-                                            JSONObject tagObject = tagsArray.getJSONObject(j);
-                                            tags.add(tagObject.getString("name"));
+                                            ArrayList<String> tags = new ArrayList<>();
+                                            JSONArray tagsArray = postObject.getJSONArray("Tags");
+                                            for (int j=0; j<tagsArray.length(); j++){
+                                                JSONObject tagObject = tagsArray.getJSONObject(j);
+                                                tags.add(tagObject.getString("name"));
+                                            }
+
+                                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
+                                            postList.add(post);
                                         }
-
-                                        PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
-                                        postList.add(post);
-                                    }
-                                } catch (JSONException e) { e.printStackTrace(); }
-                                adapter.notifyDataSetChanged();
+                                    } catch (JSONException e) { e.printStackTrace(); }
+                                    if (postList.size() > 0)
+                                        tvNoPost.setVisibility(View.GONE);
+                                    else
+                                        tvNoPost.setVisibility(View.VISIBLE);
+                                    adapter.notifyDataSetChanged();
+                                }
+                                else
+                                    Toast.makeText(MainActivity.this, "다시 한번 검색해 주세요:)", Toast.LENGTH_SHORT).show();
                             }
-                            else
-                                Toast.makeText(MainActivity.this, "다시 한번 검색해 주세요:)", Toast.LENGTH_SHORT).show();
-                        }
 
-                        @Override
-                        public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                            Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                            @Override
+                            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                                Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                    else
+                        Toast.makeText(MainActivity.this, "검색할 내용을 입력하세요:)", Toast.LENGTH_SHORT).show();
                 }
-                else {
+                else if (query.trim().length() > 0) {
                     RetrofitClient.getApiService().getTitlePost(query.trim()).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("MainA 제목검색 성공2", response.body());
+                            Log.i("MainA 제목검색 성공", response.body());
                             if (response.code() == 200) {
                                 postList.clear();
                                 try {
@@ -220,6 +231,10 @@ public class MainActivity extends AppCompatActivity {
                                         postList.add(post);
                                     }
                                 } catch (JSONException e) { e.printStackTrace(); }
+                                if (postList.size() > 0)
+                                    tvNoPost.setVisibility(View.GONE);
+                                else
+                                    tvNoPost.setVisibility(View.VISIBLE);
                                 adapter.notifyDataSetChanged();
                             }
                             else
@@ -232,6 +247,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
+                else
+                    Toast.makeText(MainActivity.this, "검색할 내용을 입력하세요:)", Toast.LENGTH_SHORT).show();
+
                 return true;
             }
 
@@ -240,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
                 if (newText.length() == 0) {
                     postList.clear();
                     postList.addAll(totalPostList);
+                    tvNoPost.setVisibility(View.GONE);
                     adapter.notifyDataSetChanged();
                 }
 
@@ -334,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
         RetrofitClient.getApiService().postLocationPost(locationXY).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("MainA 전체글 새로고침 성공2", response.body());
+                Log.i("MainA 전체글 새로고침 성공", response.body());
                 if (response.code() == 200) {
                     totalPostList.clear();
                     postList.clear();
@@ -368,6 +387,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                         postList.addAll(totalPostList);
                     } catch (JSONException e) { e.printStackTrace(); }
+                    if (postList.size() > 0)
+                        tvNoPost.setVisibility(View.GONE);
+                    else
+                        tvNoPost.setVisibility(View.VISIBLE);
                     adapter.notifyDataSetChanged();
 
                     if (isSwipe)

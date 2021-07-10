@@ -114,6 +114,18 @@
                     android:layout_marginBottom="10dp"
                     android:background="#E6E6E6"/>
 
+                <TextView
+                    android:id="@+id/myPage_noPost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="30dp"
+                    android:text="닉네임님이 작성한 글이 없습니다. 🔍"
+                    android:textAlignment="center"
+                    android:lineSpacingExtra="8dp"
+                    android:textColor="#666666"
+                    android:textSize="18sp" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/myPagePosts"
                     android:layout_width="match_parent"

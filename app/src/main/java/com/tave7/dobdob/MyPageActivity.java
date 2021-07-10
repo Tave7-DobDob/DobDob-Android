@@ -54,7 +54,7 @@ public class MyPageActivity extends AppCompatActivity {
     ImageView ivEdit;
     PostRecyclerAdapter adapter;
     RecyclerView rvMyPagePosts;
-    TextView tvUserName, tvUserTown, tvUserPosts;
+    TextView tvUserName, tvUserTown, tvUserPosts, tvNoPost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +75,7 @@ public class MyPageActivity extends AppCompatActivity {
         tvUserName = findViewById(R.id.myPage_userName);
         tvUserTown = findViewById(R.id.myPage_userTown);
         tvUserPosts = findViewById(R.id.myPage_tvUserPost);
+        tvNoPost = findViewById(R.id.myPage_noPost);
         rvMyPagePosts = findViewById(R.id.myPagePosts);
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);
@@ -112,6 +113,7 @@ public class MyPageActivity extends AppCompatActivity {
                             tvUserName.setText(otherInfo.getUserName());
                             tvUserTown.setText(otherInfo.getUserTown());
                             tvUserPosts.setText(otherInfo.getUserName().concat(" 님이 작성한 글"));
+                            tvNoPost.setText(otherInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
                         } catch (JSONException e) { e.printStackTrace(); }
                     }
                     else
@@ -142,6 +144,7 @@ public class MyPageActivity extends AppCompatActivity {
             tvUserName.setText(myInfo.getUserName());
             tvUserTown.setText(myInfo.getUserTown());
             tvUserPosts.setText(myInfo.getUserName().concat(" 님이 작성한 글"));
+            tvNoPost.setText(myInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
 
             setWhosePosts(myInfo.getUserID());
         }
@@ -246,8 +249,14 @@ public class MyPageActivity extends AppCompatActivity {
                             PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
                             userPostList.add(post);
                         }
-                        adapter.notifyDataSetChanged();
                     } catch (JSONException e) { e.printStackTrace(); }
+
+                    if (userPostList.size() > 0) {
+                        tvNoPost.setVisibility(View.GONE);
+                        adapter.notifyDataSetChanged();
+                    }
+                    else
+                        tvNoPost.setVisibility(View.VISIBLE);
                 }
                 else
                     Toast.makeText(MyPageActivity.this, "해당 유저가 포스트한 글을 다시 한번 받아보세요:)", Toast.LENGTH_SHORT).show();

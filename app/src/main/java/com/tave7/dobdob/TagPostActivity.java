@@ -38,8 +38,10 @@ import retrofit2.Response;
 public class TagPostActivity extends AppCompatActivity {
     private String tagName = "";
     private ArrayList<PostInfoSimple> tagPostLists = null;
+
     private PostRecyclerAdapter adapter;
     private SwipeRefreshLayout srlPosts;
+    private TextView tvNoPost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class TagPostActivity extends AppCompatActivity {
             tvTag.setText("# ".concat(tagName));
             tvTag.setTextColor(Color.parseColor("#5AAEFF"));
 
+        tvNoPost = findViewById(R.id.tagPost_noPost);
         srlPosts = findViewById(R.id.tagPost_swipeRL);
         srlPosts.setDistanceToTriggerSync(400);
         srlPosts.setOnRefreshListener(() -> {
@@ -116,6 +119,10 @@ public class TagPostActivity extends AppCompatActivity {
                             tagPostLists.add(post);
                         }
                     } catch (JSONException e) { e.printStackTrace(); }
+                    if (tagPostLists.size() > 0)
+                        tvNoPost.setVisibility(View.GONE);
+                    else
+                        tvNoPost.setVisibility(View.VISIBLE);
                     adapter.notifyDataSetChanged();
                 }
                 else
