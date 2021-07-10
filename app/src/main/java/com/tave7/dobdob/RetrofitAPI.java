@@ -38,8 +38,13 @@ public interface RetrofitAPI {
     @GET("/user/nickname/{nickname}")
     Call<String> checkExistNick(@Path("nickname") String nickname); //서버로부터 해당 nickname이 이미 존재하는 지를 확인받음
 
+    /*
     @GET("/post")
-    Call<String> getAllPost();                                      //서버로부터 전체 포스트를 받음(TODO: 지역을 전달해야 함!)
+    Call<String> getAllPost();                                      //서버로부터 전체 포스트를 받음
+     */
+
+    @POST("/post")
+    Call<String> postLocationPost(@Body JsonObject locationData);    //서버로부터 전체 포스트를 받음
 
     @Multipart
     @POST("/post/upload")
@@ -54,6 +59,9 @@ public interface RetrofitAPI {
     @DELETE("/post/{id}")
     Call<String> deleteIDPost(@Path("id") int postID);              //해당 id의 포스트를 삭제하라고 함
 
+    @GET("/post/list/{keyword}")
+    Call<String> getTitlePost(@Path("keyword") String keyword);     //서버로부터 해당 id의 포스트를 받음
+
     @POST("/comment")
     Call<String> postComment(@Body JsonObject kakaoToken);          //서버로 해당 포스트글의 댓글 전달
 
@@ -63,6 +71,6 @@ public interface RetrofitAPI {
     @POST("/like")
     Call<String> postLike(@Body JsonObject ids);                    //서버로 해당 포스트글의 좋아요
 
-    @POST("/like/{id}")
-    Call<String> deleteIDLike(@Body JsonObject ids);                //서버로 해당 포스트글의 좋아요 삭제
+    @POST("/like/{UserId}/{PostId}")
+    Call<String> deleteIDLike(@Path("UserId") int userID, @Path("PostId") int postID);
 }

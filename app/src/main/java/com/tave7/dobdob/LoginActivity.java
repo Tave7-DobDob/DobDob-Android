@@ -89,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                             JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             int userID = loginInfo.getJSONObject("user").getInt("id");
 
-                            if (loginInfo.getJSONObject("user").getString("nickname").equals("")) {
+                            if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {
                                 Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
                                 Bundle bundle = new Bundle();
                                     bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!
@@ -100,11 +100,13 @@ public class LoginActivity extends AppCompatActivity {
                             else {
                                 JSONObject user = loginInfo.getJSONObject("user");
                                 if (user.isNull("profileUrl"))
-                                    myInfo = new UserInfo(userID, null, user.getString("nickname"),
-                                            user.getJSONObject("Location").getString("dong"), user.getJSONObject("Location").getString("detail"));
+                                    myInfo = new UserInfo(userID, null, user.getString("nickName"),
+                                            user.getJSONObject("Location").getString("dong"), user.getJSONObject("Location").getString("detail"),
+                                            user.getJSONObject("Location").getDouble("locationX"), user.getJSONObject("Location").getDouble("locationY"));
                                 else
-                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickname"),
-                                            user.getJSONObject("Location").getString("dong"), user.getJSONObject("Location").getString("detail"));
+                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
+                                            user.getJSONObject("Location").getString("dong"), user.getJSONObject("Location").getString("detail"),
+                                            user.getJSONObject("Location").getDouble("locationX"), user.getJSONObject("Location").getDouble("locationY"));
 
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                 finish();

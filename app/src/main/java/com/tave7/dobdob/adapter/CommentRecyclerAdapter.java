@@ -53,10 +53,6 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         this.commentList = commentList;
     }
 
-    public void changeCommentList(ArrayList<CommentInfo> commentList) {
-        this.commentList = commentList;
-    }
-
     @NonNull
     @Override
     public CommentRecyclerAdapter.CommentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -151,9 +147,8 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                             Log.i("Comment 글 삭제성공", response.toString());
                             Log.i("Comment 글 삭제성공2", response.body());
-                            if (response.code() == 200) {
-                                //TODO: DB에서 댓글을 삭제(PostActivity의 함수를 호출함(내용 새로고침하는 함수!!))
-                            }
+                            if (response.code() == 200)
+                                ((PostActivity) context).showPost(false);
                             else
                                 Toast.makeText(context, "해당 댓글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
                         }
@@ -164,14 +159,8 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                             Toast.makeText(context, "해당 댓글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
                         }
                     });
-
-                    //TODO: 삭제해야 하는 부분!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    commentList.remove(position);
-                    notifyDataSetChanged();
                 });
-                builder.setNegativeButton("취소", (dialog, id) -> {
-                    dialog.cancel();
-                });
+                builder.setNegativeButton("취소", (dialog, id) -> dialog.cancel());
                 AlertDialog alertDialog = builder.create();
                 alertDialog.setOnShowListener(dialogInterface -> {
                     alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(context, R.color.yellow2));

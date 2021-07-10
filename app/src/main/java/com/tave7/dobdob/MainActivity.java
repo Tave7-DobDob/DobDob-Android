@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int MYPAGE_REQUEST = 8000;
 
     public static UserInfo myInfo = null;       //로그인한 사용자의 정보
-    private JsonObject location;        //TODO: 현재 표시하고 있는 지역이 어디인지를 보여줌!
+    private JsonObject location;
     private ArrayList<PostInfoSimple> postList = null;        //메인에서 보여줄 postList
     private ArrayList<PostInfoSimple> totalPostList = null;   //메인에서 보여줄 postList의 복사본
     private boolean isSearchFocus = false;
@@ -62,15 +62,13 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout llTown;
     private SearchView svSearch;
     private TextView tvTown;
-    private SwipeRefreshLayout srlPost;
+    private SwipeRefreshLayout srlPosts;
     private PostRecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //location = new JsonObject();    //TODO: location을 저장해서 들고 있어야 함!!!
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -81,12 +79,16 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setCustomView(customView);
         toolbarListener(toolbar);
 
+        location = new JsonObject();
+        location.addProperty("locationX", myInfo.getLocationX());
+        location.addProperty("locationY", myInfo.getLocationY());
+
         postList = new ArrayList<>();
         totalPostList = new ArrayList<>();
 
-        srlPost = findViewById(R.id.main_swipeRL);
-        srlPost.setDistanceToTriggerSync(400);
-        srlPost.setOnRefreshListener(() -> {
+        srlPosts = findViewById(R.id.main_swipeRL);
+        srlPosts.setDistanceToTriggerSync(400);
+        srlPosts.setOnRefreshListener(() -> {
             //TODO: allPosts로 들고 옴!!!(지역 전달해야함!!)
             updatePostList(true);
         });
@@ -95,14 +97,12 @@ public class MainActivity extends AppCompatActivity {
         rvPost.setLayoutManager(manager);
         adapter = new PostRecyclerAdapter(postList, totalPostList);
         rvPost.setAdapter(adapter);
-        DividerItemDecoration devider=new DividerItemDecoration(MainActivity.this, 1);
+        DividerItemDecoration devider = new DividerItemDecoration(MainActivity.this, 1);
         devider.setDrawable(Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.list_dvide_bar, null)));
         rvPost.addItemDecoration(devider);
 
         FloatingActionButton fabAddPost = findViewById(R.id.mainFabAddPost);
-        fabAddPost.setOnClickListener(v -> {
-            startActivityForResult(new Intent(MainActivity.this, PostingActivity.class), POSTING_REQUEST);
-        });
+        fabAddPost.setOnClickListener(v -> startActivityForResult(new Intent(MainActivity.this, PostingActivity.class), POSTING_REQUEST));
 
         updatePostList(false);   //추후에 지역을 전달해서 allPost를 받아와야 함!
     }
@@ -251,19 +251,17 @@ public class MainActivity extends AppCompatActivity {
         tvTown.setText(loc.get("dong").getAsString());     //초기에 user가 설정한 동네로 보여줌
 
         updatePostList(false);
-        //updatePostList(false, location);     //TODO: 지역을 전달해야 함(서버로부터 해당 지역의 동네를 받아야 함!)
     }
 
-    public void updatePostList(boolean isSwipe) {      //TODO: 지역을 받아야 전달해야 함!!!!!!!!!!
-        //변경사항이 있으므로 다시 받아옴
-        RetrofitClient.getApiService().getAllPost().enqueue(new Callback<String>() {
+    public void updatePostList(boolean isSwipe) {
+        JsonObject locationXY = new JsonObject();
+        locationXY.addProperty("locationX", location.get("locationX").getAsDouble());
+        locationXY.addProperty("locationY", location.get("locationY").getAsDouble());
+        RetrofitClient.getApiService().postLocationPost(locationXY).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 Log.i("MainA 전체글 새로고침 성공", response.toString());
                 Log.i("MainA 전체글 새로고침 성공2", response.body());
-                if (isSwipe)
-                    srlPost.setRefreshing(false);
-
                 if (response.code() == 200) {
                     totalPostList.clear();
                     postList.clear();
@@ -298,6 +296,9 @@ public class MainActivity extends AppCompatActivity {
                         postList.addAll(totalPostList);
                     } catch (JSONException e) { e.printStackTrace(); }
                     adapter.notifyDataSetChanged();
+
+                    if (isSwipe)
+                        srlPosts.setRefreshing(false);
                 }
                 else
                     Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
@@ -307,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 Log.i("Main 전체글 연결실패", t.getMessage());
                 if (isSwipe)
-                    srlPost.setRefreshing(false);
+                    srlPosts.setRefreshing(false);
                 Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
             }
         });

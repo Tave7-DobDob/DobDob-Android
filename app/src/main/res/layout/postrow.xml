@@ -135,6 +135,7 @@
         </LinearLayout>
     </LinearLayout>
     <View
+        android:id="@+id/postrow_Divider"
         android:layout_width="match_parent"
         android:layout_height="0.6dp"
         android:background="#E6E6E6"/>

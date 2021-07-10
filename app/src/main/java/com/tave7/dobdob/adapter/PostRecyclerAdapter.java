@@ -156,8 +156,10 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 });
             }
         }
-        else
+        else {
+            holder.tagDivider.setVisibility(View.GONE);
             holder.tags.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -181,6 +183,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
     public class PostViewHolder extends RecyclerView.ViewHolder {
         CircleImageView writerProfile;
         TextView writerName, writerTown, postTime, postTitle, heartNum, commentNum;
+        View tagDivider;
         ImageView ivHeart;
         LinearLayout tags;
         
@@ -194,6 +197,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             ivHeart = itemView.findViewById(R.id.postrow_ivHeart);
             heartNum = itemView.findViewById(R.id.postrow_heartNum);
             commentNum = itemView.findViewById(R.id.postrow_commentNum);
+            tagDivider = itemView.findViewById(R.id.postrow_Divider);
             tags = itemView.findViewById(R.id.postrow_LinearTag);
 
             itemView.setOnClickListener(v -> {

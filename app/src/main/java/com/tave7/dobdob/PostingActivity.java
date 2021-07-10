@@ -37,7 +37,6 @@ import com.tave7.dobdob.data.PostInfoDetail;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -189,9 +188,8 @@ public class PostingActivity extends AppCompatActivity {
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                                 Log.i("Posting 수정성공1", response.toString());
                                 Log.i("Posting 수정성공2", response.body());
-                                if (response.code() == 200) {
+                                if (response.code() == 200)
                                     finish();
-                                }
                                 else {
                                     Toast.makeText(PostingActivity.this, "다시 수정 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
                                 }
@@ -203,13 +201,6 @@ public class PostingActivity extends AppCompatActivity {
                                 Toast.makeText(PostingActivity.this, "다시 수정 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
                             }
                         });
-
-                        //TODO: 삭제해야하는 부분!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        editPostInfo.getPostInfoSimple().setPostTitle(etTitle.getText().toString().trim());    //제목 변경
-                        editPostInfo.setPostContent(etContent.getText().toString());                    //내용 변경
-                        editPostInfo.getPostInfoSimple().setWriterTown(tvTown.getText().toString());    //동네 변경
-                        editPostInfo.getPostInfoSimple().setPostTag(tmpTag);        //태그 추가
-                        //삭제해야하는 부분 끝!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     }
                     else    //수정 사항이 없음
                         finish();

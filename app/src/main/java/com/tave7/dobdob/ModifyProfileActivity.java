@@ -131,11 +131,18 @@ public class ModifyProfileActivity extends AppCompatActivity {
                         Log.i("MProfileImg 설정성공1", response.toString());
                         Log.i("MProfileImg 설정성공2", response.body());
                         if (response.code() == 200) {
+                            String profileUrl = null;
+                            try {
+                                JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
+                                profileUrl = result.getString("profileUrl");
+                            } catch (JSONException e) { e.printStackTrace(); }
+
                             Intent giveChangedUserInfo = new Intent();
                             Bundle bUserInfo = new Bundle();
-                                bUserInfo.putBoolean("isChangeProfile", true);
-                                //myInfo.setUserProfileUrl();
-                                //TODO: tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
+                            bUserInfo.putBoolean("isChangeProfile", true);
+
+                            if (profileUrl != null)
+                                myInfo.setUserProfileUrl(profileUrl);
 
                             if (isChangeName || isChangeAddress) {
                                 JsonObject userData = new JsonObject();
