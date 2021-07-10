@@ -42,8 +42,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -119,51 +117,113 @@ public class ModifyProfileActivity extends AppCompatActivity {
         TextView tvOK = toolbar.findViewById(R.id.toolbar_mp_ok);
         tvOK.setOnClickListener(v -> {      //완료 버튼 클릭 시
             boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(myInfo.getUserAddress());
-            if (isChangeProfile || isChangeName || isChangeAddress) {
+
+            if (isChangeProfile) {      //TODO: null이 되는 지를 확인해야 함!!!!
+                tvOK.setEnabled(false);
+
                 MultipartBody.Part postImage = null;
-                Map<String, RequestBody> dataMap = new HashMap<>();
+                if (tmpProfileImg != null)
+                    postImage = MultipartBody.Part.createFormData("profileImage", tmpProfileImg.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tmpProfileImg.getPhotoFile()));
 
-                if (isChangeProfile) {
-                    if (tmpProfileImg != null)
-                        postImage = MultipartBody.Part.createFormData("profileImage", tmpProfileImg.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tmpProfileImg.getPhotoFile()));
-                    else        //TODO: 변경해야 함!!!!!!!! 문자열 null이면 안됨
-                        dataMap.put("profileUrl", RequestBody.create(MediaType.parse("text/plain"), "null"));
-                }
+                RetrofitClient.getApiService().patchUserProfileImg(myInfo.getUserID(), postImage).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("MProfileImg 설정성공1", response.toString());
+                        Log.i("MProfileImg 설정성공2", response.body());
+                        if (response.code() == 200) {
+                            Intent giveChangedUserInfo = new Intent();
+                            Bundle bUserInfo = new Bundle();
+                                bUserInfo.putBoolean("isChangeProfile", true);
+                                //myInfo.setUserProfileUrl();
+                                //TODO: tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
 
+                            if (isChangeName || isChangeAddress) {
+                                JsonObject userData = new JsonObject();
+                                if (isChangeName)
+                                    userData.addProperty("nickName", tmpUserInfo.getUserName());
+                                if (isChangeAddress)
+                                    userData.addProperty("location", String.valueOf(location));
+
+                                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
+                                    @Override
+                                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                                        Log.i("MProfile 설정성공1", response.toString());
+                                        Log.i("MProfile 설정성공2", response.body());
+                                        if (response.code() == 200) {
+                                            tvOK.setEnabled(true);
+
+                                            if (isChangeName) {
+                                                bUserInfo.putBoolean("isChangeName", true);
+                                                myInfo.setUserName(tmpUserInfo.getUserName());
+                                            }
+                                            if (isChangeAddress) {
+                                                bUserInfo.putBoolean("isChangeAddress", true);
+                                                myInfo.setUserTown(tmpUserInfo.getUserTown());
+                                                myInfo.setUserAddress(tmpUserInfo.getUserAddress());
+                                            }
+                                            bUserInfo.putBoolean("isChanged", true);
+                                            giveChangedUserInfo.putExtras(bUserInfo);
+                                            setResult(RESULT_OK, giveChangedUserInfo);
+                                            finish();
+                                        }
+                                        else
+                                            Toast.makeText(ModifyProfileActivity.this, "다시 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                                        Log.i("MProfile 설정실패", t.getMessage());
+                                        Toast.makeText(ModifyProfileActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                            else {
+                                tvOK.setEnabled(true);
+
+                                bUserInfo.putBoolean("isChanged", true);
+                                giveChangedUserInfo.putExtras(bUserInfo);
+                                setResult(RESULT_OK, giveChangedUserInfo);
+                                finish();
+                            }
+                        }
+                        else
+                            Toast.makeText(ModifyProfileActivity.this, "다시 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.i("MProfileImg 설정실패", t.getMessage());
+                        Toast.makeText(ModifyProfileActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            else if (isChangeName || isChangeAddress) {
+                JsonObject userData = new JsonObject();
                 if (isChangeName)
-                    dataMap.put("nickName", RequestBody.create(MediaType.parse("text/plain"), tmpUserInfo.getUserName()));
+                    userData.addProperty("nickName", tmpUserInfo.getUserName());
+                if (isChangeAddress)
+                    userData.addProperty("location", String.valueOf(location));
 
-                if (isChangeAddress)    //TODO: 서버와 확인해봐야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    dataMap.put("location", RequestBody.create(MediaType.parse("application/json"), String.valueOf(location)));
-
-                Log.i("확인용", dataMap.toString());
-                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), postImage, dataMap).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("MProfile 설정성공1", response.toString());
                         Log.i("MProfile 설정성공2", response.body());
                         if (response.code() == 200) {
+                            tvOK.setEnabled(true);
+
                             Intent giveChangedUserInfo = new Intent();
                             Bundle bUserInfo = new Bundle();
-                            boolean isChanged = false;
-                            if (isChangeProfile) {
-                                isChanged = true;
-                                bUserInfo.putBoolean("isChangeProfile", true);
-                                //myInfo.setUserProfileUrl();
-                                //TODO: tmpChangeProfile를 DB에 전달해 서버로부터 URI를 받아 해당 값을 String형태로 전달함
-                            }
                             if (isChangeName) {
-                                isChanged = true;
                                 bUserInfo.putBoolean("isChangeName", true);
                                 myInfo.setUserName(tmpUserInfo.getUserName());
                             }
                             if (isChangeAddress) {
-                                isChanged = true;
                                 bUserInfo.putBoolean("isChangeAddress", true);
                                 myInfo.setUserTown(tmpUserInfo.getUserTown());
                                 myInfo.setUserAddress(tmpUserInfo.getUserAddress());
                             }
-                            bUserInfo.putBoolean("isChanged", isChanged);
+                            bUserInfo.putBoolean("isChanged", true);
                             giveChangedUserInfo.putExtras(bUserInfo);
                             setResult(RESULT_OK, giveChangedUserInfo);
                             finish();
@@ -204,7 +264,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
             TextView tvProfileDefault = dialogView.findViewById(R.id.pdialog_setDefault);
             tvProfileDefault.setOnClickListener(view -> {
-                Toast.makeText(getApplicationContext(), "OK 버튼을 눌렀습니다.", Toast.LENGTH_LONG).show();
                 isChangeProfile = true;
                 tmpProfileImg = null;
                 civUserProfile.setImageResource(R.drawable.user);

@@ -56,7 +56,6 @@ public class MyPageActivity extends AppCompatActivity {
     RecyclerView rvMyPagePosts;
     TextView tvUserName, tvUserTown, tvUserPosts;
 
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +114,7 @@ public class MyPageActivity extends AppCompatActivity {
                             }
                             tvUserName.setText(otherInfo.getUserName());
                             tvUserTown.setText(otherInfo.getUserTown());
-                            tvUserPosts.setText(otherInfo.getUserName()+" 님이 작성한 글");
+                            tvUserPosts.setText(otherInfo.getUserName().concat(" 님이 작성한 글"));
                         } catch (JSONException e) { e.printStackTrace(); }
                     }
                     else
@@ -145,7 +144,7 @@ public class MyPageActivity extends AppCompatActivity {
             }
             tvUserName.setText(myInfo.getUserName());
             tvUserTown.setText(myInfo.getUserTown());
-            tvUserPosts.setText(myInfo.getUserName()+" 님이 작성한 글");
+            tvUserPosts.setText(myInfo.getUserName().concat(" 님이 작성한 글"));
 
             setWhosePosts(myInfo.getUserID());
         }
@@ -183,7 +182,6 @@ public class MyPageActivity extends AppCompatActivity {
         super.finish();
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -209,7 +207,7 @@ public class MyPageActivity extends AppCompatActivity {
             if (data != null && data.hasExtra("isChangeName")) {
                 isChangeName = true;
                 tvUserName.setText(myInfo.getUserName());
-                tvUserPosts.setText(myInfo.getUserName() + " 님이 작성한 글");
+                tvUserPosts.setText(myInfo.getUserName().concat(" 님이 작성한 글"));
             }
             if (data != null && data.hasExtra("isChangeAddress")) {
                 isChangeAddress = true;
@@ -234,18 +232,23 @@ public class MyPageActivity extends AppCompatActivity {
 
                             int postID = postObject.getInt("id");
                             JSONObject userObject = postObject.getJSONObject("User");
-                            //TODO: 동네도 넣어야 함!!!!!!!!!!!!!!!!!!!!!!!!
                             UserInfo writerInfo;
                             if (userObject.isNull("profileUrl"))
-                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), "");
+                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
                             else
-                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), "");
+                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
                             int likeNum = postObject.getInt("likeCount");
                             int commentNum = postObject.getInt("commentCount");
-                            //태그 받아옴!
-                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, null);
+                            ArrayList<String> tags = new ArrayList<>();
+                            JSONArray tagsArray = postObject.getJSONArray("Tags");
+                            for (int j=0; j<tagsArray.length(); j++){
+                                JSONObject tagObject = tagsArray.getJSONObject(j);
+                                tags.add(tagObject.getString("name"));
+                            }
+
+                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
                             userPostList.add(post);
                         }
                         adapter.notifyDataSetChanged();

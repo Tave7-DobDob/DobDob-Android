@@ -25,22 +25,25 @@ public interface RetrofitAPI {
     @GET("/user/{id}")
     Call<String> getUserInfo(@Path("id") int userID);               //서버로부터 해당 유저 id의 정보를 받음
 
-    @Multipart
     @PATCH("/user/{id}")
-    Call<String> patchUserInfo(@Path("id") int userID, @Part MultipartBody.Part profileImage, @PartMap Map<String, RequestBody> data);  //서버로 수정할 유저의 정보를 전달
+    Call<String> patchUserInfo(@Path("id") int userID, @Body JsonObject userData);  //서버로 수정할 유저의 정보를 전달
+
+    @Multipart
+    @PATCH("/user/profile/{id}")
+    Call<String> patchUserProfileImg(@Path("id") int userID, @Part MultipartBody.Part profileImage);  //서버로 수정할 유저의 프로필 이미지 전달
 
     @GET("/user/{id}/posts")
-    Call<String> getUserPosts(@Path("id") int userID);               //서버로부터 해당 id의 유저가 포스팅한 글을 받음
+    Call<String> getUserPosts(@Path("id") int userID);              //서버로부터 해당 id의 유저가 포스팅한 글을 받음
 
     @GET("/user/nickname/{nickname}")
     Call<String> checkExistNick(@Path("nickname") String nickname); //서버로부터 해당 nickname이 이미 존재하는 지를 확인받음
 
+    @GET("/post")
+    Call<String> getAllPost();                                      //서버로부터 전체 포스트를 받음(TODO: 지역을 전달해야 함!)
+
     @Multipart
     @POST("/post/upload")
     Call<String> postNewPost(@Part ArrayList<MultipartBody.Part> postImage, @PartMap Map<String, RequestBody> data);
-
-    @GET("/post")
-    Call<String> getAllPost();                                      //서버로부터 전체 포스트를 받음(TODO: 지역을 전달해야 함!)
 
     @GET("/post/{id}")
     Call<String> getIDPost(@Path("id") int postID);                 //서버로부터 해당 id의 포스트를 받음

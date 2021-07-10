@@ -12,14 +12,14 @@ public class UserInfo implements Parcelable {
 
     public UserInfo(int userID, String userProfileUrl, String userName, String userTown) {
         this.userID = userID;
-        this.userProfileUrl = userProfileUrl;       //userProfileUrl값이 null이라면 기본 R.drawable.user 사용해야 함
+        this.userProfileUrl = userProfileUrl;
         this.userName = userName;
         this.userTown = userTown;
     }
 
     public UserInfo(int userID, String userProfileUrl, String userName, String userTown, String userAddress) {
         this.userID = userID;
-        this.userProfileUrl = userProfileUrl;       //userProfileUrl값이 null이라면 기본 R.drawable.user_image 사용해야 함
+        this.userProfileUrl = userProfileUrl;
         this.userName = userName;
         this.userTown = userTown;
         this.userAddress = userAddress;
