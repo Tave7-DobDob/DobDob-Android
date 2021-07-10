@@ -33,42 +33,42 @@ public interface RetrofitAPI {
     Call<String> patchUserProfileImg(@Path("id") int userID, @Part MultipartBody.Part profileImage);  //서버로 수정할 유저의 프로필 이미지 전달
 
     @GET("/user/{id}/posts")
-    Call<String> getUserPosts(@Path("id") int userID);              //서버로부터 해당 id의 유저가 포스팅한 글을 받음
+    Call<String> getUserPosts(@Path("id") int userID);                  //서버로부터 해당 id의 유저가 포스팅한 글을 받음
 
     @GET("/user/nickname/{nickname}")
-    Call<String> checkExistNick(@Path("nickname") String nickname); //서버로부터 해당 nickname이 이미 존재하는 지를 확인받음
+    Call<String> checkExistNick(@Path("nickname") String nickname);     //서버로부터 해당 nickname이 이미 존재하는 지를 확인받음
 
     @POST("/post")
-    Call<String> postLocationPost(@Body JsonObject locationData);    //서버로부터 전체 포스트를 받음
+    Call<String> postLocationPost(@Body JsonObject locationData);       //서버로부터 전체 포스트를 받음
 
     @Multipart
     @POST("/post/upload")
     Call<String> postNewPost(@Part ArrayList<MultipartBody.Part> postImage, @PartMap Map<String, RequestBody> data);
 
     @GET("/post/{id}")
-    Call<String> getIDPost(@Path("id") int postID);                 //서버로부터 해당 id의 포스트를 받음
+    Call<String> getIDPost(@Path("id") int postID);                     //서버로부터 해당 id의 포스트를 받음
 
     @PATCH("/post/{id}")
     Call<String> patchIDPost(@Path("id") int postID, @Body JsonObject postData);     //서버로 수정할 포스트를 전달(이미지 제외)
 
     @DELETE("/post/{id}")
-    Call<String> deleteIDPost(@Path("id") int postID);              //해당 id의 포스트를 삭제하라고 함
+    Call<String> deleteIDPost(@Path("id") int postID);                  //해당 id의 포스트를 삭제하라고 함
 
     @GET("/post/list/{keyword}")
-    Call<String> getTitlePost(@Path("keyword") String keyword);     //서버로부터 해당 키워드가 포함된 제목의 포스트를 받음
+    Call<String> getTitlePost(@Path("keyword") String keyword);         //서버로부터 해당 키워드가 포함된 제목의 포스트를 받음
 
     @GET("/post/list/tag/{keyword}")
-    Call<String> getTagPost(@Path("keyword") String keyword);       //서버로부터 해당 태그가 속한 포스트를 받음
+    Call<String> getTagPost(@Path("keyword") String keyword);           //서버로부터 해당 태그가 속한 포스트를 받음
 
     @POST("/comment")
-    Call<String> postComment(@Body JsonObject kakaoToken);          //서버로 해당 포스트글의 댓글 전달
+    Call<String> postComment(@Body JsonObject kakaoToken);              //서버로 해당 포스트글의 댓글 전달
 
     @DELETE("/comment/{id}")
-    Call<String> deleteIDComment(@Path("id") int commentID);        //해당 id의 댓글을 삭제하라고 함
+    Call<String> deleteIDComment(@Path("id") int commentID);            //해당 id의 댓글을 삭제하라고 함
 
     @POST("/like")
-    Call<String> postLike(@Body JsonObject ids);                    //서버로 해당 포스트글의 좋아요
+    Call<String> postLike(@Body JsonObject ids);                        //서버로 해당 포스트글의 좋아요
 
     @POST("/like/{UserId}/{PostId}")
-    Call<String> deleteIDLike(@Path("UserId") int userID, @Path("PostId") int postID);
+    Call<String> deleteIDLike(@Path("UserId") int userID, @Path("PostId") int postID); //서버로 해당 포스트글의 좋아요취소
 }

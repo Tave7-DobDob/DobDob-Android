@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -122,7 +123,7 @@ public class MyPageActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    Toast.makeText(MyPageActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MyPageActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                 }
             });
             setWhosePosts(userID);
@@ -233,8 +234,16 @@ public class MyPageActivity extends AppCompatActivity {
                             UserInfo writerInfo;
                             if (userObject.isNull("profileUrl"))
                                 writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
-                            else
+                            else {
                                 writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                Bitmap writerProfile;
+                                try {
+                                    writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
+                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                    writerProfile.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                                    writerInfo.setUserProfile(stream.toByteArray());
+                                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                            }
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
                             int likeNum = postObject.getInt("likeCount");
@@ -264,7 +273,7 @@ public class MyPageActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                Toast.makeText(MyPageActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyPageActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
             }
         });
     }

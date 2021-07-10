@@ -1,13 +1,13 @@
 package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,8 +28,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -58,20 +60,16 @@ public class TagPostActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
+        @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_tagpost, null);
         actionBar.setCustomView(customView);
-        ImageView ivGPS = toolbar.findViewById(R.id.toolbar_gpspointer);
-            ivGPS.setVisibility(View.GONE);
-        TextView tvTag = toolbar.findViewById(R.id.toolbar_town);
+        TextView tvTag = toolbar.findViewById(R.id.toolbar_tag);
             tvTag.setText("# ".concat(tagName));
             tvTag.setTextColor(Color.parseColor("#5AAEFF"));
 
         tvNoPost = findViewById(R.id.tagPost_noPost);
         srlPosts = findViewById(R.id.tagPost_swipeRL);
         srlPosts.setDistanceToTriggerSync(400);
-        srlPosts.setOnRefreshListener(() -> {
-            setTagPost(true);
-        });
+        srlPosts.setOnRefreshListener(() -> setTagPost(true));
         RecyclerView rvTagPost = findViewById(R.id.tagPost);
         LinearLayoutManager manager = new LinearLayoutManager(TagPostActivity.this, LinearLayoutManager.VERTICAL,false);
         rvTagPost.setLayoutManager(manager);
@@ -101,8 +99,16 @@ public class TagPostActivity extends AppCompatActivity {
                             UserInfo writerInfo;
                             if (userObject.isNull("profileUrl"))
                                 writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
-                            else
+                            else {
                                 writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                Bitmap writerProfile;
+                                try {
+                                    writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
+                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                    writerProfile.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                                    writerInfo.setUserProfile(stream.toByteArray());
+                                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                            }
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
                             int likeNum = postObject.getInt("likeCount");
@@ -136,7 +142,7 @@ public class TagPostActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 if (isSwipe)
                     srlPosts.setRefreshing(false);
-                Toast.makeText(TagPostActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(TagPostActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
             }
         });
     }

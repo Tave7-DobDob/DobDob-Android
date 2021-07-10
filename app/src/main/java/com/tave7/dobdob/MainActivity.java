@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -188,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                                Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -243,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                            Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 확인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -282,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
             popupMenu.setOnMenuItemClickListener(menuItem -> {
                 if (menuItem.getItemId() == R.id.mypage)
                     startActivityForResult(new Intent(MainActivity.this, MyPageActivity.class), MYPAGE_REQUEST);
-                else {      //로그아웃  TODO: Main에서 바로 Login으로 갈 수 있는 지??! 중간에 쌓인 스택들은 없는 지 확인!
+                else {      //로그아웃
                     PreferenceManager.removeKey(MainActivity.this, "access_token");         //어세스 토크 삭제 TODO: 수정 요망!!!!!!!!!!
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
 
@@ -368,8 +369,16 @@ public class MainActivity extends AppCompatActivity {
                             UserInfo writerInfo;
                             if (userObject.isNull("profileUrl"))
                                 writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
-                            else
+                            else {
                                 writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                Bitmap writerProfile;
+                                try {
+                                    writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
+                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                    writerProfile.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                                    writerInfo.setUserProfile(stream.toByteArray());
+                                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                            }
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
                             int likeNum = postObject.getInt("likeCount");
@@ -381,7 +390,6 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject tagObject = tagsArray.getJSONObject(j);
                                 tags.add(tagObject.getString("name"));
                             }
-
                             PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
                             totalPostList.add(post);
                         }
@@ -404,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 if (isSwipe)
                     srlPosts.setRefreshing(false);
-                Toast.makeText(MainActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
             }
         });
     }

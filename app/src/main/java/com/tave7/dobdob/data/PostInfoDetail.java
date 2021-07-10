@@ -6,15 +6,17 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 public class PostInfoDetail implements Parcelable {
-    PostInfoSimple postInfoSimple;
+    private PostInfoSimple postInfoSimple;
     private String postContent = "";
-    private ArrayList<String> postImages;     //사진 저장
+    private ArrayList<String> postImages;
+    private ArrayList<UserInfo> likes;
     private ArrayList<CommentInfo> comments;
 
     public PostInfoDetail(PostInfoSimple postInfoSimple){
         this.postInfoSimple = postInfoSimple;
 
         postImages = new ArrayList<>();
+        likes = new ArrayList<>();
         comments = new ArrayList<>();
     }
 
@@ -23,6 +25,8 @@ public class PostInfoDetail implements Parcelable {
         postContent = in.readString();
         postImages = new ArrayList<>();
         postImages = (ArrayList<String>) in.readSerializable();
+        likes = new ArrayList<>();
+        in.readTypedList(likes, UserInfo.CREATOR);
         comments = new ArrayList<>();
         in.readTypedList(comments, CommentInfo.CREATOR);
     }
@@ -43,9 +47,11 @@ public class PostInfoDetail implements Parcelable {
     public PostInfoSimple getPostInfoSimple() { return postInfoSimple; }
     public String getPostContent() { return postContent; }
     public ArrayList<String> getPostImages() { return postImages; }
+    public ArrayList<UserInfo> getLikes() { return likes; }
     public ArrayList<CommentInfo> getComments() { return comments; }
 
     public void setPostContent(String postContent) { this.postContent = postContent; }
+
 
     @Override
     public int describeContents() { return 0; }
@@ -55,6 +61,7 @@ public class PostInfoDetail implements Parcelable {
         dest.writeParcelable(postInfoSimple, flags);
         dest.writeString(postContent);
         dest.writeSerializable(postImages);
+        dest.writeTypedList(likes);
         dest.writeTypedList(comments);
     }
 }

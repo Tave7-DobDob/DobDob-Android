@@ -68,7 +68,9 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
     @Override
     public void onBindViewHolder(@NonNull CommentRecyclerAdapter.CommentViewHolder holder, int position) {
         Bitmap commenterProfile = BitmapFactory.decodeResource(context.getResources(), R.drawable.user);
-        if (commentList.get(position).getCommenterInfo().getUserProfileUrl() != null) {
+        if (commentList.get(position).getCommenterInfo().getUserProfile() != null)
+            commenterProfile = BitmapFactory.decodeByteArray(commentList.get(position).getCommenterInfo().getUserProfile(), 0, commentList.get(position).getCommenterInfo().getUserProfile().length);
+        else if (commentList.get(position).getCommenterInfo().getUserProfile() == null && commentList.get(position).getCommenterInfo().getUserProfileUrl() != null) {
             try {
                 commenterProfile = new DownloadFileTask(commentList.get(position).getCommenterInfo().getUserProfileUrl()).execute().get();
             } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
@@ -97,7 +99,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             ClickableSpan clickableSpan = new ClickableSpan() {
                 @Override
                 public void onClick(View widget) {
-                    //멘션 닉네임을 눌렀을 때 가능한 이벤트(닉네임 검색되도록 하자!!!!)
+                    //TODO: 멘션 닉네임을 눌렀을 때 가능한 이벤트(닉네임 검색되도록 하자!!!!)
                     /*
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
                     Bundle sppBundle = new Bundle();

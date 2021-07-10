@@ -6,11 +6,18 @@ import android.os.Parcelable;
 public class UserInfo implements Parcelable {
     private int userID;
     private String userProfileUrl;
+    private byte[] userProfile = null;      //RecyclerView를 위함
     private String userName;
-    private String userTown;       //XX동 -> 마이페이지 설정 town 혹은 실제 writerTown이 저장될 수 있음
+    private String userTown = "";
     private String userAddress = null;
     private double locationX = -1;
     private double locationY = -1;
+
+    public UserInfo(int userID, String userProfileUrl, String userName) {      //좋아요에서 활용
+        this.userID = userID;
+        this.userProfileUrl = userProfileUrl;
+        this.userName = userName;
+    }
 
     public UserInfo(int userID, String userProfileUrl, String userName, String userTown) {
         this.userID = userID;
@@ -32,6 +39,7 @@ public class UserInfo implements Parcelable {
     protected UserInfo(Parcel in) {
         userID = in.readInt();
         userProfileUrl = in.readString();
+        userProfile = in.createByteArray();
         userName = in.readString();
         userTown = in.readString();
         userAddress = in.readString();
@@ -49,6 +57,7 @@ public class UserInfo implements Parcelable {
 
     public int getUserID() { return userID; }
     public String getUserProfileUrl() { return userProfileUrl; }
+    public byte[] getUserProfile() { return userProfile; }
     public String getUserName() { return userName; }
     public String getUserTown() { return userTown; }
     public String getUserAddress() { return userAddress; }
@@ -57,6 +66,7 @@ public class UserInfo implements Parcelable {
 
     public void setUserID(int userID) { this.userID = userID; }
     public void setUserProfileUrl(String userProfileUrl) { this.userProfileUrl = userProfileUrl; }
+    public void setUserProfile(byte[] userProfile) { this.userProfile = userProfile; }
     public void setUserName(String userName) { this.userName = userName; }
     public void setUserTown(String userTown) { this.userTown = userTown; }
     public void setUserAddress(String userAddress) { this.userAddress = userAddress; }
@@ -70,6 +80,7 @@ public class UserInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(userID);
         dest.writeString(userProfileUrl);
+        dest.writeByteArray(userProfile);
         dest.writeString(userName);
         dest.writeString(userTown);
         dest.writeString(userAddress);

@@ -38,6 +38,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.gson.JsonObject;
+import com.nex3z.flowlayout.FlowLayout;
 import com.tave7.dobdob.adapter.CommentRecyclerAdapter;
 import com.tave7.dobdob.adapter.PostPhotosPagerAdapter;
 import com.tave7.dobdob.data.CommentInfo;
@@ -49,6 +50,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -76,15 +78,11 @@ public class PostActivity extends AppCompatActivity {
     private CommentRecyclerAdapter commentAdapter;
     private FrameLayout flImages;
     private ImageView ivHeart;
-    private LinearLayout llTag;
     private NestedScrollView svEntirePost;
+    private FlowLayout flTags;
     private PostPhotosPagerAdapter photoAdapter;
     private SwipeRefreshLayout srlPost;
-    private TextView tvTitle;
-    private TextView tvContent;
-    private TextView tvHeartNums;
-    private TextView tvCommentNums;
-    private TextView tvNoComment;
+    private TextView tvTitle, tvContent, tvHeartNums, tvCommentNums, tvNoComment;
     
     @SuppressLint("SetTextI18n")
     @Override
@@ -142,7 +140,7 @@ public class PostActivity extends AppCompatActivity {
         ivHeart = findViewById(R.id.post_ivHeart);
         tvHeartNums = findViewById(R.id.post_heartNum);
         tvCommentNums = findViewById(R.id.post_commentNum);
-        llTag = findViewById(R.id.post_LinearTag);
+        flTags = findViewById(R.id.post_flTags);
 
         tvNoComment = findViewById(R.id.postNoComment);
         RecyclerView rvComments = findViewById(R.id.postComments);
@@ -193,8 +191,19 @@ public class PostActivity extends AppCompatActivity {
                             postInfoDetail.getPostInfoSimple().getPostTag().add(tagObject.getString("name"));
                         }
 
-                        //if (!postInfoDetail.getPostInfoSimple().getHeartUsers())        TODO: 하트 수가 다를 시!
-                        //      postInfoDetail.getPostInfoSimple().getHeartUsers =
+                        JSONArray likesArray = postInfo.getJSONArray("Likes");
+                        postInfoDetail.getLikes().clear();
+                        for (int i=0; i<likesArray.length(); i++) {
+                            JSONObject likeObject = likesArray.getJSONObject(i);
+                            JSONObject userObject = likeObject.getJSONObject("User");
+                            UserInfo likeUser = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"));
+                            postInfoDetail.getLikes().add(likeUser);
+
+                            if (likeUser.getUserName().equals(myInfo.getUserName()))
+                                isClickedHeart = true;
+                        }
+                        if (postInfoDetail.getPostInfoSimple().getLikeNum() != postInfoDetail.getLikes().size())
+                            postInfoDetail.getPostInfoSimple().setLikeNum(postInfoDetail.getLikes().size());
 
                         JSONArray commentArray = postInfo.getJSONArray("Comments");
                         postInfoDetail.getComments().clear();
@@ -204,8 +213,17 @@ public class PostActivity extends AppCompatActivity {
                             UserInfo commenterInfo;
                             if (commenterObject.isNull("profileUrl"))
                                 commenterInfo = new UserInfo(commenterObject.getInt("id"), null, commenterObject.getString("nickName"), commenterObject.getJSONObject("Location").getString("dong"));
-                            else
+                            else {
                                 commenterInfo = new UserInfo(commenterObject.getInt("id"), commenterObject.getString("profileUrl"), commenterObject.getString("nickName"), commenterObject.getJSONObject("Location").getString("dong"));
+                                Bitmap commenterProfile;
+                                try {
+                                    commenterProfile = new DownloadFileTask(commenterObject.getString("profileUrl")).execute().get();
+                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                    commenterProfile.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                                    commenterInfo.setUserProfile(stream.toByteArray());
+                                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                            }
+
                             CommentInfo comment = new CommentInfo(commentObject.getInt("id"), commenterInfo, commentObject.getString("createdAt"), commentObject.getString("content"));
                             postInfoDetail.getComments().add(comment);
                         }
@@ -223,28 +241,21 @@ public class PostActivity extends AppCompatActivity {
                         photoAdapter.notifyDataSetChanged();
                     }
 
-                    /*      TODO: 수정 요망!!!!!!!!!!!!!!!!!!!!
-                    for (String user: postInfoDetail.getPostInfoSimple().getHeartUsers()) {
-                        if (user.equals(myInfo.getUserName())) {
-                            isClickedHeart = true;
-                            break;
-                        }
-                    }
-                     */
                     if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
                         ivHeart.setImageResource(R.drawable.heart_click);
                     else
                         ivHeart.setImageResource(R.drawable.heart);
-                    tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));       //TODO: 수정 요망!
+                    tvHeartNums.setText(String.valueOf(postInfoDetail.getLikes().size()));
+                    //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));       //TODO: 수정 요망!
                     //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
                     tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
 
                     if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0) {
-                        llTag.setVisibility(View.VISIBLE);
+                        flTags.setVisibility(View.VISIBLE);
                         settingTags();
                     }
                     else
-                        llTag.setVisibility(View.GONE);
+                        flTags.setVisibility(View.GONE);
 
                     if (postInfoDetail.getComments().size() <= 0)
                         tvNoComment.setVisibility(View.VISIBLE);
@@ -291,24 +302,53 @@ public class PostActivity extends AppCompatActivity {
 
         //하트 클릭 시
         ivHeart.setOnClickListener(v -> {
-            isClickedHeart = !isClickedHeart;
-
             if (isClickedHeart) {
-                ivHeart.setImageResource(R.drawable.heart_click);
-                //TODO: 수정 요망!!!!!!!!!!!!
-                //postInfoDetail.getPostInfoSimple().getHeartUsers().add(myInfo.getUserName());
-                //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
-                tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
+                Log.i("확인용", "이전에 클릭된 하트였음");
 
-                //TODO: DB에 저장하고 수정 + MainActivity에서도 변경된 값을 갖고 있도록 해야함!
+                RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postID).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("PostA 좋아요취소 성공", response.toString());
+                        Log.i("PostA 좋아요취소 성공", response.body());
+
+                        if (response.code() == 200) {
+                            showPost(false);
+                        }
+                        else
+                            Toast.makeText(PostActivity.this, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Toast.makeText(PostActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
             else {
-                ivHeart.setImageResource(R.drawable.heart);
-                //postInfoDetail.getPostInfoSimple().getHeartUsers().remove(myInfo.getUserName());
-                //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
-                tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
+                Log.i("확인용", "이전에 클릭되지 않은 하트였음");
 
-                //TODO: DB에 저장하고 수정
+                //TODO: MainActivity에서도 변경된 값을 갖고 있도록 해야함??!!
+                JsonObject likeInfo = new JsonObject();
+                likeInfo.addProperty("userId", myInfo.getUserID());
+                likeInfo.addProperty("postId", postID);
+                RetrofitClient.getApiService().postLike(likeInfo).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("PostA 좋아요 성공", response.toString());
+                        Log.i("PostA 좋아요 성공", response.body());
+
+                        if (response.code() == 201) {
+                            showPost(false);
+                        }
+                        else
+                            Toast.makeText(PostActivity.this, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Toast.makeText(PostActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -332,7 +372,7 @@ public class PostActivity extends AppCompatActivity {
             etWriteComment.setEnabled(false);
 
             String writeComment = etWriteComment.getText().toString().trim();
-            writeComment = writeComment.concat(" ");   //마지막에 멘션있을 시를 대비해 하나의 공백은 남겨둠
+            writeComment = writeComment.concat(" ");
             if (writeComment.length() != 0) {
                 JsonObject commentInfo = new JsonObject();
                 commentInfo.addProperty("postId", postID);
@@ -344,11 +384,9 @@ public class PostActivity extends AppCompatActivity {
                         Log.i("PostA 댓글 post 성공", response.body());
                         etWriteComment.setEnabled(true);
                         if (response.code() == 201) {
-                            showPost(false);     //**********************테스트해야 함!!!!!!!!!!!!!!!!
+                            showPost(false);
                             etWriteComment.setText("");
-                            svEntirePost.post(() -> {
-                                svEntirePost.fullScroll(View.FOCUS_DOWN);       //화면 하단이 보이도록 함
-                            });
+                            svEntirePost.post(() -> svEntirePost.fullScroll(View.FOCUS_DOWN));
                         }
                         else
                             Toast.makeText(PostActivity.this, "죄송합니다. 다시 한번 댓글을 전송해주세요:)", Toast.LENGTH_SHORT).show();
@@ -357,7 +395,7 @@ public class PostActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                         etWriteComment.setEnabled(true);
-                        Toast.makeText(PostActivity.this, "서버에 연결이 되지 않았습니다.\n 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PostActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -365,16 +403,15 @@ public class PostActivity extends AppCompatActivity {
     }
 
     public void settingTags() {
-        llTag.removeAllViews();
+        flTags.removeAllViews();
         for (String tagName : postInfoDetail.getPostInfoSimple().getPostTag()){
             TextView tvTag = new TextView(PostActivity.this);
             tvTag.setText("#".concat(tagName));
             tvTag.setTypeface(null, Typeface.NORMAL);
             tvTag.setTextColor(Color.parseColor("#1b73d8"));
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            layoutParams.setMarginEnd(20);
             tvTag.setLayoutParams(layoutParams);
-            llTag.addView(tvTag);
+            flTags.addView(tvTag);
 
             tvTag.setOnClickListener(v -> {
                 String searchTag = tvTag.getText().toString().substring(1);
@@ -452,8 +489,7 @@ public class PostActivity extends AppCompatActivity {
 
                         @Override
                         public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                            Log.i("PostA 삭제서버 연결실패", t.getMessage());
-                            Toast.makeText(PostActivity.this, "해당 글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                         }
                     }));
                 builder.setNegativeButton("취소", (dialog, id) -> dialog.cancel());

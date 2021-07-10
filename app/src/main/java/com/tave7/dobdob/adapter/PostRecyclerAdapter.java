@@ -18,6 +18,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.nex3z.flowlayout.FlowLayout;
 import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MainActivity;
 import com.tave7.dobdob.MyPageActivity;
@@ -63,7 +64,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         Bitmap writerProfile = BitmapFactory.decodeResource(context.getResources(), R.drawable.user);
-        if (postList.get(position).getWriterProfileUrl() != null) {
+        if (postList.get(position).getWriterInfo().getUserProfile() != null)
+            writerProfile = BitmapFactory.decodeByteArray(postList.get(position).getWriterInfo().getUserProfile(), 0, postList.get(position).getWriterInfo().getUserProfile().length);
+        else if (postList.get(position).getWriterInfo().getUserProfile() == null && postList.get(position).getWriterProfileUrl() != null) {
             try {
                 writerProfile = new DownloadFileTask(postList.get(position).getWriterProfileUrl()).execute().get();
             } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
@@ -131,7 +134,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 tvTag.setTypeface(null, Typeface.NORMAL);
                 tvTag.setTextColor(Color.parseColor("#1b73d8"));
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                layoutParams.setMarginEnd(20);
                 tvTag.setLayoutParams(layoutParams);
                 holder.tags.addView(tvTag);
 
@@ -162,7 +164,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         TextView writerName, writerTown, postTime, postTitle, heartNum, commentNum;
         View tagDivider;
         ImageView ivHeart;
-        LinearLayout tags;
+        FlowLayout tags;
         
         PostViewHolder(final View itemView) {
             super(itemView);
@@ -175,7 +177,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             heartNum = itemView.findViewById(R.id.postrow_heartNum);
             commentNum = itemView.findViewById(R.id.postrow_commentNum);
             tagDivider = itemView.findViewById(R.id.postrow_Divider);
-            tags = itemView.findViewById(R.id.postrow_LinearTag);
+            tags = itemView.findViewById(R.id.postrow_flTags);
 
             itemView.setOnClickListener(v -> {
                 int pos = getAdapterPosition();

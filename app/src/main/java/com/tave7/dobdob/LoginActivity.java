@@ -120,8 +120,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    Log.i("Login 연결실패", t.getMessage());
-                    Toast.makeText(LoginActivity.this, "서버에 연결이 되지 않았습니다.\n 다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                 }
             });
         }
