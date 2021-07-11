@@ -1,12 +1,13 @@
 package com.tave7.dobdob.data;
 
+import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class UserInfo implements Parcelable {
     private int userID;
     private String userProfileUrl;
-    private byte[] userProfile = null;      //RecyclerView를 위함
+    private Bitmap userProfileBM = null;
     private String userName;
     private String userTown = "";
     private String userAddress = null;
@@ -39,7 +40,6 @@ public class UserInfo implements Parcelable {
     protected UserInfo(Parcel in) {
         userID = in.readInt();
         userProfileUrl = in.readString();
-        userProfile = in.createByteArray();
         userName = in.readString();
         userTown = in.readString();
         userAddress = in.readString();
@@ -57,7 +57,7 @@ public class UserInfo implements Parcelable {
 
     public int getUserID() { return userID; }
     public String getUserProfileUrl() { return userProfileUrl; }
-    public byte[] getUserProfile() { return userProfile; }
+    public Bitmap getUserProfileBM() { return userProfileBM; }
     public String getUserName() { return userName; }
     public String getUserTown() { return userTown; }
     public String getUserAddress() { return userAddress; }
@@ -66,7 +66,7 @@ public class UserInfo implements Parcelable {
 
     public void setUserID(int userID) { this.userID = userID; }
     public void setUserProfileUrl(String userProfileUrl) { this.userProfileUrl = userProfileUrl; }
-    public void setUserProfile(byte[] userProfile) { this.userProfile = userProfile; }
+    public void setUserProfileBM(Bitmap userProfileBM) { this.userProfileBM = userProfileBM; }
     public void setUserName(String userName) { this.userName = userName; }
     public void setUserTown(String userTown) { this.userTown = userTown; }
     public void setUserAddress(String userAddress) { this.userAddress = userAddress; }
@@ -80,7 +80,6 @@ public class UserInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(userID);
         dest.writeString(userProfileUrl);
-        dest.writeByteArray(userProfile);
         dest.writeString(userName);
         dest.writeString(userTown);
         dest.writeString(userAddress);

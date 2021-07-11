@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -24,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.PostActivity;
 import com.tave7.dobdob.R;
@@ -36,7 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -67,15 +63,10 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
 
     @Override
     public void onBindViewHolder(@NonNull CommentRecyclerAdapter.CommentViewHolder holder, int position) {
-        Bitmap commenterProfile = BitmapFactory.decodeResource(context.getResources(), R.drawable.user);
-        if (commentList.get(position).getCommenterInfo().getUserProfile() != null)
-            commenterProfile = BitmapFactory.decodeByteArray(commentList.get(position).getCommenterInfo().getUserProfile(), 0, commentList.get(position).getCommenterInfo().getUserProfile().length);
-        else if (commentList.get(position).getCommenterInfo().getUserProfile() == null && commentList.get(position).getCommenterInfo().getUserProfileUrl() != null) {
-            try {
-                commenterProfile = new DownloadFileTask(commentList.get(position).getCommenterInfo().getUserProfileUrl()).execute().get();
-            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-        }
-        holder.commenterProfile.setImageBitmap(commenterProfile);
+        if (commentList.get(position).getCommenterInfo().getUserProfileBM() == null)
+            holder.commenterProfile.setImageResource(R.drawable.user);
+        else
+            holder.commenterProfile.setImageBitmap(commentList.get(position).getCommenterInfo().getUserProfileBM());
         holder.commenterName.setText(commentList.get(position).getCommenterInfo().getUserName());
         holder.commenterName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(context, MyPageActivity.class);

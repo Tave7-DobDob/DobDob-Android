@@ -3,8 +3,6 @@ package com.tave7.dobdob.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -22,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.JsonObject;
 import com.nex3z.flowlayout.FlowLayout;
-import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MainActivity;
 import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.PostActivity;
@@ -37,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -71,15 +67,10 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-        Bitmap writerProfile = BitmapFactory.decodeResource(context.getResources(), R.drawable.user);
-        if (postList.get(position).getWriterInfo().getUserProfile() != null)
-            writerProfile = BitmapFactory.decodeByteArray(postList.get(position).getWriterInfo().getUserProfile(), 0, postList.get(position).getWriterInfo().getUserProfile().length);
-        else if (postList.get(position).getWriterInfo().getUserProfile() == null && postList.get(position).getWriterProfileUrl() != null) {
-            try {
-                writerProfile = new DownloadFileTask(postList.get(position).getWriterProfileUrl()).execute().get();
-            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-        }
-        holder.writerProfile.setImageBitmap(writerProfile);
+        if (postList.get(position).getWriterInfo().getUserProfileBM() == null)
+            holder.writerProfile.setImageResource(R.drawable.user);
+        else
+            holder.writerProfile.setImageBitmap(postList.get(position).getWriterInfo().getUserProfileBM());
         holder.writerName.setText(postList.get(position).getWriterName());
         holder.writerName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(context, MyPageActivity.class);

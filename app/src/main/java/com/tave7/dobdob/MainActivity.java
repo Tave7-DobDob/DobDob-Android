@@ -159,12 +159,19 @@ public class MainActivity extends AppCompatActivity {
                                             JSONObject postObject = jsonPosts.getJSONObject(i);
 
                                             int postID = postObject.getInt("id");
+
                                             JSONObject userObject = postObject.getJSONObject("User");
                                             UserInfo writerInfo;
                                             if (userObject.isNull("profileUrl"))
                                                 writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
                                             else
                                                 writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                            Bitmap writerProfile = null;
+                                            try {
+                                                writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
+                                            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                                            writerInfo.setUserProfileBM(writerProfile);
+
                                             String postTime = postObject.getString("createdAt");
                                             String title = postObject.getString("title");
 
@@ -227,14 +234,21 @@ public class MainActivity extends AppCompatActivity {
                                     JSONArray jsonPosts = result.getJSONArray("posts");
                                     for (int i=0; i<jsonPosts.length(); i++) {
                                         JSONObject postObject = jsonPosts.getJSONObject(i);
-
+                                        
                                         int postID = postObject.getInt("id");
+
                                         JSONObject userObject = postObject.getJSONObject("User");
                                         UserInfo writerInfo;
                                         if (userObject.isNull("profileUrl"))
                                             writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
                                         else
                                             writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                        Bitmap writerProfile = null;
+                                        try {
+                                            writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
+                                        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                                        writerInfo.setUserProfileBM(writerProfile);
+
                                         String postTime = postObject.getString("createdAt");
                                         String title = postObject.getString("title");
 
@@ -403,19 +417,18 @@ public class MainActivity extends AppCompatActivity {
 
                             int postID = postObject.getInt("id");
                             JSONObject userObject = postObject.getJSONObject("User");
+
                             UserInfo writerInfo;
                             if (userObject.isNull("profileUrl"))
                                 writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
-                            else {
+                            else
                                 writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
-                                Bitmap writerProfile;
-                                try {
-                                    writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
-                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                                    writerProfile.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                                    writerInfo.setUserProfile(stream.toByteArray());
-                                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-                            }
+                            Bitmap writerProfile = null;
+                            try {
+                                writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
+                            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                            writerInfo.setUserProfileBM(writerProfile);
+
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
 

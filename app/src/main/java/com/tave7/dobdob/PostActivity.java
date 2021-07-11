@@ -50,7 +50,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -69,10 +68,9 @@ public class PostActivity extends AppCompatActivity {
     public static final int POST_EDIT_REQUEST = 7500;       //requestCode로 사용될 상수(글 수정)
 
     int postID = -1;
-    PostInfoDetail postInfoDetail;
-    Menu menu;
     boolean isWriter = false;
     boolean isDeleted = false, isEdited = false;
+    PostInfoDetail postInfoDetail;
 
     private CommentRecyclerAdapter commentAdapter;
     private FrameLayout flImages;
@@ -207,20 +205,18 @@ public class PostActivity extends AppCompatActivity {
                         postInfoDetail.getComments().clear();
                         for (int i=0; i<commentArray.length(); i++) {
                             JSONObject commentObject = commentArray.getJSONObject(i);
+
                             JSONObject commenterObject = commentObject.getJSONObject("User");
                             UserInfo commenterInfo;
                             if (commenterObject.isNull("profileUrl"))
                                 commenterInfo = new UserInfo(commenterObject.getInt("id"), null, commenterObject.getString("nickName"), commenterObject.getJSONObject("Location").getString("dong"));
-                            else {
+                            else
                                 commenterInfo = new UserInfo(commenterObject.getInt("id"), commenterObject.getString("profileUrl"), commenterObject.getString("nickName"), commenterObject.getJSONObject("Location").getString("dong"));
-                                Bitmap commenterProfile;
-                                try {
-                                    commenterProfile = new DownloadFileTask(commenterObject.getString("profileUrl")).execute().get();
-                                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                                    commenterProfile.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                                    commenterInfo.setUserProfile(stream.toByteArray());
-                                } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-                            }
+                            Bitmap commenterProfile = null;
+                            try {
+                                commenterProfile = new DownloadFileTask(commenterObject.getString("profileUrl")).execute().get();
+                            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                            commenterInfo.setUserProfileBM(commenterProfile);
 
                             CommentInfo comment = new CommentInfo(commentObject.getInt("id"), commenterInfo, commentObject.getString("createdAt"), commentObject.getString("content"));
                             postInfoDetail.getComments().add(comment);
@@ -444,13 +440,10 @@ public class PostActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-
-        this.menu = menu;
         if (isWriter) {
             MenuInflater inflater = getMenuInflater();
             inflater.inflate(R.menu.post_menu, menu);
         }
-
         return true;
     }
 
