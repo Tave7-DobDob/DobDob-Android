@@ -86,5 +86,5 @@
         android:layout_margin="10dp"
         android:bufferType="spannable"
         android:text="댓글 내용입니다!"
-        android:textColor="#000000"/>
+        android:textColor="@color/black"/>
 </LinearLayout>

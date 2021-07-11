@@ -38,7 +38,7 @@
             android:hint="제목"
             android:inputType="text"
             android:textStyle="bold"
-            android:textColor="#000000"/>
+            android:textColor="@color/black"/>
         <View
             android:layout_width="match_parent"
             android:layout_height="0.6dp"
@@ -70,7 +70,7 @@
             android:hint="내용을 입력해주세요."
             android:textSize="15dp"
             android:inputType="none"
-            android:textColor="#000000" />
+            android:textColor="@color/black" />
 
         <View
             android:layout_width="match_parent"
@@ -99,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:hint="태그 입력"
                 android:inputType="text"
-                android:textColor="#000000"
+                android:textColor="@color/black"
                 android:textSize="15sp" />
             <ScrollView
                 android:id="@+id/posting_svTags"

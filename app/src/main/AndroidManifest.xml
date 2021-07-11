@@ -45,6 +45,7 @@
         <activity android:name=".PostActivity"/>
         <activity android:name=".MyPageActivity"/>
         <activity android:name=".ModifyProfileActivity"/>
+        <activity android:name=".LikeUserActivity"/>
     </application>
 
 </manifest>

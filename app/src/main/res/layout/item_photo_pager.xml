@@ -10,14 +10,14 @@
         android:gravity="center"
         android:text="이미지를 로드할 수 없습니다.\n새로 고침해 주세요."
         android:textAlignment="center"
-        android:textColor="#000000"
+        android:textColor="@color/black"
         android:textSize="20sp"/>
 
     <ImageView
         android:id="@+id/ivPostPhoto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#000000"
+        android:background="@color/black"
         android:src="@drawable/logo2"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"

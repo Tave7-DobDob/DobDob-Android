@@ -348,6 +348,14 @@ public class PostActivity extends AppCompatActivity {
                 });
             }
         });
+        LinearLayout llLike = findViewById(R.id.post_lllike);
+        llLike.setOnClickListener(v -> {
+            Intent showLikeUsers = new Intent(PostActivity.this, LikeUserActivity.class);
+            Bundle sluBundle = new Bundle();
+                sluBundle.putParcelableArrayList("likeUsers", postInfoDetail.getLikes());
+            showLikeUsers.putExtras(sluBundle);
+            startActivity(showLikeUsers);
+        });
 
         EditText etWriteComment = findViewById(R.id.post_etComment);
         etWriteComment.addTextChangedListener(new TextWatcher() {
@@ -418,7 +426,6 @@ public class PostActivity extends AppCompatActivity {
                     sctBundle.putString("tagName", searchTag);
                 showContainTagPost.putExtras(sctBundle);
                 startActivity(showContainTagPost);
-                finish();
             });
         }
     }

@@ -64,7 +64,7 @@ public class TagPostActivity extends AppCompatActivity {
 
         @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_tagpost, null);
         actionBar.setCustomView(customView);
-        TextView tvTag = toolbar.findViewById(R.id.toolbar_tag);
+        TextView tvTag = toolbar.findViewById(R.id.toolbar_tv);
             tvTag.setText("# ".concat(tagName));
             tvTag.setTextColor(Color.parseColor("#5AAEFF"));
 
