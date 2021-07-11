@@ -1,7 +1,6 @@
 package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -22,12 +21,11 @@ import java.nio.charset.StandardCharsets;
 
 import javax.net.ssl.HttpsURLConnection;
 
-//KaKao Geocode API 통해 주소 검색 결과 받기
 @SuppressLint("StaticFieldLeak")
 public class GetGEOTask extends AsyncTask<String, Void, String> {
     Context context;
     String receiveMsg = "";
-    String whereAct = "";
+    String whereAct;
     String address;
     URL link = null;
     HttpsURLConnection hc = null;
@@ -94,21 +92,27 @@ public class GetGEOTask extends AsyncTask<String, Void, String> {
             loc.addProperty("locationX", locationX);
             loc.addProperty("locationY", locationY);
 
-            if (whereAct == "initial") {
-                InitialSettingActivity activity = (InitialSettingActivity) context;
-                activity.initialSettingTown(loc);
-            }
-            else if (whereAct == "main") {
-                MainActivity activity = (MainActivity) context;
-                activity.mainSettingTown(loc);
-            }
-            else if (whereAct == "posting") {
-                PostingActivity activity = (PostingActivity) context;
-                activity.postingSettingTown(loc);
-            }
-            else if (whereAct == "modifyProfile"){
-                ModifyProfileActivity activity = (ModifyProfileActivity) context;
-                activity.modifyPSettingTown(loc);
+            switch (whereAct) {
+                case "initial": {
+                    InitialSettingActivity activity = (InitialSettingActivity) context;
+                    activity.initialSettingTown(loc);
+                    break;
+                }
+                case "main": {
+                    MainActivity activity = (MainActivity) context;
+                    activity.mainSettingTown(loc);
+                    break;
+                }
+                case "posting": {
+                    PostingActivity activity = (PostingActivity) context;
+                    activity.postingSettingTown(loc);
+                    break;
+                }
+                case "modifyProfile": {
+                    ModifyProfileActivity activity = (ModifyProfileActivity) context;
+                    activity.modifyPSettingTown(loc);
+                    break;
+                }
             }
         } catch (JSONException e) { e.printStackTrace(); }
     }

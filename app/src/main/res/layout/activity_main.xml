@@ -16,10 +16,10 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:id="@+id/main_noPost"
+        android:id="@+id/main_postInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="동네의 글이 아직 없습니다.\n글을 작성해 보세요:)"
+        android:text="동네의 글을 찾고 있습니다. 🔍"
         android:textAlignment="center"
         android:lineSpacingExtra="8dp"
         android:textColor="#666666"

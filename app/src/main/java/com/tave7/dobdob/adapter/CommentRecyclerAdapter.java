@@ -77,7 +77,6 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         }
         holder.commenterProfile.setImageBitmap(commenterProfile);
         holder.commenterName.setText(commentList.get(position).getCommenterInfo().getUserName());
-        //상대 닉네임을 클릭했을 때
         holder.commenterName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(context, MyPageActivity.class);
             Bundle sppBundle = new Bundle();
@@ -138,7 +137,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             }
             holder.comment.setMovementMethod(LinkMovementMethod.getInstance());
 
-        if (myInfo.getUserName().equals(commentList.get(position).getCommenterInfo().getUserName())){
+        if (myInfo.getUserID() == commentList.get(position).getCommenterInfo().getUserID()) {
             holder.commentDelete.setVisibility(View.VISIBLE);
             holder.commentDelete.setOnClickListener(v -> {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -151,12 +150,12 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                             if (response.code() == 200)
                                 ((PostActivity) context).showPost(false);
                             else
-                                Toast.makeText(context, "해당 댓글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "해당 댓글 삭제에 실패했습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                            Toast.makeText(context, "해당 댓글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "해당 댓글 삭제에 실패했습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
                         }
                     });
                 });

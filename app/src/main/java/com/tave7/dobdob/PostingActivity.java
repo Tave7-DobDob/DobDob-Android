@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +32,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.tave7.dobdob.data.PhotoInfo;
 import com.tave7.dobdob.data.PostInfoDetail;
 
 import java.io.File;
@@ -58,18 +58,17 @@ public class PostingActivity extends AppCompatActivity {
     private String tmpFullAddress = "";
 
     private PostInfoDetail editPostInfo = null;
-    private ArrayList<String> tmpTag = null;        //글 작성 페이지일 때
-    private ArrayList<PhotoInfo> tmpPhotos = null;  //(boolean, File, Bitmap)
+    private ArrayList<String> tmpTag = null;
+    private ArrayList<File> tmpPhotos = null;
     private boolean isEditingPost = false, isCompleted = false;
 
     private com.nex3z.flowlayout.FlowLayout flTags;
     private EditText etTitle, etContent, etTag;
     private LayoutInflater lInflater;
     private LinearLayout llShowPhotos, llTown, llPhotos;
-    private TextView tvPhotos;
-    private TextView tvTown;
+    private ScrollView svTags;
+    private TextView tvPhotos, tvTown;
 
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,15 +79,16 @@ public class PostingActivity extends AppCompatActivity {
         lInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
         etTitle = findViewById(R.id.posting_title);                 //글 제목
-        llShowPhotos = findViewById(R.id.posting_showPhotos);   //업로드한 사진들
+        llShowPhotos = findViewById(R.id.posting_showPhotos);       //업로드한 사진들
             llShowPhotos.setVisibility(View.GONE);
         etContent = findViewById(R.id.posting_content);             //글 내용
         etTag = findViewById(R.id.posting_etTag);                   //글의 태그 입력칸
-        flTags = findViewById(R.id.posting_flTags);   //글의 태그들 추가할 위치
+        svTags = findViewById(R.id.posting_svTags);
+        flTags = findViewById(R.id.posting_flTags);                 //글의 태그들 추가할 위치
         tvPhotos = findViewById(R.id.posting_photo);                //글에 첨부할 사진 개수
 
         llTown = findViewById(R.id.posting_llTown);
-        tvTown = findViewById(R.id.posting_town);                  //위치 지정하기 위해 클릭 가능 and 동이름 출력됨
+        tvTown = findViewById(R.id.posting_town);                   //위치 지정하기 위해 클릭 가능 and 동이름 출력됨
         llPhotos = findViewById(R.id.posting_llPhotos);
 
         Toolbar toolbar = findViewById(R.id.posting_toolbar);        //툴바 설정
@@ -139,7 +139,7 @@ public class PostingActivity extends AppCompatActivity {
                 flTags.addView(view);
             }
             tvTown.setText(editPostInfo.getPostInfoSimple().getWriterTown());
-            tvPhotos.setText("사진(" + editPostInfo.getPostImages().size() + "/5)");
+            tvPhotos.setText("사진(".concat(String.valueOf(editPostInfo.getPostImages().size())).concat("/5)"));
         }
 
         postingClickListener();
@@ -173,7 +173,6 @@ public class PostingActivity extends AppCompatActivity {
                     if (editPostInfo.getPostInfoSimple().getPostTag().containsAll(tmpTag) && tmpTag.containsAll(editPostInfo.getPostInfoSimple().getPostTag()))
                         isChgTag = false;
 
-                    //글 제목 혹은 위치 혹은 내용 혹은 태그 변경 시
                     if (isChgTitle || isChgContent || isChgTown || isChgTag) {
                         isCompleted = true;
 
@@ -186,12 +185,11 @@ public class PostingActivity extends AppCompatActivity {
                         RetrofitClient.getApiService().patchIDPost(editPostInfo.getPostInfoSimple().getPostID(), postData).enqueue(new Callback<String>() {       //DB전달
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                                Log.i("Posting 수정성공2", response.body());
+                                Log.i("Posting 수정성공", response.body());
                                 if (response.code() == 200)
                                     finish();
-                                else {
+                                else
                                     Toast.makeText(PostingActivity.this, "다시 수정 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
-                                }
                             }
 
                             @Override
@@ -207,8 +205,8 @@ public class PostingActivity extends AppCompatActivity {
                     isCompleted = true;
 
                     ArrayList<MultipartBody.Part> postImage = new ArrayList<>();
-                    for (PhotoInfo photo : tmpPhotos) {
-                        postImage.add(MultipartBody.Part.createFormData("postImage", photo.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), photo.getPhotoFile())));
+                    for (File photo : tmpPhotos) {
+                        postImage.add(MultipartBody.Part.createFormData("postImage", photo.getName(), RequestBody.create(MediaType.parse("multipart/form-data"), photo)));
                     }
                     Map<String, RequestBody> dataMap = new HashMap<>();
                     dataMap.put("userId", RequestBody.create(MediaType.parse("text/plain"), String.valueOf(myInfo.getUserID())));
@@ -220,8 +218,7 @@ public class PostingActivity extends AppCompatActivity {
                     RetrofitClient.getApiService().postNewPost(postImage, dataMap).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("Posting 연결성공1", response.toString());
-                            Log.i("Posting 연결성공2", response.body());
+                            Log.i("Posting 연결성공", response.body());
                             if (response.code() == 201) {
                                 finish();
                             }
@@ -283,7 +280,7 @@ public class PostingActivity extends AppCompatActivity {
         });
     }
 
-    public void postingTextChangedListener(){
+    public void postingTextChangedListener() {
         etTag.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -306,6 +303,7 @@ public class PostingActivity extends AppCompatActivity {
                                 tmpTag.remove(tag);
                             });
                             flTags.addView(view);
+                            svTags.post(() -> svTags.fullScroll(ScrollView.FOCUS_DOWN));
                         }
 
                         etTag.setText("");
@@ -328,13 +326,12 @@ public class PostingActivity extends AppCompatActivity {
                 Uri uri = Objects.requireNonNull(data).getData();
                 String photoPath = getRealPathFromURI(uri);
 
-                File file = new File(Objects.requireNonNull(photoPath));     //갤러리에서 선택한 파일
+                File file = new File(Objects.requireNonNull(photoPath));
                 InputStream is = getContentResolver().openInputStream(Objects.requireNonNull(data).getData());
                 Bitmap photoBM = BitmapFactory.decodeStream(is);
                 is.close();
 
-                PhotoInfo photo = new PhotoInfo(file, photoBM);
-                tmpPhotos.add(photo);
+                tmpPhotos.add(file);
                 tvPhotos.setText("사진(".concat(String.valueOf(tmpPhotos.size())).concat("/5)"));
 
                 if (tmpPhotos.size() == 1)
@@ -350,7 +347,7 @@ public class PostingActivity extends AppCompatActivity {
                 ImageView ivCancel = view.findViewById(R.id.photo_cancel);
                 ivCancel.setOnClickListener(v -> {
                     llShowPhotos.removeView((View) v.getParent());
-                    tmpPhotos.remove(photo);
+                    tmpPhotos.remove(file);
                     tvPhotos.setText("사진(".concat(String.valueOf(tmpPhotos.size())).concat("/5)"));
 
                     if (tmpPhotos.size() == 0)
@@ -358,9 +355,6 @@ public class PostingActivity extends AppCompatActivity {
                 });
                 llShowPhotos.addView(view);
             } catch (Exception e){ e.printStackTrace(); }
-        }
-        else if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED) {
-            Toast.makeText(this,"사진 선택 취소", Toast.LENGTH_SHORT).show();
         }
         else if (requestCode == DAUMADDRESS_REQUEST && resultCode == RESULT_OK) {
             new GetGEOTask(this, "posting", Objects.requireNonNull(data).getExtras().getString("address")).execute();

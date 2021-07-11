@@ -102,6 +102,7 @@
                 android:textColor="#000000"
                 android:textSize="15sp" />
             <ScrollView
+                android:id="@+id/posting_svTags"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1">

@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private CircleImageView civSubMenuUser;
     private LinearLayout llTown;
     private SearchView svSearch;
-    private TextView tvNoPost, tvTown;
+    private TextView tvPostInfo, tvTown;
     private SwipeRefreshLayout srlPosts;
     private PostRecyclerAdapter adapter;
 
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         postList = new ArrayList<>();
         totalPostList = new ArrayList<>();
 
-        tvNoPost = findViewById(R.id.main_noPost);
+        tvPostInfo = findViewById(R.id.main_postInfo);
         srlPosts = findViewById(R.id.main_swipeRL);
         srlPosts.setDistanceToTriggerSync(400);
         srlPosts.setOnRefreshListener(() -> updatePostList(true));
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
             postList.clear();
             postList.addAll(totalPostList);
-            tvNoPost.setVisibility(View.GONE);
+            tvPostInfo.setVisibility(View.GONE);
             adapter.notifyDataSetChanged();
 
             svSearch.onActionViewCollapsed();
@@ -141,13 +141,17 @@ public class MainActivity extends AppCompatActivity {
                 if (query.trim().charAt(0) == '#') {   //태그 검색
                     String searchTag = query.trim().substring(1);
                     if (searchTag.length() > 0) {
+                        postList.clear();
+                        adapter.notifyDataSetChanged();
+                        
+                        tvPostInfo.setVisibility(View.VISIBLE);
+                        tvPostInfo.setText("해당 태그를 가진 글을 찾고 있습니다. \uD83D\uDD0D");
                         RetrofitClient.getApiService().getTagPost(searchTag).enqueue(new Callback<String>() {
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                                 Log.i("MainA 태그검색 성공", response.body());
                                 if (response.code() == 200) {
                                     //TODO: 태그 내용 없을 시에 대한 상황 설정!!!!!!!!!!!!!!!필요!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-                                    postList.clear();
                                     try {
                                         JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
                                         JSONArray jsonPosts = result.getJSONArray("posts");
@@ -178,31 +182,35 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     } catch (JSONException e) { e.printStackTrace(); }
                                     if (postList.size() > 0)
-                                        tvNoPost.setVisibility(View.GONE);
+                                        tvPostInfo.setVisibility(View.GONE);
                                     else
-                                        tvNoPost.setVisibility(View.VISIBLE);
+                                        tvPostInfo.setText("동네의 글이 아직 없습니다.\n글을 작성해 보세요:)");
                                     adapter.notifyDataSetChanged();
                                 }
                                 else
-                                    Toast.makeText(MainActivity.this, "다시 한번 검색해 주세요:)", Toast.LENGTH_SHORT).show();
+                                    tvPostInfo.setText("해당 태그 글 로드할 수 없음\n다시 로드해 주세요.");
                             }
 
                             @Override
                             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                                Toast.makeText(MainActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                                tvPostInfo.setText("해당 태그 글 로드할 수 없음\n다시 로드해 주세요.");
                             }
                         });
                     }
                     else
                         Toast.makeText(MainActivity.this, "검색할 내용을 입력하세요:)", Toast.LENGTH_SHORT).show();
                 }
-                else if (query.trim().length() > 0) {
+                else if (query.trim().length() > 0) {   //제목 검색
+                    postList.clear();
+                    adapter.notifyDataSetChanged();
+
+                    tvPostInfo.setVisibility(View.VISIBLE);
+                    tvPostInfo.setText("해당 제목을 가진 글을 찾고 있습니다. \uD83D\uDD0D");
                     RetrofitClient.getApiService().getTitlePost(query.trim()).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                             Log.i("MainA 제목검색 성공", response.body());
                             if (response.code() == 200) {
-                                postList.clear();
                                 try {
                                     JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
                                     JSONArray jsonPosts = result.getJSONArray("posts");
@@ -233,18 +241,18 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 } catch (JSONException e) { e.printStackTrace(); }
                                 if (postList.size() > 0)
-                                    tvNoPost.setVisibility(View.GONE);
+                                    tvPostInfo.setVisibility(View.GONE);
                                 else
-                                    tvNoPost.setVisibility(View.VISIBLE);
+                                    tvPostInfo.setText("동네의 글이 아직 없습니다.\n글을 작성해 보세요:)");
                                 adapter.notifyDataSetChanged();
                             }
                             else
-                                Toast.makeText(MainActivity.this, "다시 한번 검색해 주세요:)", Toast.LENGTH_SHORT).show();
+                                tvPostInfo.setText("해당 제목 글 로드할 수 없음\n다시 로드해 주세요.");
                         }
 
                         @Override
                         public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                            Toast.makeText(MainActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                            tvPostInfo.setText("해당 제목 글 로드할 수 없음\n다시 로드해 주세요.");
                         }
                     });
                 }
@@ -255,11 +263,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {      //텍스트가 바뀔때마다 호출
+            public boolean onQueryTextChange(String newText) {
                 if (newText.length() == 0) {
                     postList.clear();
                     postList.addAll(totalPostList);
-                    tvNoPost.setVisibility(View.GONE);
+                    tvPostInfo.setVisibility(View.GONE);
                     adapter.notifyDataSetChanged();
                 }
 
@@ -342,12 +350,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void mainSettingTown(JsonObject loc) {
         location = loc;
-        tvTown.setText(loc.get("dong").getAsString());     //초기에 user가 설정한 동네로 보여줌
+        tvTown.setText(loc.get("dong").getAsString());
 
         updatePostList(false);
     }
 
     public void updatePostList(boolean isSwipe) {
+        postList.clear();
+        adapter.notifyDataSetChanged();
+
+        tvPostInfo.setVisibility(View.VISIBLE);
+        tvPostInfo.setText("동네의 글을 찾고 있습니다. \uD83D\uDD0D");
+
         JsonObject locationXY = new JsonObject();
         locationXY.addProperty("locationX", location.get("locationX").getAsDouble());
         locationXY.addProperty("locationY", location.get("locationY").getAsDouble());
@@ -357,7 +371,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("MainA 전체글 새로고침 성공", response.body());
                 if (response.code() == 200) {
                     totalPostList.clear();
-                    postList.clear();
                     try {
                         JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
                         JSONArray jsonPosts = result.getJSONArray("posts");
@@ -396,23 +409,25 @@ public class MainActivity extends AppCompatActivity {
                         postList.addAll(totalPostList);
                     } catch (JSONException e) { e.printStackTrace(); }
                     if (postList.size() > 0)
-                        tvNoPost.setVisibility(View.GONE);
+                        tvPostInfo.setVisibility(View.GONE);
                     else
-                        tvNoPost.setVisibility(View.VISIBLE);
+                        tvPostInfo.setText("동네의 글이 아직 없습니다.\n글을 작성해 보세요:)");
+
                     adapter.notifyDataSetChanged();
 
                     if (isSwipe)
                         srlPosts.setRefreshing(false);
                 }
                 else
-                    Toast.makeText(MainActivity.this, "전체 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
+                    tvPostInfo.setText("동네의 글 로드할 수 없음\n다시 로드해 주세요.");
             }
 
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 if (isSwipe)
                     srlPosts.setRefreshing(false);
-                Toast.makeText(MainActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+
+                tvPostInfo.setText("동네의 글 로드할 수 없음\n다시 로드해 주세요.");
             }
         });
     }

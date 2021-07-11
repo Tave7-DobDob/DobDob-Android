@@ -67,6 +67,7 @@ public class TagPostActivity extends AppCompatActivity {
             tvTag.setTextColor(Color.parseColor("#5AAEFF"));
 
         tvNoPost = findViewById(R.id.tagPost_noPost);
+            tvNoPost.setVisibility(View.GONE);
         srlPosts = findViewById(R.id.tagPost_swipeRL);
         srlPosts.setDistanceToTriggerSync(400);
         srlPosts.setOnRefreshListener(() -> setTagPost(true));

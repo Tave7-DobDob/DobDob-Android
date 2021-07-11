@@ -34,7 +34,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.gson.JsonObject;
-import com.tave7.dobdob.data.PhotoInfo;
 import com.tave7.dobdob.data.UserInfo;
 
 import org.json.JSONException;
@@ -61,7 +60,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
     private JsonObject location;
 
     private UserInfo tmpUserInfo = null;
-    private PhotoInfo tmpProfileImg = null;
+    private File tmpProfileImg = null;
     private boolean isChangeProfile = false, isChangeName = false;
 
     private CircleImageView civUserProfile;
@@ -123,7 +122,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
                 MultipartBody.Part postImage = null;
                 if (tmpProfileImg != null)
-                    postImage = MultipartBody.Part.createFormData("profileImage", tmpProfileImg.getPhotoFile().getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tmpProfileImg.getPhotoFile()));
+                    postImage = MultipartBody.Part.createFormData("profileImage", tmpProfileImg.getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tmpProfileImg));
 
                 RetrofitClient.getApiService().patchUserProfileImg(myInfo.getUserID(), postImage).enqueue(new Callback<String>() {
                     @Override
@@ -395,7 +394,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 is.close();
 
                 isChangeProfile = true;
-                tmpProfileImg = new PhotoInfo(file, photoBM);
+                tmpProfileImg = file;
                 civUserProfile.setImageBitmap(photoBM);
             } catch (Exception e){ e.printStackTrace(); }
         } else if(requestCode == PICK_FROM_GALLERY && resultCode == RESULT_CANCELED){

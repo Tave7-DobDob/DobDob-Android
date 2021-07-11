@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class CommentInfo implements Parcelable {
-    private int commentID = -1;
+    private int commentID;
     private UserInfo commenterInfo;
-    private String commentTime = "";    //포스트가 올려진 시간
-    private String content = "";
+    private String commentTime;
+    private String content;
 
     public CommentInfo(int commentID, UserInfo commenterInfo, String commentTime, String content) {
         this.commentID = commentID;

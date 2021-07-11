@@ -77,6 +77,7 @@ public class MyPageActivity extends AppCompatActivity {
         tvUserTown = findViewById(R.id.myPage_userTown);
         tvUserPosts = findViewById(R.id.myPage_tvUserPost);
         tvNoPost = findViewById(R.id.myPage_noPost);
+            tvNoPost.setVisibility(View.GONE);
         rvMyPagePosts = findViewById(R.id.myPagePosts);
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);

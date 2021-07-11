@@ -37,9 +37,9 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="8dp"
         android:background="@drawable/radius_back"
-        android:elevation="10dp"
+        android:elevation="8dp"
         app:layout_constraintTop_toBottomOf="@id/textView"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

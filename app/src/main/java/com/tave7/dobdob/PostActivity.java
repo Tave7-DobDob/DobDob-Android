@@ -93,7 +93,8 @@ public class PostActivity extends AppCompatActivity {
         PostInfoSimple postInfo = getIntent().getParcelableExtra("postInfo");
         postID = postInfo.getPostID();
         postInfoDetail = new PostInfoDetail(postInfo);
-        isWriter = myInfo.getUserName().equals(postInfoDetail.getPostInfoSimple().getWriterName());
+        if (myInfo.getUserID() == postInfoDetail.getPostInfoSimple().getWriterID())
+            isWriter = true;
 
         Toolbar toolbar = findViewById(R.id.post_toolbar);      //툴바 설정
         setSupportActionBar(toolbar);
@@ -199,7 +200,7 @@ public class PostActivity extends AppCompatActivity {
                             UserInfo likeUser = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"));
                             postInfoDetail.getLikes().add(likeUser);
 
-                            if (likeUser.getUserName().equals(myInfo.getUserName()))
+                            if (likeUser.getUserID() == myInfo.getUserID())
                                 isClickedHeart = true;
                         }
                         if (postInfoDetail.getPostInfoSimple().getLikeNum() != postInfoDetail.getLikes().size())

@@ -3,13 +3,12 @@ package com.tave7.dobdob.adapter;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,10 +27,6 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
         this.photoList = photoList;
     }
 
-    public void changePhotoList(ArrayList<String> photoList) {
-        this.photoList = photoList;
-    }
-
     @NonNull
     @Override
     public PostPhotosPagerAdapter.PhotosViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -45,29 +40,39 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
     }
 
     @Override
-    public void onBindViewHolder(PostPhotosPagerAdapter.PhotosViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PostPhotosPagerAdapter.PhotosViewHolder holder, int position) {
         Bitmap photo = null;
         try {
             photo = new DownloadFileTask(photoList.get(position)).execute().get();
         } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-        holder.ivPhoto.setImageBitmap(photo);
+
+        if (photo == null) {
+            holder.tvLoadFail.setVisibility(View.VISIBLE);
+            holder.ivPhoto.setVisibility(View.GONE);
+        }
+        else {
+            holder.tvLoadFail.setVisibility(View.GONE);
+            holder.ivPhoto.setVisibility(View.VISIBLE);
+            holder.ivPhoto.setImageBitmap(photo);
+        }
     }
 
     @Override
     public int getItemCount() { return photoList.size(); }
 
     public class PhotosViewHolder extends RecyclerView.ViewHolder {
+        TextView tvLoadFail;
         ImageView ivPhoto;
 
         PhotosViewHolder(final View itemView) {
             super(itemView);
 
-            ivPhoto = (ImageView) itemView.findViewById(R.id.ivPostPhoto);
-            ivPhoto.setOnClickListener(v -> {   //사진을 클릭했을 시
-                //다이얼로그로 원본 사진을 보여줌
+            tvLoadFail = itemView.findViewById(R.id.tvLoadFail);
+            ivPhoto = itemView.findViewById(R.id.ivPostPhoto);
+            ivPhoto.setOnClickListener(v -> {
                 Dialog dialog = new Dialog(context);
                 dialog.setContentView(R.layout.item_photo_pager);
-                ImageView photo = (ImageView) dialog.findViewById(R.id.ivPostPhoto);
+                ImageView photo = dialog.findViewById(R.id.ivPostPhoto);
                     FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                     photo.setLayoutParams(param);
                     photo.setImageDrawable(ivPhoto.getDrawable());

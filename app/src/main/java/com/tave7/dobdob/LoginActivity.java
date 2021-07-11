@@ -133,16 +133,16 @@ public class LoginActivity extends AppCompatActivity {
 
     private void checkDangerousPermissions() {      //권한 체크
         String temp = "";
-        //파일 읽기 권한 확인
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             temp += Manifest.permission.READ_EXTERNAL_STORAGE + " ";
-        //파일 쓰기 권한 확인
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             temp += Manifest.permission.WRITE_EXTERNAL_STORAGE + " ";
 
         if (!TextUtils.isEmpty(temp))
-            ActivityCompat.requestPermissions(this, temp.trim().split(" "),1);      //권한 요청
-        else    //모두 허용 상태
+            ActivityCompat.requestPermissions(this, temp.trim().split(" "),1);
+        else
             Log.i("permissions", "권한을 모두 허용");
 
     }

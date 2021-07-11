@@ -26,12 +26,8 @@ import com.tave7.dobdob.data.UserInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -128,7 +124,7 @@ public class InitialSettingActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().checkExistNick(nickName).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        if (response.code() == 200) {   //서버 연결 성공
+                        if (response.code() == 200) {
                             try {
                                 JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
                                 if (result.getBoolean("isExisted")) {
@@ -156,30 +152,29 @@ public class InitialSettingActivity extends AppCompatActivity {
         });
 
         btSelectTown.setOnClickListener(v -> {
-            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(etName.getWindowToken(), 0);
             tvTownError.setVisibility(View.GONE);
 
-            Intent itAddress = new Intent(InitialSettingActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
+            Intent itAddress = new Intent(InitialSettingActivity.this, DaumAddressActivity.class);
             startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
         });
 
         btSubmit.setOnClickListener(v -> {
-            if (!isCheckedName) {      //닉네임 중복 확인을 하지 않은 경우
+            if (!isCheckedName) {
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
                 tvNameError.setText("닉네임 중복 확인해 주세요.");
             }
-            else if (!isSetTown)            //동네 설정을 하지 않은 경우
+            else if (!isSetTown)
                 tvTownError.setVisibility(View.VISIBLE);
             else {  //서버에 유저 정보를 전달함
                 String nickName = etName.getText().toString().trim();
                 JsonObject userData = new JsonObject();
                 userData.addProperty("nickName", nickName);
                 userData.addProperty("location", String.valueOf(location));
-                RetrofitClient.getApiService().patchUserInfo(userID, userData).enqueue(new Callback<String>() {       //DB전달
+                RetrofitClient.getApiService().patchUserInfo(userID, userData).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("Initial 설정성공1", response.toString());
-                        Log.i("Initial 설정성공2", response.body());
+                        Log.i("Initial 설정 성공", response.body());
                         if (response.code() == 200) {
                             myInfo = new UserInfo(userID, null, nickName, location.get("dong").getAsString(),
                                     location.get("detail").getAsString(), location.get("locationX").getAsDouble(), location.get("locationY").getAsDouble());

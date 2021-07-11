@@ -128,6 +128,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
 
         holder.tags.removeAllViews();
         if (postList.get(position).getPostTag() != null && postList.get(position).getPostTag().size() != 0) {
+            holder.tagDivider.setVisibility(View.VISIBLE);
+            holder.tags.setVisibility(View.VISIBLE);
+
             for (String tagName : postList.get(position).getPostTag()){
                 TextView tvTag = new TextView(context);
                 tvTag.setText("#".concat(tagName));
