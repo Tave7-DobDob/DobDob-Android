@@ -53,6 +53,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -118,13 +119,7 @@ public class PostActivity extends AppCompatActivity {
             tvWriterTown.setText(postInfoDetail.getPostInfoSimple().getWriterTown());
         tvTitle = findViewById(R.id.post_title);
         TextView tvPostTime = findViewById(R.id.post_time);
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-            try {
-                Date date = sdf.parse(postInfoDetail.getPostInfoSimple().getPostTime());
-                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
-                String dateString = dateFormat.format(Objects.requireNonNull(date));
-                tvPostTime.setText(dateString);
-            } catch (ParseException e) { e.printStackTrace(); }
+            tvPostTime.setText(postInfoDetail.getPostInfoSimple().getPostTime());
         tvContent = findViewById(R.id.post_content);
 
         flImages = findViewById(R.id.post_flImages);
@@ -218,7 +213,15 @@ public class PostActivity extends AppCompatActivity {
                             } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
                             commenterInfo.setUserProfileBM(commenterProfile);
 
-                            CommentInfo comment = new CommentInfo(commentObject.getInt("id"), commenterInfo, commentObject.getString("createdAt"), commentObject.getString("content"));
+                            String commentTime = commentObject.getString("createdAt");
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+                            try {
+                                Date date = sdf.parse(commentTime);
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd  HH:mm:ss", Locale.getDefault());
+                                commentTime = dateFormat.format(Objects.requireNonNull(date));
+                            } catch (ParseException e) { e.printStackTrace(); }
+
+                            CommentInfo comment = new CommentInfo(commentObject.getInt("id"), commenterInfo, commentTime, commentObject.getString("content"));
                             postInfoDetail.getComments().add(comment);
                         }
                         if (postInfoDetail.getPostInfoSimple().getCommentNum() != postInfoDetail.getComments().size())
@@ -297,7 +300,6 @@ public class PostActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postID).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("PostA 좋아요취소 성공", response.toString());
                         Log.i("PostA 좋아요취소 성공", response.body());
 
                         if (response.code() == 200) {

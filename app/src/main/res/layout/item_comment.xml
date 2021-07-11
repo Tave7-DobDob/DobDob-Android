@@ -55,7 +55,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:text="상도동"
+                    android:text="XX동"
                     android:textColor="#A3A3A3"
                     android:textSize="12dp"/>
 
@@ -63,7 +63,7 @@
                     android:id="@+id/commentrow_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="----.--.-- --:--:--"
+                    android:text="----.--.--  --:--:--"
                     android:textColor="#A3A3A3"
                     android:textSize="12dp"/>
             </LinearLayout>
@@ -85,6 +85,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:bufferType="spannable"
-        android:text="댓글 내용입니다!"
+        android:text="댓글 내용"
         android:textColor="@color/black"/>
 </LinearLayout>

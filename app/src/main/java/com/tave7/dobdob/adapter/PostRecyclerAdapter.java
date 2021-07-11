@@ -1,6 +1,5 @@
 package com.tave7.dobdob.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -29,11 +28,7 @@ import com.tave7.dobdob.TagPostActivity;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -81,13 +76,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             context.startActivity(showProfilePage);
         });
         holder.writerTown.setText(postList.get(position).getWriterTown());
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-        try {
-            Date date = sdf.parse(postList.get(position).getPostTime());
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
-            String dateString = dateFormat.format(Objects.requireNonNull(date));
-            holder.postTime.setText(dateString);
-        } catch (ParseException e) { e.printStackTrace(); }
+        holder.postTime.setText(postList.get(position).getPostTime());
         holder.postTitle.setText(postList.get(position).getPostTitle());
 
         if (postList.get(position).getMyLikePos() != -1)
@@ -106,8 +95,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                             postList.get(position).setMyLikePos(-1);
                             notifyItemChanged(position);
                         }
-                        else
-                            Toast.makeText(context, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -130,8 +117,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                             postList.get(position).setMyLikePos(postList.get(position).getLikes().size()-1);
                             notifyItemChanged(position);
                         }
-                        else
-                            Toast.makeText(context, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override

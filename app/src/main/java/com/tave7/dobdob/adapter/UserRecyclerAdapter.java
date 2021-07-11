@@ -49,12 +49,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull UserRecyclerAdapter.UsersViewHolder holder, int position) {
-        Bitmap userProfile = ((BitmapDrawable) Objects.requireNonNull(ResourcesCompat.getDrawable(context.getResources(), R.drawable.user, null))).getBitmap();
-        try {
-            userProfile = new DownloadFileTask(userList.get(position).getUserProfileUrl()).execute().get();
-        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-        holder.civProfile.setImageBitmap(userProfile);
-
+        holder.civProfile.setImageBitmap(userList.get(position).getUserProfileBM());
         holder.tvName.setText(userList.get(position).getUserName());
         holder.tvName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(context, MyPageActivity.class);

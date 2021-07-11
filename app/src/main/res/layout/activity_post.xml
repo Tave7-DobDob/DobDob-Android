@@ -116,7 +116,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
-                        android:text="2021.05.16 20:00"
+                        android:text="----.--.--  --:--:--"
                         android:textSize="12dp"
                         android:textColor="#666666"/>
 

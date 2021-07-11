@@ -1,6 +1,5 @@
 package com.tave7.dobdob.adapter;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -28,11 +27,7 @@ import com.tave7.dobdob.R;
 import com.tave7.dobdob.RetrofitClient;
 import com.tave7.dobdob.data.CommentInfo;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -77,13 +72,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             context.startActivity(showProfilePage);
         });
         holder.commenterTown.setText(commentList.get(position).getCommenterInfo().getUserTown());
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-        try {
-            Date date = sdf.parse(commentList.get(position).getCommentTime());
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
-            String dateString = dateFormat.format(Objects.requireNonNull(date));
-            holder.commentTime.setText(dateString);
-        } catch (ParseException e) { e.printStackTrace(); }
+        holder.commentTime.setText(commentList.get(position).getCommentTime());
         holder.comment.setText(commentList.get(position).getContent());
             Spannable span = (Spannable) holder.comment.getText();
             ClickableSpan clickableSpan = new ClickableSpan() {
@@ -111,13 +100,11 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             String content = holder.comment.getText().toString();
             while (i < content.length()) {
                 int indexMentionStart = content.indexOf("@", i);
-
                 if (indexMentionStart != -1) {
                     int indexMentionEnd = content.indexOf(" ", indexMentionStart);
 
                     if (indexMentionEnd != -1) {
                         span.setSpan(clickableSpan, indexMentionStart, indexMentionEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
                         i = indexMentionEnd+1;
                     }
                     else

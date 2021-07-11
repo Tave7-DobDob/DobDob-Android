@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -28,8 +27,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -114,6 +116,13 @@ public class TagPostActivity extends AppCompatActivity {
                             writerInfo.setUserProfileBM(writerProfile);
 
                             String postTime = postObject.getString("createdAt");
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", Locale.getDefault());
+                            try {
+                                Date date = sdf.parse(postTime);
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd  HH:mm:ss", Locale.getDefault());
+                                postTime = dateFormat.format(Objects.requireNonNull(date));
+                            } catch (ParseException e) { e.printStackTrace(); }
+
                             String title = postObject.getString("title");
 
                             ArrayList<UserInfo> likes = new ArrayList<>();
