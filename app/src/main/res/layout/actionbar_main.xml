@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="3dp"
-            android:text="신사동"
+            android:text="XX동"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/yellow" />
@@ -35,9 +35,10 @@
 
     <SearchView
         android:id="@+id/toolbar_search"
+        android:searchIcon="@drawable/search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="13dp"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@id/toolbar_subMenuUser" />
 

@@ -317,7 +317,6 @@ public class MainActivity extends AppCompatActivity {
                 else {      //로그아웃
                     PreferenceManager.removeKey(MainActivity.this, "access_token");         //어세스 토크 삭제 TODO: 수정 요망!!!!!!!!!!
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
-
                     finish();
                 }
                 return false;
