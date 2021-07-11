@@ -66,14 +66,13 @@ import retrofit2.Response;
 import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class PostActivity extends AppCompatActivity {
-    public static final int POST_EDIT_REQUEST = 7500;   //requestCode로 사용될 상수(글 수정)
+    public static final int POST_EDIT_REQUEST = 7500;       //requestCode로 사용될 상수(글 수정)
 
     int postID = -1;
     PostInfoDetail postInfoDetail;
     Menu menu;
     boolean isWriter = false;
-    boolean isClickedHeart = false;
-    boolean isDeleted = false, isEdited = false;          //MainActivity에 전달해야 함(글을 삭제했는 지)
+    boolean isDeleted = false, isEdited = false;
 
     private CommentRecyclerAdapter commentAdapter;
     private FrameLayout flImages;
@@ -96,12 +95,12 @@ public class PostActivity extends AppCompatActivity {
         if (myInfo.getUserID() == postInfoDetail.getPostInfoSimple().getWriterID())
             isWriter = true;
 
-        Toolbar toolbar = findViewById(R.id.post_toolbar);      //툴바 설정
+        Toolbar toolbar = findViewById(R.id.post_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
             Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(false);
             actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setDisplayHomeAsUpEnabled(true);      //뒤로가기 버튼
+            actionBar.setDisplayHomeAsUpEnabled(true);
 
         srlPost = findViewById(R.id.post_swipeRL);
         srlPost.setDistanceToTriggerSync(400);
@@ -201,10 +200,8 @@ public class PostActivity extends AppCompatActivity {
                             postInfoDetail.getLikes().add(likeUser);
 
                             if (likeUser.getUserID() == myInfo.getUserID())
-                                isClickedHeart = true;
+                                postInfoDetail.getPostInfoSimple().setMyLikePos(i);
                         }
-                        if (postInfoDetail.getPostInfoSimple().getLikeNum() != postInfoDetail.getLikes().size())
-                            postInfoDetail.getPostInfoSimple().setLikeNum(postInfoDetail.getLikes().size());
 
                         JSONArray commentArray = postInfo.getJSONArray("Comments");
                         postInfoDetail.getComments().clear();
@@ -242,13 +239,11 @@ public class PostActivity extends AppCompatActivity {
                         photoAdapter.notifyDataSetChanged();
                     }
 
-                    if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
+                    if (postInfoDetail.getPostInfoSimple().getMyLikePos() != -1)
                         ivHeart.setImageResource(R.drawable.heart_click);
                     else
                         ivHeart.setImageResource(R.drawable.heart);
                     tvHeartNums.setText(String.valueOf(postInfoDetail.getLikes().size()));
-                    //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));       //TODO: 수정 요망!
-                    //tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getHeartUsers().size()));
                     tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
 
                     if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0) {
@@ -301,11 +296,8 @@ public class PostActivity extends AppCompatActivity {
             startActivity(showProfilePage);
         });
 
-        //하트 클릭 시
         ivHeart.setOnClickListener(v -> {
-            if (isClickedHeart) {
-                Log.i("확인용", "이전에 클릭된 하트였음");
-
+            if (postInfoDetail.getPostInfoSimple().getMyLikePos() != -1) {
                 RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postID).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -313,7 +305,11 @@ public class PostActivity extends AppCompatActivity {
                         Log.i("PostA 좋아요취소 성공", response.body());
 
                         if (response.code() == 200) {
-                            showPost(false);
+                            postInfoDetail.getLikes().remove(postInfoDetail.getPostInfoSimple().getMyLikePos());
+                            postInfoDetail.getPostInfoSimple().setMyLikePos(-1);
+
+                            ivHeart.setImageResource(R.drawable.heart);
+                            tvHeartNums.setText(String.valueOf(postInfoDetail.getLikes().size()));
                         }
                         else
                             Toast.makeText(PostActivity.this, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
@@ -326,20 +322,20 @@ public class PostActivity extends AppCompatActivity {
                 });
             }
             else {
-                Log.i("확인용", "이전에 클릭되지 않은 하트였음");
-
-                //TODO: MainActivity에서도 변경된 값을 갖고 있도록 해야함??!!
                 JsonObject likeInfo = new JsonObject();
                 likeInfo.addProperty("userId", myInfo.getUserID());
                 likeInfo.addProperty("postId", postID);
                 RetrofitClient.getApiService().postLike(likeInfo).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("PostA 좋아요 성공", response.toString());
                         Log.i("PostA 좋아요 성공", response.body());
 
                         if (response.code() == 201) {
-                            showPost(false);
+                            postInfoDetail.getLikes().add(new UserInfo(myInfo.getUserID(), myInfo.getUserProfileUrl(), myInfo.getUserName()));
+                            postInfoDetail.getPostInfoSimple().setMyLikePos(postInfoDetail.getLikes().size()-1);
+
+                            ivHeart.setImageResource(R.drawable.heart_click);
+                            tvHeartNums.setText(String.valueOf(postInfoDetail.getLikes().size()));
                         }
                         else
                             Toast.makeText(PostActivity.this, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
@@ -368,7 +364,7 @@ public class PostActivity extends AppCompatActivity {
             }
         });
 
-        TextView tvAddComment = findViewById(R.id.post_postComment);    //댓글 추가
+        TextView tvAddComment = findViewById(R.id.post_postComment);
         tvAddComment.setOnClickListener(v -> {
             etWriteComment.setEnabled(false);
 
@@ -429,9 +425,8 @@ public class PostActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        //변경 내용이 있다면 보내줌(있으면 true 전달, 없으면 false 전달 -> Main에서 처리하게 함!, MyPage에서 처리!)
         Intent returnIntent = new Intent();
-        if (isDeleted || isEdited)       //글 삭제 or 글 수정인 경우
+        if (isDeleted || isEdited)
             setResult(RESULT_OK, returnIntent);
         else
             setResult(RESULT_CANCELED, returnIntent);
@@ -477,8 +472,7 @@ public class PostActivity extends AppCompatActivity {
                     RetrofitClient.getApiService().deleteIDPost(postID).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("PostA 글 삭제성공", response.toString());
-                            Log.i("PostA 글 삭제성공2", response.body());
+                            Log.i("PostA 글 삭제 성공", response.body());
                             if (response.code() == 200) {
                                 isDeleted = true;
                                 finish();

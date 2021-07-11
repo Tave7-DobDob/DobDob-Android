@@ -69,6 +69,6 @@ public interface RetrofitAPI {
     @POST("/like")
     Call<String> postLike(@Body JsonObject ids);                        //서버로 해당 포스트글의 좋아요
 
-    @POST("/like/{UserId}/{PostId}")
+    @DELETE("/like/{UserId}/{PostId}")
     Call<String> deleteIDLike(@Path("UserId") int userID, @Path("PostId") int postID); //서버로 해당 포스트글의 좋아요취소
 }

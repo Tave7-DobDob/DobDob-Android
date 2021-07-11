@@ -3,37 +3,27 @@ package com.tave7.dobdob.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class PostInfoSimple implements Parcelable {
     private int postID;
     private UserInfo writerInfo;
-    private String postTime = "";
+    private String postTime;
     private String postTitle;
-    private int likeNum = 0;
-    private int commentNum = 0;
-    private ArrayList<String> postTag = null;
+    private int myLikePos = -1;
+    private ArrayList<UserInfo> likes;
+    private int commentNum;
+    private ArrayList<String> postTag;
 
-    public PostInfoSimple(int postID, UserInfo writerInfo, String postTime, String postTitle, int likeNum, int commentNum, ArrayList<String> postTag){
+    public PostInfoSimple(int postID, UserInfo writerInfo, String postTime, String postTitle, int myLikePos, ArrayList<UserInfo> likes, int commentNum, ArrayList<String> postTag) {
         this.postID = postID;
         this.writerInfo = writerInfo;
         this.postTime = postTime;
         this.postTitle = postTitle;
-
-        /* TODO: 삭제 요망!!!!!!!!!!!!!!
-        this.heartUsers = new ArrayList<String>();
-        if (heartUsers != null)
-            this.heartUsers = heartUsers;
-         */
-        this.likeNum = likeNum;
+        this.myLikePos = myLikePos;
+        this.likes = likes;
         this.commentNum = commentNum;
-
-        /*
-        this.postTag = new ArrayList<String>();
-        if (postTag != null)
-         */
-            this.postTag = postTag;
+        this.postTag = postTag;
     }
 
     protected PostInfoSimple(Parcel in) {
@@ -41,7 +31,8 @@ public class PostInfoSimple implements Parcelable {
         writerInfo = in.readParcelable(UserInfo.class.getClassLoader());
         postTime = in.readString();
         postTitle = in.readString();
-        likeNum = in.readInt();
+        likes = new ArrayList<>();
+        in.readTypedList(likes, UserInfo.CREATOR);
         commentNum = in.readInt();
         postTag = in.createStringArrayList();
     }
@@ -63,17 +54,14 @@ public class PostInfoSimple implements Parcelable {
     public String getWriterAddress() { return writerInfo.getUserAddress(); }
     public String getPostTime() { return postTime; }
     public String getPostTitle() { return postTitle; }
-    public int getLikeNum() { return likeNum; }
+    public int getMyLikePos() { return myLikePos; }
+    public ArrayList<UserInfo> getLikes() { return likes; }
     public int getCommentNum() { return commentNum; }
     public ArrayList<String> getPostTag() { return postTag; }
 
-    public void setPostID(int postID) { this.postID = postID; }
-    public void setWriterName(String writerName) { this.writerInfo.setUserName(writerName); }
-    public void setWriterTown(String writerTown) { this.writerInfo.setUserTown(writerTown); }
     public void setPostTitle(String postTitle) { this.postTitle = postTitle; }
-    public void setLikeNum(int likeNum) { this.likeNum = likeNum; }
+    public void setMyLikePos(int myLikePos) { this.myLikePos = myLikePos; }
     public void setCommentNum(int commentNum) { this.commentNum = commentNum; }
-    public void setPostTag(ArrayList<String> postTag) { this.postTag = postTag; }       //TODO: 삭제해야 함!!
 
     @Override
     public int describeContents() { return 0; }
@@ -84,7 +72,7 @@ public class PostInfoSimple implements Parcelable {
         dest.writeParcelable(writerInfo, flags);
         dest.writeString(postTime);
         dest.writeString(postTitle);
-        dest.writeInt(likeNum);
+        dest.writeTypedList(likes);
         dest.writeInt(commentNum);
         dest.writeStringList(postTag);
     }

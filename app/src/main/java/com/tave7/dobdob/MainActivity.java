@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-            actionBar.setDisplayShowCustomEnabled(true);
+            Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
         @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_main, null);
         actionBar.setCustomView(customView);
@@ -167,7 +167,19 @@ public class MainActivity extends AppCompatActivity {
                                                 writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
                                             String postTime = postObject.getString("createdAt");
                                             String title = postObject.getString("title");
-                                            int likeNum = postObject.getInt("likeCount");
+
+                                            ArrayList<UserInfo> likes = new ArrayList<>();
+                                            int myLikePos = -1;
+                                            JSONArray likesArray = postObject.getJSONArray("Likes");
+                                            for (int j=0; j<likesArray.length(); j++) {
+                                                JSONObject likeObject = likesArray.getJSONObject(j);
+                                                JSONObject likeUserObject = likeObject.getJSONObject("User");
+                                                UserInfo likeUser = new UserInfo(likeUserObject.getInt("id"), likeUserObject.getString("profileUrl"), likeUserObject.getString("nickName"));
+                                                likes.add(likeUser);
+
+                                                if (likeUserObject.getInt("id") == myInfo.getUserID())
+                                                    myLikePos = j;
+                                            }
                                             int commentNum = postObject.getInt("commentCount");
 
                                             ArrayList<String> tags = new ArrayList<>();
@@ -176,8 +188,7 @@ public class MainActivity extends AppCompatActivity {
                                                 JSONObject tagObject = tagsArray.getJSONObject(j);
                                                 tags.add(tagObject.getString("name"));
                                             }
-
-                                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
+                                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, myLikePos, likes, commentNum, tags);
                                             postList.add(post);
                                         }
                                     } catch (JSONException e) { e.printStackTrace(); }
@@ -226,7 +237,19 @@ public class MainActivity extends AppCompatActivity {
                                             writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
                                         String postTime = postObject.getString("createdAt");
                                         String title = postObject.getString("title");
-                                        int likeNum = postObject.getInt("likeCount");
+
+                                        ArrayList<UserInfo> likes = new ArrayList<>();
+                                        int myLikePos = -1;
+                                        JSONArray likesArray = postObject.getJSONArray("Likes");
+                                        for (int j=0; j<likesArray.length(); j++) {
+                                            JSONObject likeObject = likesArray.getJSONObject(j);
+                                            JSONObject likeUserObject = likeObject.getJSONObject("User");
+                                            UserInfo likeUser = new UserInfo(likeUserObject.getInt("id"), likeUserObject.getString("profileUrl"), likeUserObject.getString("nickName"));
+                                            likes.add(likeUser);
+
+                                            if (likeUserObject.getInt("id") == myInfo.getUserID())
+                                                myLikePos = j;
+                                        }
                                         int commentNum = postObject.getInt("commentCount");
 
                                         ArrayList<String> tags = new ArrayList<>();
@@ -236,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                                             tags.add(tagObject.getString("name"));
                                         }
 
-                                        PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
+                                        PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, myLikePos, likes, commentNum, tags);
                                         postList.add(post);
                                     }
                                 } catch (JSONException e) { e.printStackTrace(); }
@@ -335,6 +358,12 @@ public class MainActivity extends AppCompatActivity {
                         } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
                         civSubMenuUser.setImageBitmap(userProfile);
                     }
+                    if (location.get("locationX").getAsDouble() != myInfo.getLocationX() || location.get("locationY").getAsDouble() != myInfo.getLocationY()) {
+                        location.remove("locationX");
+                        location.addProperty("locationX", myInfo.getLocationX());
+                        location.remove("locationY");
+                        location.addProperty("locationY", myInfo.getLocationY());
+                    }
                     tvTown.setText(myInfo.getUserTown());
                     updatePostList(false);
                 }
@@ -361,11 +390,7 @@ public class MainActivity extends AppCompatActivity {
 
         tvPostInfo.setVisibility(View.VISIBLE);
         tvPostInfo.setText("동네의 글을 찾고 있습니다. \uD83D\uDD0D");
-
-        JsonObject locationXY = new JsonObject();
-        locationXY.addProperty("locationX", location.get("locationX").getAsDouble());
-        locationXY.addProperty("locationY", location.get("locationY").getAsDouble());
-        RetrofitClient.getApiService().postLocationPost(locationXY).enqueue(new Callback<String>() {
+        RetrofitClient.getApiService().postLocationPost(location).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 Log.i("MainA 전체글 새로고침 성공", response.body());
@@ -394,7 +419,19 @@ public class MainActivity extends AppCompatActivity {
                             }
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
-                            int likeNum = postObject.getInt("likeCount");
+
+                            ArrayList<UserInfo> likes = new ArrayList<>();
+                            int myLikePos = -1;
+                            JSONArray likesArray = postObject.getJSONArray("Likes");
+                            for (int j=0; j<likesArray.length(); j++) {
+                                JSONObject likeObject = likesArray.getJSONObject(j);
+                                JSONObject likeUserObject = likeObject.getJSONObject("User");
+                                UserInfo likeUser = new UserInfo(likeUserObject.getInt("id"), likeUserObject.getString("profileUrl"), likeUserObject.getString("nickName"));
+                                likes.add(likeUser);
+
+                                if (likeUserObject.getInt("id") == myInfo.getUserID())
+                                    myLikePos = j;
+                            }
                             int commentNum = postObject.getInt("commentCount");
 
                             ArrayList<String> tags = new ArrayList<>();
@@ -403,7 +440,7 @@ public class MainActivity extends AppCompatActivity {
                                 JSONObject tagObject = tagsArray.getJSONObject(j);
                                 tags.add(tagObject.getString("name"));
                             }
-                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
+                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, myLikePos, likes, commentNum, tags);
                             totalPostList.add(post);
                         }
                         postList.addAll(totalPostList);
@@ -414,12 +451,12 @@ public class MainActivity extends AppCompatActivity {
                         tvPostInfo.setText("동네의 글이 아직 없습니다.\n글을 작성해 보세요:)");
 
                     adapter.notifyDataSetChanged();
-
-                    if (isSwipe)
-                        srlPosts.setRefreshing(false);
                 }
                 else
                     tvPostInfo.setText("동네의 글 로드할 수 없음\n다시 로드해 주세요.");
+
+                if (isSwipe)
+                    srlPosts.setRefreshing(false);
             }
 
             @Override

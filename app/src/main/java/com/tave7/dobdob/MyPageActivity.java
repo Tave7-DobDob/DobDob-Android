@@ -55,7 +55,7 @@ public class MyPageActivity extends AppCompatActivity {
     ImageView ivEdit;
     PostRecyclerAdapter adapter;
     RecyclerView rvMyPagePosts;
-    TextView tvUserName, tvUserTown, tvUserPosts, tvNoPost;
+    TextView tvUserName, tvUserTown, tvUserPosts, tvPostInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +76,7 @@ public class MyPageActivity extends AppCompatActivity {
         tvUserName = findViewById(R.id.myPage_userName);
         tvUserTown = findViewById(R.id.myPage_userTown);
         tvUserPosts = findViewById(R.id.myPage_tvUserPost);
-        tvNoPost = findViewById(R.id.myPage_noPost);
-            tvNoPost.setVisibility(View.GONE);
+        tvPostInfo = findViewById(R.id.myPage_postInfo);
         rvMyPagePosts = findViewById(R.id.myPagePosts);
         LinearLayoutManager manager = new LinearLayoutManager(MyPageActivity.this, LinearLayoutManager.VERTICAL,false);
         rvMyPagePosts.setLayoutManager(manager);
@@ -115,7 +114,7 @@ public class MyPageActivity extends AppCompatActivity {
                             tvUserName.setText(otherInfo.getUserName());
                             tvUserTown.setText(otherInfo.getUserTown());
                             tvUserPosts.setText(otherInfo.getUserName().concat(" 님이 작성한 글"));
-                            tvNoPost.setText(otherInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
+                            tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
                         } catch (JSONException e) { e.printStackTrace(); }
                     }
                     else
@@ -146,7 +145,7 @@ public class MyPageActivity extends AppCompatActivity {
             tvUserName.setText(myInfo.getUserName());
             tvUserTown.setText(myInfo.getUserTown());
             tvUserPosts.setText(myInfo.getUserName().concat(" 님이 작성한 글"));
-            tvNoPost.setText(myInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
+            tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
 
             setWhosePosts(myInfo.getUserID());
         }
@@ -217,13 +216,17 @@ public class MyPageActivity extends AppCompatActivity {
         }
     }
 
-    private void setWhosePosts(int whoseID) {   //해당 user의 post글들을 모두 받아옴
+    public void setWhosePosts(int whoseID) {   //해당 user의 post글들을 모두 받아옴
+        userPostList.clear();
+        adapter.notifyDataSetChanged();
+
+        tvPostInfo.setVisibility(View.VISIBLE);
+        tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
         RetrofitClient.getApiService().getUserPosts(whoseID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 Log.i("MyPage user글받기 성공", response.body());
                 if (response.code() == 200) {
-                    userPostList.clear();
                     try {
                         JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
                         JSONArray jsonPosts = result.getJSONArray("posts");
@@ -247,8 +250,21 @@ public class MyPageActivity extends AppCompatActivity {
                             }
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
-                            int likeNum = postObject.getInt("likeCount");
+
+                            ArrayList<UserInfo> likes = new ArrayList<>();
+                            int myLikePos = -1;
+                            JSONArray likesArray = postObject.getJSONArray("Likes");
+                            for (int j=0; j<likesArray.length(); j++) {
+                                JSONObject likeObject = likesArray.getJSONObject(j);
+                                JSONObject likeUserObject = likeObject.getJSONObject("User");
+                                UserInfo likeUser = new UserInfo(likeUserObject.getInt("id"), likeUserObject.getString("profileUrl"), likeUserObject.getString("nickName"));
+                                likes.add(likeUser);
+
+                                if (likeUserObject.getInt("id") == myInfo.getUserID())
+                                    myLikePos = j;
+                            }
                             int commentNum = postObject.getInt("commentCount");
+
                             ArrayList<String> tags = new ArrayList<>();
                             JSONArray tagsArray = postObject.getJSONArray("Tags");
                             for (int j=0; j<tagsArray.length(); j++){
@@ -256,25 +272,25 @@ public class MyPageActivity extends AppCompatActivity {
                                 tags.add(tagObject.getString("name"));
                             }
 
-                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
+                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, myLikePos, likes, commentNum, tags);
                             userPostList.add(post);
                         }
                     } catch (JSONException e) { e.printStackTrace(); }
 
                     if (userPostList.size() > 0) {
-                        tvNoPost.setVisibility(View.GONE);
+                        tvPostInfo.setVisibility(View.GONE);
                         adapter.notifyDataSetChanged();
                     }
                     else
-                        tvNoPost.setVisibility(View.VISIBLE);
+                        tvPostInfo.setText(myInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
                 }
                 else
-                    Toast.makeText(MyPageActivity.this, "해당 유저가 포스트한 글을 다시 한번 받아보세요:)", Toast.LENGTH_SHORT).show();
+                    tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 로드할 수 없음\n다시 로드해 주세요."));
             }
 
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                Toast.makeText(MyPageActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 로드할 수 없음\n다시 로드해 주세요."));
             }
         });
     }

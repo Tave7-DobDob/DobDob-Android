@@ -78,20 +78,20 @@ public class PostingActivity extends AppCompatActivity {
         tmpPhotos = new ArrayList<>();
         lInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 
-        etTitle = findViewById(R.id.posting_title);                 //글 제목
-        llShowPhotos = findViewById(R.id.posting_showPhotos);       //업로드한 사진들
+        etTitle = findViewById(R.id.posting_title);
+        llShowPhotos = findViewById(R.id.posting_showPhotos);
             llShowPhotos.setVisibility(View.GONE);
-        etContent = findViewById(R.id.posting_content);             //글 내용
-        etTag = findViewById(R.id.posting_etTag);                   //글의 태그 입력칸
+        etContent = findViewById(R.id.posting_content);
+        etTag = findViewById(R.id.posting_etTag);
         svTags = findViewById(R.id.posting_svTags);
-        flTags = findViewById(R.id.posting_flTags);                 //글의 태그들 추가할 위치
-        tvPhotos = findViewById(R.id.posting_photo);                //글에 첨부할 사진 개수
+        flTags = findViewById(R.id.posting_flTags);
+        tvPhotos = findViewById(R.id.posting_photo);
 
         llTown = findViewById(R.id.posting_llTown);
-        tvTown = findViewById(R.id.posting_town);                   //위치 지정하기 위해 클릭 가능 and 동이름 출력됨
+        tvTown = findViewById(R.id.posting_town);
         llPhotos = findViewById(R.id.posting_llPhotos);
 
-        Toolbar toolbar = findViewById(R.id.posting_toolbar);        //툴바 설정
+        Toolbar toolbar = findViewById(R.id.posting_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
             Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(true);
@@ -101,7 +101,7 @@ public class PostingActivity extends AppCompatActivity {
         actionBar.setCustomView(customView);
         toolbarListener(toolbar);
 
-        if (getIntent().hasExtra("isEditingPost")) {        //현재 글 수정 페이지임
+        if (getIntent().hasExtra("isEditingPost")) {
             isEditingPost = true;
             editPostInfo = getIntent().getExtras().getParcelable("postInfo");
 
@@ -126,7 +126,7 @@ public class PostingActivity extends AppCompatActivity {
                 llShowPhotos.addView(view);
             }
             etContent.setText(editPostInfo.getPostContent());
-            for (String tag : editPostInfo.getPostInfoSimple().getPostTag()) {      //태그가 있다면 태그 표시
+            for (String tag : editPostInfo.getPostInfoSimple().getPostTag()) {
                 tmpTag.add(tag);
                 @SuppressLint("InflateParams") View view = lInflater.inflate(R.layout.item_tag, null);
                 TextView tvTag = view.findViewById(R.id.tag_tagName);
@@ -185,6 +185,7 @@ public class PostingActivity extends AppCompatActivity {
                         RetrofitClient.getApiService().patchIDPost(editPostInfo.getPostInfoSimple().getPostID(), postData).enqueue(new Callback<String>() {       //DB전달
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                                Log.i("Posting 수정성공", response.toString());
                                 Log.i("Posting 수정성공", response.body());
                                 if (response.code() == 200)
                                     finish();
@@ -198,10 +199,10 @@ public class PostingActivity extends AppCompatActivity {
                             }
                         });
                     }
-                    else    //수정 사항이 없음
+                    else
                         finish();
                 }
-                else {      //글쓰기 완료
+                else {
                     isCompleted = true;
 
                     ArrayList<MultipartBody.Part> postImage = new ArrayList<>();
@@ -252,14 +253,14 @@ public class PostingActivity extends AppCompatActivity {
     public void postingClickListener(){
         ConstraintLayout clWhole = findViewById(R.id.posting_wholeCL);
         clWhole.setOnTouchListener((v, event) -> {
-            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
             getCurrentFocus().clearFocus();
 
             return false;
         });
 
         llTown.setOnClickListener(v -> {
-            Intent itAddress = new Intent(PostingActivity.this, DaumAddressActivity.class);  //도로명주소 API 실행
+            Intent itAddress = new Intent(PostingActivity.this, DaumAddressActivity.class);
             startActivityForResult(itAddress, DAUMADDRESS_REQUEST);
         });
 
@@ -361,7 +362,7 @@ public class PostingActivity extends AppCompatActivity {
         }
     }
 
-    //갤러리에서 선택한 사진의 절대경로를 반환함
+    //사진의 절대경로 반환
     private String getRealPathFromURI(Uri contentUri) {
         if (contentUri.getPath().startsWith("/storage")) {
             return contentUri.getPath();

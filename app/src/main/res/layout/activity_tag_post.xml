@@ -16,10 +16,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tagPost_noPost"
+        android:id="@+id/tagPost_postInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="해당 태그를 가진 글이 존재하지 않습니다.\n다른 태그를 검색해 보세요:)"
+        android:text="해당 태그를 가진 글을 찾고 있습니다. 🔍"
         android:textAlignment="center"
         android:lineSpacingExtra="8dp"
         android:textColor="#666666"

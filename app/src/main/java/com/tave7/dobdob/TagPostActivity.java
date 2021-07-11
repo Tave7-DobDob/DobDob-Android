@@ -37,13 +37,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.tave7.dobdob.MainActivity.myInfo;
+
 public class TagPostActivity extends AppCompatActivity {
     private String tagName = "";
     private ArrayList<PostInfoSimple> tagPostLists = null;
 
     private PostRecyclerAdapter adapter;
     private SwipeRefreshLayout srlPosts;
-    private TextView tvNoPost;
+    private TextView tvPostInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,7 @@ public class TagPostActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tagPost_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowCustomEnabled(true);
+        Objects.requireNonNull(actionBar).setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -66,8 +68,7 @@ public class TagPostActivity extends AppCompatActivity {
             tvTag.setText("# ".concat(tagName));
             tvTag.setTextColor(Color.parseColor("#5AAEFF"));
 
-        tvNoPost = findViewById(R.id.tagPost_noPost);
-            tvNoPost.setVisibility(View.GONE);
+        tvPostInfo = findViewById(R.id.tagPost_postInfo);
         srlPosts = findViewById(R.id.tagPost_swipeRL);
         srlPosts.setDistanceToTriggerSync(400);
         srlPosts.setOnRefreshListener(() -> setTagPost(true));
@@ -81,12 +82,16 @@ public class TagPostActivity extends AppCompatActivity {
         setTagPost(false);
     }
 
-    private void setTagPost(boolean isSwipe) {
+    public void setTagPost(boolean isSwipe) {
+        tagPostLists.clear();
+        adapter.notifyDataSetChanged();
+
+        tvPostInfo.setVisibility(View.VISIBLE);
+        tvPostInfo.setText("해당 태그를 가진 글을 찾고 있습니다. \uD83D\uDD0D");
         RetrofitClient.getApiService().getTagPost(tagName).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("TagPostA 태그검색 성공", response.toString());
-                Log.i("TagPostA 태그검색 성공2", response.body());
+                Log.i("TagPostA 태그검색 성공", response.body());
                 if (response.code() == 200) {
                     tagPostLists.clear();
                     try {
@@ -112,7 +117,19 @@ public class TagPostActivity extends AppCompatActivity {
                             }
                             String postTime = postObject.getString("createdAt");
                             String title = postObject.getString("title");
-                            int likeNum = postObject.getInt("likeCount");
+
+                            ArrayList<UserInfo> likes = new ArrayList<>();
+                            int myLikePos = -1;
+                            JSONArray likesArray = postObject.getJSONArray("Likes");
+                            for (int j=0; j<likesArray.length(); j++) {
+                                JSONObject likeObject = likesArray.getJSONObject(j);
+                                JSONObject likeUserObject = likeObject.getJSONObject("User");
+                                UserInfo likeUser = new UserInfo(likeUserObject.getInt("id"), likeUserObject.getString("profileUrl"), likeUserObject.getString("nickName"));
+                                likes.add(likeUser);
+
+                                if (likeUserObject.getInt("id") == myInfo.getUserID())
+                                    myLikePos = j;
+                            }
                             int commentNum = postObject.getInt("commentCount");
 
                             ArrayList<String> tags = new ArrayList<>();
@@ -122,18 +139,18 @@ public class TagPostActivity extends AppCompatActivity {
                                 tags.add(tagObject.getString("name"));
                             }
 
-                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, likeNum, commentNum, tags);
+                            PostInfoSimple post = new PostInfoSimple(postID, writerInfo, postTime, title, myLikePos, likes, commentNum, tags);
                             tagPostLists.add(post);
                         }
                     } catch (JSONException e) { e.printStackTrace(); }
                     if (tagPostLists.size() > 0)
-                        tvNoPost.setVisibility(View.GONE);
+                        tvPostInfo.setVisibility(View.GONE);
                     else
-                        tvNoPost.setVisibility(View.VISIBLE);
+                        tvPostInfo.setText("해당 태그를 가진 글이 존재하지 않습니다.\n다른 태그를 검색해 보세요:)");
                     adapter.notifyDataSetChanged();
                 }
                 else
-                    Toast.makeText(TagPostActivity.this, "다시 한번 검색해 주세요:)", Toast.LENGTH_SHORT).show();
+                    tvPostInfo.setText("글을 로드할 수 없음\n다시 로드해 주세요.");
 
                 if (isSwipe)
                     srlPosts.setRefreshing(false);
@@ -143,7 +160,8 @@ public class TagPostActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                 if (isSwipe)
                     srlPosts.setRefreshing(false);
-                Toast.makeText(TagPostActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+
+                tvPostInfo.setText("글을 로드할 수 없음\n다시 로드해 주세요.");
             }
         });
     }

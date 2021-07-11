@@ -8,24 +8,29 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.JsonObject;
 import com.nex3z.flowlayout.FlowLayout;
 import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.MainActivity;
 import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.PostActivity;
 import com.tave7.dobdob.R;
+import com.tave7.dobdob.RetrofitClient;
 import com.tave7.dobdob.TagPostActivity;
 import com.tave7.dobdob.data.PostInfoSimple;
+import com.tave7.dobdob.data.UserInfo;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,17 +40,20 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.tave7.dobdob.MainActivity.POST_REQUEST;
 import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapter.PostViewHolder> {
     private Context context;
-    private char whereActivity;
+    private char whereActivity;     //m: MainActivity, p: MyPageActivity, t: TagPostActivity
     private ArrayList<PostInfoSimple> postList;
 
     public PostRecyclerAdapter(char whereActivity, ArrayList<PostInfoSimple> postList) {
-        this.whereActivity = whereActivity;     //m: MainActivity, p: MyPageActivity, t: TagPostActivity
+        this.whereActivity = whereActivity;
         this.postList = postList;
     }
 
@@ -91,39 +99,59 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         } catch (ParseException e) { e.printStackTrace(); }
         holder.postTitle.setText(postList.get(position).getPostTitle());
 
-        boolean isClickedHeart = false;
-
-        /*      TODO: 바꿔야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        for (String user: postList.get(position).getHeartUsers()) {
-            if (user.equals(myInfo.getUserName())) {
-                isClickedHeart = true;
-                break;
-            }
-        }
-         */
-
-        if (isClickedHeart)   //사용자가 하트를 누른 사람 중 한명인 경우
+        if (postList.get(position).getMyLikePos() != -1)
             holder.ivHeart.setImageResource(R.drawable.heart_click);
         else
             holder.ivHeart.setImageResource(R.drawable.heart);
-
-        boolean IsHeartFull = isClickedHeart;
-        /*  TODO: 바꿔야 함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         holder.ivHeart.setOnClickListener(v -> {
-            if (IsHeartFull) {       //기존에는 하트가 눌렸었지만 하트를 취소함
-                postList.get(position).getHeartUsers().remove(myInfo.getUserName());
-                //TODO: DB에 하트를 취소했다고 추가해야 함!!
+            if (postList.get(position).getMyLikePos() != -1) {
+                RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postList.get(position).getPostID()).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("PostA 좋아요취소 성공", response.body());
+
+                        if (response.code() == 200) {
+                            postList.get(position).getLikes().remove(postList.get(position).getMyLikePos());
+                            postList.get(position).setMyLikePos(-1);
+                            notifyItemChanged(position);
+                        }
+                        else
+                            Toast.makeText(context, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Toast.makeText(context, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
             else {
-                postList.get(position).getHeartUsers().add(myInfo.getUserName());
-                //TODO: DB에 하트를 클릭했다고 추가해야 함!!
-            }
+                JsonObject likeInfo = new JsonObject();
+                likeInfo.addProperty("userId", myInfo.getUserID());
+                likeInfo.addProperty("postId", postList.get(position).getPostID());
+                RetrofitClient.getApiService().postLike(likeInfo).enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        Log.i("PostA 좋아요 성공", response.body());
 
-            notifyDataSetChanged();
+                        if (response.code() == 201) {
+                            postList.get(position).getLikes().add(new UserInfo(myInfo.getUserID(), myInfo.getUserProfileUrl(), myInfo.getUserName()));
+                            postList.get(position).setMyLikePos(postList.get(position).getLikes().size()-1);
+                            notifyItemChanged(position);
+                        }
+                        else
+                            Toast.makeText(context, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Toast.makeText(context, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         });
-         */
-        //holder.heartNum.setText(String.valueOf(postList.get(position).getHeartUsers().size()));
-        holder.heartNum.setText(String.valueOf(postList.get(position).getLikeNum()));
+        holder.heartNum.setText(String.valueOf(postList.get(position).getLikes().size()));
+
         holder.commentNum.setText(String.valueOf(postList.get(position).getCommentNum()));
 
         holder.tags.removeAllViews();

@@ -95,7 +95,6 @@ public class LoginActivity extends AppCompatActivity {
                                     bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!
                                 showIS.putExtras(bundle);
                                 startActivity(showIS);
-                                finish();
                             }
                             else {
                                 JSONObject user = loginInfo.getJSONObject("user");
@@ -109,8 +108,8 @@ public class LoginActivity extends AppCompatActivity {
                                             user.getJSONObject("Location").getDouble("locationX"), user.getJSONObject("Location").getDouble("locationY"));
 
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                finish();
                             }
+                            finish();
                         } catch (JSONException e) { e.printStackTrace(); }
 
                     }
