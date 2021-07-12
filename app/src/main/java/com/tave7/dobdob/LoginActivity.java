@@ -81,8 +81,7 @@ public class LoginActivity extends AppCompatActivity {
             RetrofitClient.getApiService().postKakaoToken(kakaoToken).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    Log.i("Login 연결성공1", response.toString());
-                    Log.i("Login 연결성공2", response.body());
+                    Log.i("Login 연결 성공", response.body());
                     if (response.code() == 200 || response.code() == 201) {
                         PreferenceManager.setString(LoginActivity.this, "access_token", oAuthToken.getAccessToken());
                         try {

@@ -336,31 +336,35 @@ public class ModifyProfileActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("MProfile 닉중복확인 성공", response.body());
+                        tvNameCheckInfo.setVisibility(View.VISIBLE);
                         if (response.code() == 200) {
                             try {
                                 JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
-
                                 if (result.getBoolean("isExisted")) {
-                                    tvNameCheckInfo.setVisibility(View.VISIBLE);
                                     tvNameCheckInfo.setText("이미 존재하는 닉네임입니다. 다른 닉네임을 사용해 주세요:)");
                                     tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
                                 }
                                 else {
                                     isChangeName = true;
                                     tmpUserInfo.setUserName(username);
-                                    tvNameCheckInfo.setVisibility(View.VISIBLE);
                                     tvNameCheckInfo.setText("사용 가능한 닉네임입니다:)");
                                     tvNameCheckInfo.setTextColor(Color.parseColor("#00AA7D"));
                                 }
-                            } catch (JSONException e) { e.printStackTrace(); }
+                            } catch (JSONException e) {
+                                tvNameCheckInfo.setText("닉네임 중복 확인을 다시 시도해 주세요:)");
+                                tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
+                            }
                         }
-                        else
-                            Toast.makeText(ModifyProfileActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                        else {
+                            tvNameCheckInfo.setText("닉네임 중복 확인을 다시 시도해 주세요:)");
+                            tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
+                        }
                     }
-
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Toast.makeText(ModifyProfileActivity.this, "다시 한번 닉네임 중복 확인해 주세요.", Toast.LENGTH_SHORT).show();
+                        tvNameCheckInfo.setVisibility(View.VISIBLE);
+                        tvNameCheckInfo.setText("닉네임 중복 확인을 다시 시도해 주세요:)");
+                        tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
                     }
                 });
             }

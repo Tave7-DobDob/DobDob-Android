@@ -174,7 +174,6 @@ public class InitialSettingActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().patchUserInfo(userID, userData).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("Initial 설정 성공", response.body());
                         if (response.code() == 200) {
                             myInfo = new UserInfo(userID, null, nickName, location.get("dong").getAsString(),
                                     location.get("detail").getAsString(), location.get("locationX").getAsDouble(), location.get("locationY").getAsDouble());
