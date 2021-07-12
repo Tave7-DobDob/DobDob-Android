@@ -43,7 +43,10 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull UserRecyclerAdapter.UsersViewHolder holder, int position) {
-        holder.civProfile.setImageBitmap(userList.get(position).getUserProfileBM());
+        if (userList.get(position).getUserProfileBM() == null)
+            holder.civProfile.setImageResource(R.drawable.user);
+        else
+            holder.civProfile.setImageBitmap(userList.get(position).getUserProfileBM());
         holder.tvName.setText(userList.get(position).getUserName());
     }
 

@@ -124,7 +124,7 @@
                     android:textAlignment="center"
                     android:lineSpacingExtra="8dp"
                     android:textColor="#666666"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/myPagePosts"

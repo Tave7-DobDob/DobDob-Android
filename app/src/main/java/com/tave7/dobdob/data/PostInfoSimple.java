@@ -10,18 +10,18 @@ public class PostInfoSimple implements Parcelable {
     private UserInfo writerInfo;
     private String postTime;
     private String postTitle;
-    private int myLikePos = -1;
-    private ArrayList<UserInfo> likes;
+    private int isILike;    //0이면 false, 1이면 true
+    private int likeNum;
     private int commentNum;
     private ArrayList<String> postTag;
 
-    public PostInfoSimple(int postID, UserInfo writerInfo, String postTime, String postTitle, int myLikePos, ArrayList<UserInfo> likes, int commentNum, ArrayList<String> postTag) {
+    public PostInfoSimple(int postID, UserInfo writerInfo, String postTime, String postTitle, int isILike, int likeNum, int commentNum, ArrayList<String> postTag) {
         this.postID = postID;
         this.writerInfo = writerInfo;
         this.postTime = postTime;
         this.postTitle = postTitle;
-        this.myLikePos = myLikePos;
-        this.likes = likes;
+        this.isILike = isILike;
+        this.likeNum = likeNum;
         this.commentNum = commentNum;
         this.postTag = postTag;
     }
@@ -31,8 +31,8 @@ public class PostInfoSimple implements Parcelable {
         writerInfo = in.readParcelable(UserInfo.class.getClassLoader());
         postTime = in.readString();
         postTitle = in.readString();
-        likes = new ArrayList<>();
-        in.readTypedList(likes, UserInfo.CREATOR);
+        isILike = in.readInt();
+        likeNum = in.readInt();
         commentNum = in.readInt();
         postTag = in.createStringArrayList();
     }
@@ -54,13 +54,14 @@ public class PostInfoSimple implements Parcelable {
     public String getWriterAddress() { return writerInfo.getUserAddress(); }
     public String getPostTime() { return postTime; }
     public String getPostTitle() { return postTitle; }
-    public int getMyLikePos() { return myLikePos; }
-    public ArrayList<UserInfo> getLikes() { return likes; }
+    public int getIsILike() { return isILike; }
+    public int getLikeNum() { return likeNum; }
     public int getCommentNum() { return commentNum; }
     public ArrayList<String> getPostTag() { return postTag; }
 
     public void setPostTitle(String postTitle) { this.postTitle = postTitle; }
-    public void setMyLikePos(int myLikePos) { this.myLikePos = myLikePos; }
+    public void setIsILike(int isILike) { this.isILike = isILike; }
+    public void setLikeNum(int likeNum) { this.likeNum = likeNum; }
     public void setCommentNum(int commentNum) { this.commentNum = commentNum; }
 
     @Override
@@ -72,7 +73,8 @@ public class PostInfoSimple implements Parcelable {
         dest.writeParcelable(writerInfo, flags);
         dest.writeString(postTime);
         dest.writeString(postTitle);
-        dest.writeTypedList(likes);
+        dest.writeInt(isILike);
+        dest.writeInt(likeNum);
         dest.writeInt(commentNum);
         dest.writeStringList(postTag);
     }

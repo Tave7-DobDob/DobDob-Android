@@ -70,20 +70,20 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         holder.writerTown.setText(postList.get(position).getWriterTown());
         holder.postTime.setText(postList.get(position).getPostTime());
         holder.postTitle.setText(postList.get(position).getPostTitle());
-        if (postList.get(position).getMyLikePos() != -1)
+        if (postList.get(position).getIsILike() == 1)
             holder.ivHeart.setImageResource(R.drawable.heart_click);
         else
             holder.ivHeart.setImageResource(R.drawable.heart);
         holder.ivHeart.setOnClickListener(v -> {
-            if (postList.get(position).getMyLikePos() != -1) {
+            if (postList.get(position).getIsILike() == 1) {
                 RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postList.get(position).getPostID()).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("PostA 좋아요취소 성공", response.body());
 
                         if (response.code() == 200) {
-                            postList.get(position).getLikes().remove(postList.get(position).getMyLikePos());
-                            postList.get(position).setMyLikePos(-1);
+                            postList.get(position).setIsILike(0);
+                            postList.get(position).setLikeNum(postList.get(position).getLikeNum()-1);
                             notifyItemChanged(position);
                         }
                     }
@@ -103,8 +103,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("PostA 좋아요 성공", response.body());
                         if (response.code() == 201) {
-                            postList.get(position).getLikes().add(new UserInfo(myInfo.getUserID(), myInfo.getUserProfileUrl(), myInfo.getUserName()));
-                            postList.get(position).setMyLikePos(postList.get(position).getLikes().size()-1);
+                            postList.get(position).setIsILike(1);
+                            postList.get(position).setLikeNum(postList.get(position).getLikeNum()+1);
                             notifyItemChanged(position);
                         }
                     }
@@ -116,7 +116,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 });
             }
         });
-        holder.heartNum.setText(String.valueOf(postList.get(position).getLikes().size()));
+        holder.heartNum.setText(String.valueOf(postList.get(position).getLikeNum()));
         holder.commentNum.setText(String.valueOf(postList.get(position).getCommentNum()));
 
         holder.tags.removeAllViews();

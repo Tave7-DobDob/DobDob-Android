@@ -43,7 +43,6 @@ public class PostInfoDetail implements Parcelable {
     public PostInfoSimple getPostInfoSimple() { return postInfoSimple; }
     public String getPostContent() { return postContent; }
     public ArrayList<String> getPostImages() { return postImages; }
-    public ArrayList<UserInfo> getLikes() { return getPostInfoSimple().getLikes(); }
     public ArrayList<CommentInfo> getComments() { return comments; }
 
     public void setPostContent(String postContent) { this.postContent = postContent; }

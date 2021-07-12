@@ -193,16 +193,14 @@ public class PostActivity extends AppCompatActivity {
                         }
 
                         JSONArray likesArray = postInfo.getJSONArray("Likes");
-                        postInfoDetail.getLikes().clear();
-                        for (int i=0; i<likesArray.length(); i++) {
-                            JSONObject likeObject = likesArray.getJSONObject(i);
-                            JSONObject userObject = likeObject.getJSONObject("User");
-                            UserInfo likeUser = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"));
-                            postInfoDetail.getLikes().add(likeUser);
-
-                            if (likeUser.getUserID() == myInfo.getUserID())
-                                postInfoDetail.getPostInfoSimple().setMyLikePos(i);
+                        for (int j=0; j<likesArray.length(); j++) {
+                            JSONObject likeObject = likesArray.getJSONObject(j);
+                            if (likeObject.getJSONObject("User").getInt("id") == myInfo.getUserID()) {
+                                postInfoDetail.getPostInfoSimple().setIsILike(1);
+                                break;
+                            }
                         }
+                        postInfoDetail.getPostInfoSimple().setLikeNum(postInfo.getInt("likeCount"));
 
                         JSONArray commentArray = postInfo.getJSONArray("Comments");
                         postInfoDetail.getComments().clear();
@@ -246,11 +244,11 @@ public class PostActivity extends AppCompatActivity {
                         photoAdapter.notifyDataSetChanged();
                     }
 
-                    if (postInfoDetail.getPostInfoSimple().getMyLikePos() != -1)
+                    if (postInfoDetail.getPostInfoSimple().getIsILike() == 1)
                         ivHeart.setImageResource(R.drawable.heart_click);
                     else
                         ivHeart.setImageResource(R.drawable.heart);
-                    tvHeartNums.setText(String.valueOf(postInfoDetail.getLikes().size()));
+                    tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
                     tvCommentNums.setText(String.valueOf(postInfoDetail.getComments().size()));
 
                     if (postInfoDetail.getPostInfoSimple().getPostTag().size() > 0) {
@@ -304,18 +302,18 @@ public class PostActivity extends AppCompatActivity {
         });
 
         ivHeart.setOnClickListener(v -> {
-            if (postInfoDetail.getPostInfoSimple().getMyLikePos() != -1) {
+            if (postInfoDetail.getPostInfoSimple().getIsILike() == 1) {
                 RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postID).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("PostA 좋아요취소 성공", response.body());
 
                         if (response.code() == 200) {
-                            postInfoDetail.getLikes().remove(postInfoDetail.getPostInfoSimple().getMyLikePos());
-                            postInfoDetail.getPostInfoSimple().setMyLikePos(-1);
+                            postInfoDetail.getPostInfoSimple().setIsILike(0);
+                            postInfoDetail.getPostInfoSimple().setLikeNum(postInfoDetail.getPostInfoSimple().getLikeNum()-1);
 
                             ivHeart.setImageResource(R.drawable.heart);
-                            tvHeartNums.setText(String.valueOf(postInfoDetail.getLikes().size()));
+                            tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
                         }
                         else
                             Toast.makeText(PostActivity.this, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
@@ -337,11 +335,11 @@ public class PostActivity extends AppCompatActivity {
                         Log.i("PostA 좋아요 성공", response.body());
 
                         if (response.code() == 201) {
-                            postInfoDetail.getLikes().add(new UserInfo(myInfo.getUserID(), myInfo.getUserProfileUrl(), myInfo.getUserName()));
-                            postInfoDetail.getPostInfoSimple().setMyLikePos(postInfoDetail.getLikes().size()-1);
+                            postInfoDetail.getPostInfoSimple().setIsILike(1);
+                            postInfoDetail.getPostInfoSimple().setLikeNum(postInfoDetail.getPostInfoSimple().getLikeNum()+1);
 
                             ivHeart.setImageResource(R.drawable.heart_click);
-                            tvHeartNums.setText(String.valueOf(postInfoDetail.getLikes().size()));
+                            tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
                         }
                         else
                             Toast.makeText(PostActivity.this, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
@@ -358,7 +356,7 @@ public class PostActivity extends AppCompatActivity {
         llLike.setOnClickListener(v -> {
             Intent showLikeUsers = new Intent(PostActivity.this, LikeUserActivity.class);
             Bundle sluBundle = new Bundle();
-                sluBundle.putParcelableArrayList("likeUsers", postInfoDetail.getLikes());
+                sluBundle.putInt("postID", postID);
             showLikeUsers.putExtras(sluBundle);
             startActivity(showLikeUsers);
         });
@@ -384,7 +382,7 @@ public class PostActivity extends AppCompatActivity {
 
             String writeComment = etWriteComment.getText().toString().trim();
             writeComment = writeComment.concat(" ");
-            if (writeComment.length() > 1) { 
+            if (writeComment.length() > 1) {
                 JsonObject commentInfo = new JsonObject();
                 commentInfo.addProperty("postId", postID);
                 commentInfo.addProperty("userId", myInfo.getUserID());
