@@ -83,8 +83,7 @@ public class PostActivity extends AppCompatActivity {
     private PostPhotosPagerAdapter photoAdapter;
     private SwipeRefreshLayout srlPost;
     private TextView tvTitle, tvContent, tvHeartNums, tvCommentNums, tvNoComment;
-    
-    @SuppressLint("SetTextI18n")
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,6 +168,11 @@ public class PostActivity extends AppCompatActivity {
                     postInfoDetail.getComments().clear();
                     try {
                         JSONObject postInfo = new JSONObject(Objects.requireNonNull(response.body())).getJSONObject("post");
+                        //TODO: 변경했으니 확인 필요!!!
+                        postInfoDetail.getPostInfoSimple().getWriterInfo().setUserTown(postInfo.getJSONObject("Location").getString("dong"));
+                        postInfoDetail.getPostInfoSimple().getWriterInfo().setLocationX(postInfo.getJSONObject("Location").getDouble("locationX"));
+                        postInfoDetail.getPostInfoSimple().getWriterInfo().setLocationY(postInfo.getJSONObject("Location").getDouble("locationY"));
+
                         if (!postInfoDetail.getPostInfoSimple().getPostTitle().equals(postInfo.getString("title"))){
                             postInfoDetail.getPostInfoSimple().setPostTitle(postInfo.getString("title"));
                             tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
@@ -428,6 +432,8 @@ public class PostActivity extends AppCompatActivity {
                 Intent showContainTagPost = new Intent(PostActivity.this, TagPostActivity.class);
                 Bundle sctBundle = new Bundle();
                     sctBundle.putString("tagName", searchTag);
+                    sctBundle.putDouble("locationX", postInfoDetail.getPostInfoSimple().getWriterInfo().getLocationX());
+                    sctBundle.putDouble("locationY", postInfoDetail.getPostInfoSimple().getWriterInfo().getLocationY());
                 showContainTagPost.putExtras(sctBundle);
                 startActivity(showContainTagPost);
             });

@@ -235,15 +235,19 @@ public class MyPageActivity extends AppCompatActivity {
                         JSONArray jsonPosts = result.getJSONArray("posts");
                         for (int i=0; i < jsonPosts.length(); i++) {
                             JSONObject postObject = jsonPosts.getJSONObject(i);
+                            JSONObject userObject = postObject.getJSONObject("User");
+                            JSONObject locationObject = postObject.getJSONObject("Location");
 
                             int postID = postObject.getInt("id");
 
-                            JSONObject userObject = postObject.getJSONObject("User");
                             UserInfo writerInfo;
                             if (userObject.isNull("profileUrl"))
-                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"),
+                                        locationObject.getString("dong"), locationObject.getDouble("locationX"), locationObject.getDouble("locationY"));
+
                             else
-                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"),
+                                        locationObject.getString("dong"), locationObject.getDouble("locationX"), locationObject.getDouble("locationY"));
                             Bitmap writerProfile = null;
                             try {
                                 writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();

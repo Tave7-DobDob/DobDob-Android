@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.gson.JsonObject;
 import com.tave7.dobdob.adapter.PostRecyclerAdapter;
 import com.tave7.dobdob.data.PostInfoSimple;
 import com.tave7.dobdob.data.UserInfo;
@@ -43,6 +44,8 @@ import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class TagPostActivity extends AppCompatActivity {
     private String tagName = "";
+    private Double locationX = -1.0;
+    private Double locationY = -1.0;
     private ArrayList<PostInfoSimple> tagPostLists = null;
 
     private PostRecyclerAdapter adapter;
@@ -56,6 +59,10 @@ public class TagPostActivity extends AppCompatActivity {
 
         tagPostLists = new ArrayList<>();
         tagName = getIntent().getExtras().getString("tagName");
+        locationX = getIntent().getExtras().getDouble("locationX");
+        locationY = getIntent().getExtras().getDouble("locationY");
+
+        Log.i("확인용 태그포스트", tagName + locationX + locationY);
 
         Toolbar toolbar = findViewById(R.id.tagPost_toolbar);
         setSupportActionBar(toolbar);
@@ -90,7 +97,12 @@ public class TagPostActivity extends AppCompatActivity {
 
         tvPostInfo.setVisibility(View.VISIBLE);
         tvPostInfo.setText("해당 태그를 가진 글을 찾고 있습니다. \uD83D\uDD0D");
-        RetrofitClient.getApiService().getTagPost(tagName).enqueue(new Callback<String>() {
+
+        JsonObject tagPostInfo = new JsonObject();
+        tagPostInfo.addProperty("keyword", tagName);
+        tagPostInfo.addProperty("locationX", locationX);
+        tagPostInfo.addProperty("locationY", locationY);
+        RetrofitClient.getApiService().postTagPost(tagPostInfo).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 Log.i("TagPostA 태그검색 성공", response.body());

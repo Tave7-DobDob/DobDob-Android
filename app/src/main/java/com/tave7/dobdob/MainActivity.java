@@ -149,26 +149,33 @@ public class MainActivity extends AppCompatActivity {
                         
                         tvPostInfo.setVisibility(View.VISIBLE);
                         tvPostInfo.setText("해당 태그를 가진 글을 찾고 있습니다. \uD83D\uDD0D");
-                        RetrofitClient.getApiService().getTagPost(searchTag).enqueue(new Callback<String>() {
+
+                        JsonObject tagPostInfo = new JsonObject();
+                        tagPostInfo.addProperty("keyword", searchTag);
+                        tagPostInfo.addProperty("locationX", location.get("locationX").getAsDouble());
+                        tagPostInfo.addProperty("locationY", location.get("locationY").getAsDouble());
+                        RetrofitClient.getApiService().postTagPost(tagPostInfo).enqueue(new Callback<String>() {
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                                 Log.i("MainA 태그검색 성공", response.body());
                                 if (response.code() == 200) {
-                                    //TODO: 태그 내용 없을 시에 대한 상황 설정!!!!!!!!!!!!!!!필요!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
                                     try {
                                         JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
                                         JSONArray jsonPosts = result.getJSONArray("posts");
                                         for (int i=0; i<jsonPosts.length(); i++) {
                                             JSONObject postObject = jsonPosts.getJSONObject(i);
+                                            JSONObject userObject = postObject.getJSONObject("User");
+                                            JSONObject locationObject = postObject.getJSONObject("Location");
 
                                             int postID = postObject.getInt("id");
 
-                                            JSONObject userObject = postObject.getJSONObject("User");
                                             UserInfo writerInfo;
                                             if (userObject.isNull("profileUrl"))
-                                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"),
+                                                        locationObject.getString("dong"), locationObject.getDouble("locationX"), locationObject.getDouble("locationY"));
                                             else
-                                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"),
+                                                        locationObject.getString("dong"), locationObject.getDouble("locationX"), locationObject.getDouble("locationY"));
                                             Bitmap writerProfile = null;
                                             try {
                                                 writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
@@ -233,7 +240,12 @@ public class MainActivity extends AppCompatActivity {
 
                     tvPostInfo.setVisibility(View.VISIBLE);
                     tvPostInfo.setText("해당 제목을 가진 글을 찾고 있습니다. \uD83D\uDD0D");
-                    RetrofitClient.getApiService().getTitlePost(query.trim()).enqueue(new Callback<String>() {
+
+                    JsonObject titlePostInfo = new JsonObject();
+                    titlePostInfo.addProperty("keyword", query.trim());
+                    titlePostInfo.addProperty("locationX", location.get("locationX").getAsDouble());
+                    titlePostInfo.addProperty("locationY", location.get("locationY").getAsDouble());
+                    RetrofitClient.getApiService().postTitlePost(titlePostInfo).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                             Log.i("MainA 제목검색 성공", response.body());
@@ -243,15 +255,18 @@ public class MainActivity extends AppCompatActivity {
                                     JSONArray jsonPosts = result.getJSONArray("posts");
                                     for (int i=0; i<jsonPosts.length(); i++) {
                                         JSONObject postObject = jsonPosts.getJSONObject(i);
+                                        JSONObject userObject = postObject.getJSONObject("User");
+                                        JSONObject locationObject = postObject.getJSONObject("Location");
 
                                         int postID = postObject.getInt("id");
 
-                                        JSONObject userObject = postObject.getJSONObject("User");
                                         UserInfo writerInfo;
                                         if (userObject.isNull("profileUrl"))
-                                            writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                            writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"),
+                                                    locationObject.getString("dong"), locationObject.getDouble("locationX"), locationObject.getDouble("locationY"));
                                         else
-                                            writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                            writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"),
+                                                    locationObject.getString("dong"), locationObject.getDouble("locationX"), locationObject.getDouble("locationY"));
                                         Bitmap writerProfile = null;
                                         try {
                                             writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();
@@ -428,15 +443,19 @@ public class MainActivity extends AppCompatActivity {
                         JSONArray jsonPosts = result.getJSONArray("posts");
                         for (int i=0; i<jsonPosts.length(); i++) {
                             JSONObject postObject = jsonPosts.getJSONObject(i);
+                            JSONObject userObject = postObject.getJSONObject("User");
+                            JSONObject locationObject = postObject.getJSONObject("Location");
 
                             int postID = postObject.getInt("id");
-                            JSONObject userObject = postObject.getJSONObject("User");
 
                             UserInfo writerInfo;
                             if (userObject.isNull("profileUrl"))
-                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                writerInfo = new UserInfo(userObject.getInt("id"), null, userObject.getString("nickName"),
+                                        locationObject.getString("dong"), locationObject.getDouble("locationX"), locationObject.getDouble("locationY"));
+
                             else
-                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"), postObject.getJSONObject("Location").getString("dong"));
+                                writerInfo = new UserInfo(userObject.getInt("id"), userObject.getString("profileUrl"), userObject.getString("nickName"),
+                                        locationObject.getString("dong"), locationObject.getDouble("locationX"), locationObject.getDouble("locationY"));
                             Bitmap writerProfile = null;
                             try {
                                 writerProfile = new DownloadFileTask(userObject.getString("profileUrl")).execute().get();

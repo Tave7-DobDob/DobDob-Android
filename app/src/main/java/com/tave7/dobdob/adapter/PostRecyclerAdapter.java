@@ -26,7 +26,6 @@ import com.tave7.dobdob.R;
 import com.tave7.dobdob.RetrofitClient;
 import com.tave7.dobdob.TagPostActivity;
 import com.tave7.dobdob.data.PostInfoSimple;
-import com.tave7.dobdob.data.UserInfo;
 
 import java.util.ArrayList;
 
@@ -139,6 +138,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     Intent showContainTagPost = new Intent(context, TagPostActivity.class);
                     Bundle sctBundle = new Bundle();
                         sctBundle.putString("tagName", searchTag);
+                        sctBundle.putDouble("locationX", postList.get(position).getWriterInfo().getLocationX());
+                        sctBundle.putDouble("locationY", postList.get(position).getWriterInfo().getLocationY());
                     showContainTagPost.putExtras(sctBundle);
                     context.startActivity(showContainTagPost);
                 });

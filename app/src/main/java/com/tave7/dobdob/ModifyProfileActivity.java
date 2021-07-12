@@ -40,6 +40,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -117,12 +119,28 @@ public class ModifyProfileActivity extends AppCompatActivity {
         tvOK.setOnClickListener(v -> {
             boolean isChangeAddress = !tmpUserInfo.getUserAddress().equals("") && !tmpUserInfo.getUserAddress().equals(myInfo.getUserAddress());
 
-            if (isChangeProfile) {      //TODO: null이 되는 지를 확인해야 함!!!!
+            if (isChangeProfile) {      //TODO: null 가능하도록 해야 함!!
                 tvOK.setEnabled(false);
 
-                MultipartBody.Part postImage = null;
+                MultipartBody.Part postImage;
                 if (tmpProfileImg != null)
                     postImage = MultipartBody.Part.createFormData("profileImage", tmpProfileImg.getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tmpProfileImg));
+                else {
+                    File tempFile = null;
+                    Bitmap userProfile = ((BitmapDrawable) Objects.requireNonNull(ResourcesCompat.getDrawable(getResources(), R.drawable.user, null))).getBitmap();
+                    try {
+                        tempFile = File.createTempFile("userimage_", ".jpg", getCacheDir());
+                        FileOutputStream out = new FileOutputStream(tempFile);
+                        userProfile.compress(Bitmap.CompressFormat.JPEG, 90 , out);
+                        out.close();
+                    } catch (IOException e) { e.printStackTrace(); }
+
+                    postImage = MultipartBody.Part.createFormData("profileImage", Objects.requireNonNull(tempFile).getName(), RequestBody.create(MediaType.parse("multipart/form-data"), tempFile));
+
+                    if (tempFile.exists()){
+                        tempFile.deleteOnExit();
+                    }
+                }
 
                 RetrofitClient.getApiService().patchUserProfileImg(myInfo.getUserID(), postImage).enqueue(new Callback<String>() {
                     @Override
@@ -197,6 +215,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        Log.i("MProfileImg 설정 실패", t.getMessage());
                         Toast.makeText(ModifyProfileActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
                 });

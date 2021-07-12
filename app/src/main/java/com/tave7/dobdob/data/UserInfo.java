@@ -11,8 +11,8 @@ public class UserInfo implements Parcelable {
     private String userName;
     private String userTown = "";
     private String userAddress = null;
-    private double locationX = -1;
-    private double locationY = -1;
+    private Double locationX = -1.0;
+    private Double locationY = -1.0;
 
     public UserInfo(int userID, String userProfileUrl, String userName) {      //좋아요에서 활용
         this.userID = userID;
@@ -25,6 +25,15 @@ public class UserInfo implements Parcelable {
         this.userProfileUrl = userProfileUrl;
         this.userName = userName;
         this.userTown = userTown;
+    }
+
+    public UserInfo(int userID, String userProfileUrl, String userName, String userTown, Double locationX, Double locationY) {
+        this.userID = userID;
+        this.userProfileUrl = userProfileUrl;
+        this.userName = userName;
+        this.userTown = userTown;
+        this.locationX = locationX;
+        this.locationY = locationY;
     }
 
     public UserInfo(int userID, String userProfileUrl, String userName, String userTown, String userAddress, double locationX, double locationY) {
@@ -61,8 +70,8 @@ public class UserInfo implements Parcelable {
     public String getUserName() { return userName; }
     public String getUserTown() { return userTown; }
     public String getUserAddress() { return userAddress; }
-    public double getLocationX() { return locationX; }
-    public double getLocationY() { return locationY; }
+    public Double getLocationX() { return locationX; }
+    public Double getLocationY() { return locationY; }
 
     public void setUserID(int userID) { this.userID = userID; }
     public void setUserProfileUrl(String userProfileUrl) { this.userProfileUrl = userProfileUrl; }
@@ -70,8 +79,8 @@ public class UserInfo implements Parcelable {
     public void setUserName(String userName) { this.userName = userName; }
     public void setUserTown(String userTown) { this.userTown = userTown; }
     public void setUserAddress(String userAddress) { this.userAddress = userAddress; }
-    public void setLocationX(double locationX) { this.locationX = locationX; }
-    public void setLocationY(double locationY) { this.locationY = locationY; }
+    public void setLocationX(Double locationX) { this.locationX = locationX; }
+    public void setLocationY(Double locationY) { this.locationY = locationY; }
 
     @Override
     public int describeContents() { return 0; }
