@@ -52,6 +52,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
@@ -72,6 +73,7 @@ public class PostActivity extends AppCompatActivity {
     boolean isWriter = false;
     boolean isDeleted = false, isEdited = false;
     PostInfoDetail postInfoDetail;
+    ArrayList<Bitmap> postImagesBM = null;
 
     private CommentRecyclerAdapter commentAdapter;
     private FrameLayout flImages;
@@ -122,10 +124,11 @@ public class PostActivity extends AppCompatActivity {
             tvPostTime.setText(postInfoDetail.getPostInfoSimple().getPostTime());
         tvContent = findViewById(R.id.post_content);
 
+        postImagesBM = new ArrayList<>();
         flImages = findViewById(R.id.post_flImages);
         CircleIndicator3 indicator = findViewById(R.id.indicator);
         ViewPager2 viewpager2 = findViewById(R.id.vpPostPhotos);
-        photoAdapter = new PostPhotosPagerAdapter(postInfoDetail.getPostImages());
+        photoAdapter = new PostPhotosPagerAdapter(postImagesBM);
         viewpager2.setAdapter(photoAdapter);
         indicator.setViewPager(viewpager2);
         photoAdapter.registerAdapterDataObserver(indicator.getAdapterDataObserver());
@@ -175,6 +178,11 @@ public class PostActivity extends AppCompatActivity {
                         JSONArray postImages = postInfo.getJSONArray("PostImages");
                         for (int i=0; i<postImages.length(); i++) {
                             postInfoDetail.getPostImages().add(postImages.getJSONObject(i).getString("url"));
+                            Bitmap postImageBM = null;
+                            try {
+                                postImageBM = new DownloadFileTask(postImages.getJSONObject(i).getString("url")).execute().get();
+                            } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
+                            postImagesBM.add(postImageBM);
                         }
 
                         JSONArray tagsArray = postInfo.getJSONArray("Tags");
@@ -376,7 +384,7 @@ public class PostActivity extends AppCompatActivity {
 
             String writeComment = etWriteComment.getText().toString().trim();
             writeComment = writeComment.concat(" ");
-            if (writeComment.length() != 0) {
+            if (writeComment.length() > 1) { 
                 JsonObject commentInfo = new JsonObject();
                 commentInfo.addProperty("postId", postID);
                 commentInfo.addProperty("userId", myInfo.getUserID());

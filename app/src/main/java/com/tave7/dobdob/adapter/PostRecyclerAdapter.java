@@ -67,18 +67,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         else
             holder.writerProfile.setImageBitmap(postList.get(position).getWriterInfo().getUserProfileBM());
         holder.writerName.setText(postList.get(position).getWriterName());
-        holder.writerName.setOnClickListener(v -> {
-            Intent showProfilePage = new Intent(context, MyPageActivity.class);
-            Bundle sppBundle = new Bundle();
-            if (myInfo.getUserID() != postList.get(position).getWriterID())
-                sppBundle.putInt("userID", postList.get(position).getWriterID());
-            showProfilePage.putExtras(sppBundle);
-            context.startActivity(showProfilePage);
-        });
         holder.writerTown.setText(postList.get(position).getWriterTown());
         holder.postTime.setText(postList.get(position).getPostTime());
         holder.postTitle.setText(postList.get(position).getPostTitle());
-
         if (postList.get(position).getMyLikePos() != -1)
             holder.ivHeart.setImageResource(R.drawable.heart_click);
         else
@@ -111,7 +102,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         Log.i("PostA 좋아요 성공", response.body());
-
                         if (response.code() == 201) {
                             postList.get(position).getLikes().add(new UserInfo(myInfo.getUserID(), myInfo.getUserProfileUrl(), myInfo.getUserName()));
                             postList.get(position).setMyLikePos(postList.get(position).getLikes().size()-1);
@@ -127,7 +117,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             }
         });
         holder.heartNum.setText(String.valueOf(postList.get(position).getLikes().size()));
-
         holder.commentNum.setText(String.valueOf(postList.get(position).getCommentNum()));
 
         holder.tags.removeAllViews();
@@ -199,6 +188,18 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                         ((MyPageActivity) context).startActivityForResult(showPostPage, POST_REQUEST);
                     else
                         ((TagPostActivity) context).startActivityForResult(showPostPage, POST_REQUEST);
+                }
+            });
+
+            writerName.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    Intent showProfilePage = new Intent(context, MyPageActivity.class);
+                    Bundle sppBundle = new Bundle();
+                    if (myInfo.getUserID() != postList.get(pos).getWriterID())
+                        sppBundle.putInt("userID", postList.get(pos).getWriterID());
+                    showProfilePage.putExtras(sppBundle);
+                    context.startActivity(showProfilePage);
                 }
             });
         }

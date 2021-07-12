@@ -13,17 +13,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.tave7.dobdob.DownloadFileTask;
 import com.tave7.dobdob.R;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPagerAdapter.PhotosViewHolder> {
     private Context context;
-    private ArrayList<String> photoList;
+    private ArrayList<Bitmap> photoList;
 
-    public PostPhotosPagerAdapter(ArrayList<String> photoList) {
+    public PostPhotosPagerAdapter(ArrayList<Bitmap> photoList) {
         this.photoList = photoList;
     }
 
@@ -41,19 +39,14 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
 
     @Override
     public void onBindViewHolder(@NonNull PostPhotosPagerAdapter.PhotosViewHolder holder, int position) {
-        Bitmap photo = null;
-        try {
-            photo = new DownloadFileTask(photoList.get(position)).execute().get();
-        } catch (ExecutionException | InterruptedException e) { e.printStackTrace(); }
-
-        if (photo == null) {
+        if (photoList.get(position) == null) {
             holder.tvLoadFail.setVisibility(View.VISIBLE);
             holder.ivPhoto.setVisibility(View.GONE);
         }
         else {
             holder.tvLoadFail.setVisibility(View.GONE);
             holder.ivPhoto.setVisibility(View.VISIBLE);
-            holder.ivPhoto.setImageBitmap(photo);
+            holder.ivPhoto.setImageBitmap(photoList.get(position));
         }
     }
 
