@@ -122,9 +122,11 @@ public class PostActivity extends AppCompatActivity {
         TextView tvPostTime = findViewById(R.id.post_time);
             tvPostTime.setText(postInfoDetail.getPostInfoSimple().getPostTime());
         tvContent = findViewById(R.id.post_content);
+            tvContent.setVisibility(View.VISIBLE);
 
         postImagesBM = new ArrayList<>();
         flImages = findViewById(R.id.post_flImages);
+            flImages.setVisibility(View.VISIBLE);
         CircleIndicator3 indicator = findViewById(R.id.indicator);
         ViewPager2 viewpager2 = findViewById(R.id.vpPostPhotos);
         photoAdapter = new PostPhotosPagerAdapter(postImagesBM);
@@ -168,7 +170,6 @@ public class PostActivity extends AppCompatActivity {
                     postInfoDetail.getComments().clear();
                     try {
                         JSONObject postInfo = new JSONObject(Objects.requireNonNull(response.body())).getJSONObject("post");
-                        //TODO: 변경했으니 확인 필요!!!
                         postInfoDetail.getPostInfoSimple().getWriterInfo().setUserTown(postInfo.getJSONObject("Location").getString("dong"));
                         postInfoDetail.getPostInfoSimple().getWriterInfo().setLocationX(postInfo.getJSONObject("Location").getDouble("locationX"));
                         postInfoDetail.getPostInfoSimple().getWriterInfo().setLocationY(postInfo.getJSONObject("Location").getDouble("locationY"));
@@ -239,6 +240,7 @@ public class PostActivity extends AppCompatActivity {
                     } catch (JSONException e) { e.printStackTrace(); }
 
                     tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
+                    tvContent.setVisibility(View.VISIBLE);
                     tvContent.setText(postInfoDetail.getPostContent());
 
                     if (postInfoDetail.getPostImages().size() == 0)

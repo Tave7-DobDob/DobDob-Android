@@ -62,8 +62,6 @@ public class TagPostActivity extends AppCompatActivity {
         locationX = getIntent().getExtras().getDouble("locationX");
         locationY = getIntent().getExtras().getDouble("locationY");
 
-        Log.i("확인용 태그포스트", tagName + locationX + locationY);
-
         Toolbar toolbar = findViewById(R.id.tagPost_toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
