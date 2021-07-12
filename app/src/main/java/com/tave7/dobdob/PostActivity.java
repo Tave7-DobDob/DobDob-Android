@@ -209,7 +209,7 @@ public class PostActivity extends AppCompatActivity {
 
                         JSONArray commentArray = postInfo.getJSONArray("Comments");
                         postInfoDetail.getComments().clear();
-                        for (int i=0; i<commentArray.length(); i++) {
+                        for (int i=commentArray.length()-1; i>=0; i--) {
                             JSONObject commentObject = commentArray.getJSONObject(i);
 
                             JSONObject commenterObject = commentObject.getJSONObject("User");

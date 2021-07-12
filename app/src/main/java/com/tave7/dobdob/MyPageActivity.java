@@ -44,11 +44,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.tave7.dobdob.MainActivity.POST_REQUEST;
 import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class MyPageActivity extends AppCompatActivity {
     private static final int EDIT_PROFILE_REQUEST = 8000;
 
+    int userID = -1;
     boolean isMyPage = true;
     boolean isChangeProfile = false, isChangeName = false, isChangeAddress = false;
     UserInfo otherInfo = null;
@@ -67,6 +69,7 @@ public class MyPageActivity extends AppCompatActivity {
 
         userPostList = new ArrayList<>();
         isMyPage = !getIntent().hasExtra("userID");
+        userID = isMyPage? myInfo.getUserID() : getIntent().getExtras().getInt("userID");
 
         Toolbar toolbar = findViewById(R.id.myPage_toolbar);
         setSupportActionBar(toolbar);
@@ -90,7 +93,6 @@ public class MyPageActivity extends AppCompatActivity {
         rvMyPagePosts.addItemDecoration(devider);
 
         if (!isMyPage) {
-            int userID = getIntent().getExtras().getInt("userID");
             RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -217,6 +219,9 @@ public class MyPageActivity extends AppCompatActivity {
                 tvUserTown.setText(myInfo.getUserTown());
             }
         }
+        else if (requestCode == POST_REQUEST && resultCode == RESULT_OK) {
+            setWhosePosts(userID);
+        }
     }
 
     public void setWhosePosts(int whoseID) {   //해당 user의 post글들을 모두 받아옴
@@ -224,7 +229,10 @@ public class MyPageActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         tvPostInfo.setVisibility(View.VISIBLE);
-        tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
+        if (isMyPage)
+            tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
+        else
+            tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
         RetrofitClient.getApiService().getUserPosts(whoseID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -292,16 +300,27 @@ public class MyPageActivity extends AppCompatActivity {
                         tvPostInfo.setVisibility(View.GONE);
                         adapter.notifyDataSetChanged();
                     }
-                    else
-                        tvPostInfo.setText(myInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
+                    else {
+                        if (isMyPage)
+                            tvPostInfo.setText(myInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
+                        else
+                            tvPostInfo.setText(otherInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
+                    }
                 }
-                else
-                    tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 로드할 수 없음\n다시 로드해 주세요."));
+                else {
+                    if (isMyPage)
+                        tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 로드할 수 없음\n다시 로드해 주세요."));
+                    else
+                        tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 로드할 수 없음\n다시 로드해 주세요."));
+                }
             }
 
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 로드할 수 없음\n다시 로드해 주세요."));
+                if (isMyPage)
+                    tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 로드할 수 없음\n다시 로드해 주세요."));
+                else
+                    tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 로드할 수 없음\n다시 로드해 주세요."));
             }
         });
     }

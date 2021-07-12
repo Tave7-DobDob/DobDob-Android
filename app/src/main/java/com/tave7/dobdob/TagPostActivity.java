@@ -1,6 +1,7 @@
 package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -40,6 +42,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.tave7.dobdob.MainActivity.POST_REQUEST;
 import static com.tave7.dobdob.MainActivity.myInfo;
 
 public class TagPostActivity extends AppCompatActivity {
@@ -179,6 +182,15 @@ public class TagPostActivity extends AppCompatActivity {
                 tvPostInfo.setText("글을 로드할 수 없음\n다시 로드해 주세요.");
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == POST_REQUEST && resultCode == RESULT_OK) {
+            setTagPost(false);
+        }
     }
 
     @Override
