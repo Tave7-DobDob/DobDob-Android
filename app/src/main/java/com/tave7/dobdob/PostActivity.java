@@ -301,8 +301,10 @@ public class PostActivity extends AppCompatActivity {
         tvWriterName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(PostActivity.this, MyPageActivity.class);
             Bundle sppBundle = new Bundle();
-            if (myInfo.getUserID() != postInfoDetail.getPostInfoSimple().getWriterID())
+            if (myInfo.getUserID() != postInfoDetail.getPostInfoSimple().getWriterID()) {
                 sppBundle.putInt("userID", postInfoDetail.getPostInfoSimple().getWriterID());
+                sppBundle.putString("userName", postInfoDetail.getPostInfoSimple().getWriterName());
+            }
             showProfilePage.putExtras(sppBundle);
             startActivity(showProfilePage);
         });

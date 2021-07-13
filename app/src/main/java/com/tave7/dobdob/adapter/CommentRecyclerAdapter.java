@@ -66,8 +66,10 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         holder.commenterName.setOnClickListener(v -> {
             Intent showProfilePage = new Intent(context, MyPageActivity.class);
             Bundle sppBundle = new Bundle();
-            if (myInfo.getUserID() != commentList.get(position).getCommenterInfo().getUserID())
+            if (myInfo.getUserID() != commentList.get(position).getCommenterInfo().getUserID()) {
                 sppBundle.putInt("userID", commentList.get(position).getCommenterInfo().getUserID());
+                sppBundle.putString("userName", commentList.get(position).getCommenterInfo().getUserName());
+            }
             showProfilePage.putExtras(sppBundle);
             context.startActivity(showProfilePage);
         });
@@ -82,8 +84,10 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                     /*
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
                     Bundle sppBundle = new Bundle();
-                    if (myInfo.getUserID() != )
+                    if (myInfo.getUserID() != ) {
                         sppBundle.putInt("userID", );
+                        sppBundle.putString("userName", );
+                    }
                     showProfilePage.putExtras(sppBundle);
                     context.startActivity(showProfilePage);
                      */

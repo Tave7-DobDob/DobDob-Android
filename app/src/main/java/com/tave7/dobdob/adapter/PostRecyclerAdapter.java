@@ -197,8 +197,10 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 if (pos != RecyclerView.NO_POSITION) {
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
                     Bundle sppBundle = new Bundle();
-                    if (myInfo.getUserID() != postList.get(pos).getWriterID())
+                    if (myInfo.getUserID() != postList.get(pos).getWriterID()) {
                         sppBundle.putInt("userID", postList.get(pos).getWriterID());
+                        sppBundle.putString("userName", postList.get(pos).getWriterName());
+                    }
                     showProfilePage.putExtras(sppBundle);
                     context.startActivity(showProfilePage);
                 }

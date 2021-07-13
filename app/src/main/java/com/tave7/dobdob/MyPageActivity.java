@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +18,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -78,6 +78,9 @@ public class MyPageActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        TextView tvPageInfo = findViewById(R.id.myPage_pageInfo);
+            tvPageInfo.setVisibility(View.GONE);
+        NestedScrollView nsvPage = findViewById(R.id.myPage_scrollView);
         civUserProfile = findViewById(R.id.myPage_userProfile);
         tvUserName = findViewById(R.id.myPage_userName);
         tvUserTown = findViewById(R.id.myPage_userTown);
@@ -93,10 +96,12 @@ public class MyPageActivity extends AppCompatActivity {
         rvMyPagePosts.addItemDecoration(devider);
 
         if (!isMyPage) {
+            nsvPage.setVisibility(View.GONE);
             RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                     Log.i("MyPage user정보받기 성공", response.body());
+                    nsvPage.setVisibility(View.VISIBLE);
                     if (response.code() == 200) {
                         try {
                             JSONObject userInfo = new JSONObject(Objects.requireNonNull(response.body()));
@@ -120,18 +125,22 @@ public class MyPageActivity extends AppCompatActivity {
                             tvUserTown.setText(otherInfo.getUserTown());
                             tvUserPosts.setText(otherInfo.getUserName().concat(" 님이 작성한 글"));
                             tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
+
+                            setWhosePosts(userID);
                         } catch (JSONException e) { e.printStackTrace(); }
                     }
-                    else
-                        Toast.makeText(MyPageActivity.this, "다시 한번 시도해 주세요.", Toast.LENGTH_SHORT).show();
+                    else {
+                        tvPageInfo.setVisibility(View.VISIBLE);
+                        tvPageInfo.setText(getIntent().getExtras().getString("userName").concat("님의 페이지를 로드할 수 없습니다."));
+                    }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    Toast.makeText(MyPageActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                    tvPageInfo.setVisibility(View.VISIBLE);
+                    tvPageInfo.setText(getIntent().getExtras().getString("userName").concat("님의 페이지를 로드할 수 없습니다."));
                 }
             });
-            setWhosePosts(userID);
         }
         else {   //실제 사용자의 페이지를 보는 경우
             @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_mypage, null);

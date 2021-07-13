@@ -67,8 +67,10 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
                 if (pos != RecyclerView.NO_POSITION) {
                     Intent showProfilePage = new Intent(context, MyPageActivity.class);
                     Bundle sppBundle = new Bundle();
-                    if (myInfo.getUserID() != userList.get(pos).getUserID())
+                    if (myInfo.getUserID() != userList.get(pos).getUserID()) {
                         sppBundle.putInt("userID", userList.get(pos).getUserID());
+                        sppBundle.putString("userName", userList.get(pos).getUserName());
+                    }
                     showProfilePage.putExtras(sppBundle);
                     context.startActivity(showProfilePage);
                 }
