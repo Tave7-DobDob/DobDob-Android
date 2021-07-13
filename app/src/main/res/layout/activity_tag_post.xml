@@ -19,7 +19,7 @@
         android:id="@+id/tagPost_postInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="해당 태그를 가진 글을 찾고 있습니다. 🔍"
+        android:text="해당 태그를 가진 글을 찾고 있습니다."
         android:textAlignment="center"
         android:lineSpacingExtra="8dp"
         android:textColor="#666666"

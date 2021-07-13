@@ -124,7 +124,7 @@ public class MyPageActivity extends AppCompatActivity {
                             tvUserName.setText(otherInfo.getUserName());
                             tvUserTown.setText(otherInfo.getUserTown());
                             tvUserPosts.setText(otherInfo.getUserName().concat(" 님이 작성한 글"));
-                            tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
+                            tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 찾고 있습니다."));
 
                             setWhosePosts(userID);
                         } catch (JSONException e) { e.printStackTrace(); }
@@ -159,7 +159,7 @@ public class MyPageActivity extends AppCompatActivity {
             tvUserName.setText(myInfo.getUserName());
             tvUserTown.setText(myInfo.getUserTown());
             tvUserPosts.setText(myInfo.getUserName().concat(" 님이 작성한 글"));
-            tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
+            tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다."));
 
             setWhosePosts(myInfo.getUserID());
         }
@@ -239,9 +239,9 @@ public class MyPageActivity extends AppCompatActivity {
 
         tvPostInfo.setVisibility(View.VISIBLE);
         if (isMyPage)
-            tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
+            tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다."));
         else
-            tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 찾고 있습니다. \uD83D\uDD0D"));
+            tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 찾고 있습니다."));
         RetrofitClient.getApiService().getUserPosts(whoseID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -311,9 +311,9 @@ public class MyPageActivity extends AppCompatActivity {
                     }
                     else {
                         if (isMyPage)
-                            tvPostInfo.setText(myInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
+                            tvPostInfo.setText(myInfo.getUserName().concat("님이 작성한 글이 없습니다."));
                         else
-                            tvPostInfo.setText(otherInfo.getUserName().concat("님이 작성한 글이 없습니다. \uD83D\uDD0D"));
+                            tvPostInfo.setText(otherInfo.getUserName().concat("님이 작성한 글이 없습니다."));
                     }
                 }
                 else {

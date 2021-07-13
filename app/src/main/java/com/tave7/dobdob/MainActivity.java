@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                         adapter.notifyDataSetChanged();
                         
                         tvPostInfo.setVisibility(View.VISIBLE);
-                        tvPostInfo.setText("해당 태그를 가진 글을 찾고 있습니다. \uD83D\uDD0D");
+                        tvPostInfo.setText("해당 태그를 가진 글을 찾고 있습니다.");
 
                         JsonObject tagPostInfo = new JsonObject();
                         tagPostInfo.addProperty("keyword", searchTag);
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
 
                     tvPostInfo.setVisibility(View.VISIBLE);
-                    tvPostInfo.setText("해당 제목을 가진 글을 찾고 있습니다. \uD83D\uDD0D");
+                    tvPostInfo.setText("해당 제목을 가진 글을 찾고 있습니다.");
 
                     JsonObject titlePostInfo = new JsonObject();
                     titlePostInfo.addProperty("keyword", query.trim());
@@ -358,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
                 if (menuItem.getItemId() == R.id.mypage)
                     startActivityForResult(new Intent(MainActivity.this, MyPageActivity.class), MYPAGE_REQUEST);
                 else {      //로그아웃
-                    PreferenceManager.removeKey(MainActivity.this, "access_token");         //어세스 토크 삭제 TODO: 수정 요망!!!!!!!!!!
+                    PreferenceManager.removeKey(MainActivity.this, "userID");         //TODO: 수정 요망!!!!!!!!!!
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
                 }
@@ -431,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         tvPostInfo.setVisibility(View.VISIBLE);
-        tvPostInfo.setText("동네의 글을 찾고 있습니다. \uD83D\uDD0D");
+        tvPostInfo.setText("동네의 글을 찾고 있습니다.");
         RetrofitClient.getApiService().postLocationPost(location).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {

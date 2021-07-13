@@ -43,25 +43,54 @@ public class LoginActivity extends AppCompatActivity {
         kakaoLogin = findViewById(R.id.btLogin);
         kakaoLogin.setEnabled(false);
         
-        /*  -> userID를 통해 검색을 한 후에 닉네임이 없으면 넘기고(InitialSet로) 아니면 Main으로 넘어감(UserInfo를 전달해야 함!)
-        //TODO: InitialSettingActivity를 한 사용자 혹은 웹에서 회원가임 폼을 작성한 사용자라면 MainActivity가 바로 보일 수 있도록 함!
-        if (!PreferenceManager.getString(LoginActivity.this, "access_token").equals("")) {      //토큰이 있을 시 자동로그인 가능
-            Log.i("Login 자동로그인", "가능");
-            //서버로부터 사용자 정보와, post글들을 받아옴
-            //TODO: 이후에 삭제해야 하는 부분!!! 화면 보기 위해 추가된 코드!!
-            startActivity(new Intent(this, InitialSettingActivity.class));
-            finish();
+        //  -> userID를 통해 검색을 한 후에 닉네임이 없으면 넘기고(InitialSet로) 아니면 Main으로 넘어감(UserInfo를 전달해야 함!)
+        if (PreferenceManager.getInt(LoginActivity.this, "userID") != -1) {      //토큰이 있을 시 자동로그인 가능
+            RetrofitClient.getApiService().getUserInfo(PreferenceManager.getInt(LoginActivity.this, "userID")).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                    Log.i("LoginA user정보받기 성공", response.body());
+                    if (response.code() == 200) {
+                        try {
+                            JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
+                            int userID = loginInfo.getJSONObject("user").getInt("id");
+                            PreferenceManager.setInt(LoginActivity.this, "userID", userID);
 
-            myInfo = new UserInfo(userID, null, user.getString("nickName"), "역삼동", "강남구 역삼동 200");      //TODO: MainActivity의 myInfo에 저장함(사용자 정보를)
-            //startActivity(new Intent(this, MainActivity.class));      TODO: -> 이때 userID를 넘겨야 함(extra로!!!)
-            //finish();
+                            if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {
+                                Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!
+                                showIS.putExtras(bundle);
+                                startActivity(showIS);
+                            }
+                            else {
+                                JSONObject user = loginInfo.getJSONObject("user");
+                                if (user.isNull("profileUrl"))
+                                    myInfo = new UserInfo(userID, null, user.getString("nickName"),
+                                            user.getJSONObject("Location").getString("dong"), user.getJSONObject("Location").getString("detail"),
+                                            user.getJSONObject("Location").getDouble("locationX"), user.getJSONObject("Location").getDouble("locationY"));
+                                else
+                                    myInfo = new UserInfo(userID, user.getString("profileUrl"), user.getString("nickName"),
+                                            user.getJSONObject("Location").getString("dong"), user.getJSONObject("Location").getString("detail"),
+                                            user.getJSONObject("Location").getDouble("locationX"), user.getJSONObject("Location").getDouble("locationY"));
+
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            }
+                            finish();
+                        } catch (JSONException e) { e.printStackTrace(); }
+                    }
+                    else {
+                        Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                    Toast.makeText(LoginActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-         */
-
-        //else {
-            Log.i("Login 자동로그인", "불가능");
+        else
             kakaoLogin.setEnabled(true);    //로그인을 해야 함!
-        //}
 
         kakaoLogin.setOnClickListener(v -> {
             if (UserApiClient.getInstance().isKakaoTalkLoginAvailable(this))
@@ -83,12 +112,12 @@ public class LoginActivity extends AppCompatActivity {
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                     Log.i("Login 연결 성공", response.body());
                     if (response.code() == 200 || response.code() == 201) {
-                        PreferenceManager.setString(LoginActivity.this, "access_token", oAuthToken.getAccessToken());
                         try {
                             JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             int userID = loginInfo.getJSONObject("user").getInt("id");
+                            PreferenceManager.setInt(LoginActivity.this, "userID", userID);
 
-                            if (loginInfo.getJSONObject("user").getString("nickName").equals("사용자")) {
+                            if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {
                                 Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
                                 Bundle bundle = new Bundle();
                                     bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!
@@ -110,7 +139,6 @@ public class LoginActivity extends AppCompatActivity {
                             }
                             finish();
                         } catch (JSONException e) { e.printStackTrace(); }
-
                     }
                     else
                         Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();

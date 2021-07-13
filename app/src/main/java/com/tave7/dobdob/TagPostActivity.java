@@ -97,7 +97,7 @@ public class TagPostActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
 
         tvPostInfo.setVisibility(View.VISIBLE);
-        tvPostInfo.setText("해당 태그를 가진 글을 찾고 있습니다. \uD83D\uDD0D");
+        tvPostInfo.setText("해당 태그를 가진 글을 찾고 있습니다.");
 
         JsonObject tagPostInfo = new JsonObject();
         tagPostInfo.addProperty("keyword", tagName);
