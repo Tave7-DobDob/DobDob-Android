@@ -109,18 +109,16 @@
                 android:id="@+id/postrow_heartNum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="1dp"
+                android:layout_marginStart="5dp"
                 android:layout_marginTop="3dp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
                 android:text="0"
                 android:textColor="@color/black"
-                android:textSize="13dp" />
+                android:textSize="12dp" />
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginStart="15dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="10dp"
                 android:contentDescription="댓글수"
                 android:src="@drawable/comment_icon" />
 
@@ -128,13 +126,11 @@
                 android:id="@+id/postrow_commentNum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="3dp"
+                android:layout_marginStart="5dp"
                 android:layout_marginTop="3dp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
                 android:text="0"
                 android:textColor="@color/black"
-                android:textSize="13dp" />
+                android:textSize="12dp" />
         </LinearLayout>
     </LinearLayout>
 

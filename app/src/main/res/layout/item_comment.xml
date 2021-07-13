@@ -10,11 +10,11 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="3dp">
+        android:padding="5dp">
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/commentrow_profile"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:src="@drawable/user"
             app:civ_border_width="2dp"
             app:civ_border_color="#AAAAAA" />
@@ -40,7 +40,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="5dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
                 <ImageView
@@ -83,7 +83,7 @@
         android:id="@+id/commentrow_comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="8dp"
         android:bufferType="spannable"
         android:text="댓글 내용"
         android:textColor="@color/black"/>
