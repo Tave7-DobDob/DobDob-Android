@@ -88,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                             JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             int userID = loginInfo.getJSONObject("user").getInt("id");
 
-                            if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {
+                            if (loginInfo.getJSONObject("user").getString("nickName").equals("사용자")) {
                                 Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
                                 Bundle bundle = new Bundle();
                                     bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!

@@ -232,7 +232,7 @@ public class PostActivity extends AppCompatActivity {
                                 commentTime = dateFormat.format(Objects.requireNonNull(date));
                             } catch (ParseException e) { e.printStackTrace(); }
 
-                            CommentInfo comment = new CommentInfo(commentObject.getInt("id"), commenterInfo, commentTime, commentObject.getString("content"));
+                            CommentInfo comment = new CommentInfo(commentObject.getInt("id"), commenterInfo, commentTime, commentObject.getString("content").concat(" "));
                             postInfoDetail.getComments().add(comment);
                         }
                         if (postInfoDetail.getPostInfoSimple().getCommentNum() != postInfoDetail.getComments().size())
@@ -389,8 +389,7 @@ public class PostActivity extends AppCompatActivity {
             etWriteComment.setEnabled(false);
 
             String writeComment = etWriteComment.getText().toString().trim();
-            writeComment = writeComment.concat(" ");
-            if (writeComment.length() > 1) {
+            if (writeComment.length() > 0) {
                 JsonObject commentInfo = new JsonObject();
                 commentInfo.addProperty("postId", postID);
                 commentInfo.addProperty("userId", myInfo.getUserID());
