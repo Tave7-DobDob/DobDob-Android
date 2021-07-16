@@ -74,7 +74,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         initialSettingClickListener();
     }
 
-    @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
+    @SuppressLint("ClickableViewAccessibility")
     public void initialSettingClickListener(){
         clWhole.setOnTouchListener((v, event) -> {
             ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
@@ -88,7 +88,7 @@ public class InitialSettingActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 isCheckedName = false;
                 tvNameError.setTextColor(getColor(R.color.gray));
-                tvNameError.setText("\u2713 2자 이상 20자 이하의 영문 소문자/한글(숫자혼합 가능)\n\u2713 공백 및 특수문자 불가");
+                tvNameError.setText(R.string.initialsetting_name_rule);
             }
 
             @Override
@@ -100,24 +100,24 @@ public class InitialSettingActivity extends AppCompatActivity {
         btCheckName.setOnClickListener(v -> {
             String nickName = etName.getText().toString().trim();
             if (nickName.length() != etName.getText().toString().length()) {
+                tvNameError.setText(R.string.nickname_rule1);
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("닉네임에 공백이 포함되어 있습니다.");
             }
             else if (nickName.equals("")) {
+                tvNameError.setText(R.string.nickname_rule2);
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("닉네임을 입력하지 않았습니다.");
             }
             else if (nickName.length()<2 || nickName.length()>20) {
+                tvNameError.setText(R.string.nickname_rule3);
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("닉네임은 2자 이상 20자 이하여야 합니다.");
             }
             else if (!nickName.matches(".*[a-zㄱ-ㅎㅏ-ㅣ가-힣]+.*")) {
+                tvNameError.setText(R.string.nickname_rule4);
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("닉네임에 영문 소문자 혹은 한글이 1글자 이상 있어야 합니다.");
             }
             else if (nickName.matches(".*[^0-9a-zㄱ-ㅎㅏ-ㅣ가-힣].*")) {
+                tvNameError.setText(R.string.nickname_rule5);
                 tvNameError.setTextColor(Color.parseColor("#FA5858"));
-                tvNameError.setText("영문 소문자/한글/숫자 이외의 문자는 사용 불가합니다:)");
             }
             else {
                 RetrofitClient.getApiService().checkExistNick(nickName).enqueue(new Callback<String>() {

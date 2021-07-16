@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="@string/modify_profile_toolbar_title"
+        android:text="@string/modify_profile_actionbar_title"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"

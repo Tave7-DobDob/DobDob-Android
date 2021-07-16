@@ -172,10 +172,8 @@ public class PostActivity extends AppCompatActivity {
                         postInfoDetail.getPostInfoSimple().getWriterInfo().setLocationX(postInfo.getJSONObject("Location").getDouble("locationX"));
                         postInfoDetail.getPostInfoSimple().getWriterInfo().setLocationY(postInfo.getJSONObject("Location").getDouble("locationY"));
 
-                        if (!postInfoDetail.getPostInfoSimple().getPostTitle().equals(postInfo.getString("title"))){
+                        if (!postInfoDetail.getPostInfoSimple().getPostTitle().equals(postInfo.getString("title")))
                             postInfoDetail.getPostInfoSimple().setPostTitle(postInfo.getString("title"));
-                            tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
-                        }
                         postInfoDetail.setPostContent(postInfo.getString("content"));
 
                         JSONArray postImages = postInfo.getJSONArray("PostImages");
@@ -237,9 +235,9 @@ public class PostActivity extends AppCompatActivity {
                             postInfoDetail.getPostInfoSimple().setCommentNum(postInfoDetail.getComments().size());
                     } catch (JSONException e) { e.printStackTrace(); }
 
-                    tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle());
+                    tvTitle.setText(postInfoDetail.getPostInfoSimple().getPostTitle().replace(" ", "\u00A0"));
                     tvContent.setVisibility(View.VISIBLE);
-                    tvContent.setText(postInfoDetail.getPostContent());
+                    tvContent.setText(postInfoDetail.getPostContent().replace(" ", "\u00A0"));
 
                     if (postInfoDetail.getPostImages().size() == 0)
                         flImages.setVisibility(View.GONE);

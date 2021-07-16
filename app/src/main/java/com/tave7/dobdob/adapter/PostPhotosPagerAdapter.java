@@ -65,6 +65,8 @@ public class PostPhotosPagerAdapter extends RecyclerView.Adapter<PostPhotosPager
             ivPhoto.setOnClickListener(v -> {
                 Dialog dialog = new Dialog(context);
                 dialog.setContentView(R.layout.item_photo_pager);
+                TextView tvLoadFail = dialog.findViewById(R.id.tvLoadFail);
+                    tvLoadFail.setVisibility(View.GONE);
                 ImageView photo = dialog.findViewById(R.id.ivPostPhoto);
                     FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
                     photo.setLayoutParams(param);

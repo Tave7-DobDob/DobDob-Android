@@ -67,7 +67,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
         holder.writerName.setText(postList.get(position).getWriterName());
         holder.writerTown.setText(postList.get(position).getWriterTown());
         holder.postTime.setText(postList.get(position).getPostTime());
-        holder.postTitle.setText(postList.get(position).getPostTitle());
+        holder.postTitle.setText(postList.get(position).getPostTitle().replace(" ", "\u00A0"));
         if (postList.get(position).getIsILike() == 1)
             holder.ivHeart.setImageResource(R.drawable.heart_click);
         else

@@ -20,6 +20,12 @@
     <string name="modify_profile_actionbar_title">프로필 편집</string>
     <string name="mypage_actionbar_modify">수정</string>
 
+    <string name="nickname_rule1">닉네임에 공백이 포함되어 있습니다.</string>
+    <string name="nickname_rule2">닉네임을 입력하지 않았습니다.</string>
+    <string name="nickname_rule3">닉네임은 2자 이상 20자 이하여야 합니다.</string>
+    <string name="nickname_rule4">닉네임에 영문 소문자 혹은 한글이 1글자 이상 있어야 합니다.</string>
+    <string name="nickname_rule5">영문 소문자/한글/숫자 이외의 문자는 사용 불가합니다:)</string>
+
     <string name="initialsetting_nickname">닉네임</string>
     <string name="initialsetting_nick_hint">예) 편리한돕돕</string>
     <string name="initialsetting_name_rule">✓ 2자 이상 20자 이하의 영문 소문자/한글(숫자혼합 가능)\n✓ 공백 및 특수문자 불가</string>

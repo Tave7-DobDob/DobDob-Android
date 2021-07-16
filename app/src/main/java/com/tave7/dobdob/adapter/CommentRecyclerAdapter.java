@@ -74,7 +74,8 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
         });
         holder.commenterTown.setText(commentList.get(position).getCommenterInfo().getUserTown());
         holder.commentTime.setText(commentList.get(position).getCommentTime());
-        holder.comment.setText(commentList.get(position).getContent());
+        holder.comment.setText(commentList.get(position).getContent().replace(" ", "\u00A0"));
+        //holder.comment.setText(commentList.get(position).getContent());
             Spannable span = (Spannable) holder.comment.getText();
             ClickableSpan clickableSpan = new ClickableSpan() {
                 @Override
@@ -104,7 +105,7 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
             while (i < content.length()) {
                 int indexMentionStart = content.indexOf("@", i);
                 if (indexMentionStart != -1) {
-                    int indexMentionEnd = content.indexOf(" ", indexMentionStart);
+                    int indexMentionEnd = content.indexOf("\u00A0", indexMentionStart);
 
                     if (indexMentionEnd != -1) {
                         span.setSpan(clickableSpan, indexMentionStart, indexMentionEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

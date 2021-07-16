@@ -260,7 +260,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressLint("SetTextI18n")
     public void modifyProfileListener() {
         TextView tvChangeProfile = findViewById(R.id.modify_tvChangeProfile);
         tvChangeProfile.setOnClickListener(v -> {
@@ -319,7 +318,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
             String username = etUserName.getText().toString().trim();
             if (username.length() != etUserName.getText().toString().length()) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
-                tvNameCheckInfo.setText("닉네임에 공백이 포함되어 있습니다.");
+                tvNameCheckInfo.setText(R.string.nickname_rule1);
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
             }
             else if (username.equals(myInfo.getUserName())) {
@@ -327,23 +326,23 @@ public class ModifyProfileActivity extends AppCompatActivity {
             }
             else if (username.equals("")) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
-                tvNameCheckInfo.setText("닉네임을 입력하지 않았습니다.");
+                tvNameCheckInfo.setText(R.string.nickname_rule2);
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
             }
             else if (username.length()<2 || username.length()>20) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
+                tvNameCheckInfo.setText(R.string.nickname_rule3);
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
-                tvNameCheckInfo.setText("닉네임은 2자 이상 20자 이내여야 합니다.");
             }
             else if (!username.matches(".*[a-zㄱ-ㅎㅏ-ㅣ가-힣]+.*")) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
+                tvNameCheckInfo.setText(R.string.nickname_rule4);
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
-                tvNameCheckInfo.setText("닉네임에 영문 소문자 혹은 한글이 1글자 이상 있어야 합니다.");
             }
             else if (username.matches(".*[^0-9a-zㄱ-ㅎㅏ-ㅣ가-힣].*")) {
                 tvNameCheckInfo.setVisibility(View.VISIBLE);
+                tvNameCheckInfo.setText(R.string.nickname_rule5);
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
-                tvNameCheckInfo.setText("영문 소문자/한글/숫자 이외의 문자는 사용 불가합니다:)");
             }
             else {
                 RetrofitClient.getApiService().checkExistNick(username).enqueue(new Callback<String>() {

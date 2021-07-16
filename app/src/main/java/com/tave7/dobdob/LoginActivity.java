@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         kakaoLogin = findViewById(R.id.btLogin);
         kakaoLogin.setEnabled(false);
 
+        /*
         if (!PreferenceManager.getString(LoginActivity.this, "jwt").equals("")) {
             RetrofitClient.getApiService().postAutoLogin(PreferenceManager.getString(LoginActivity.this, "jwt")).enqueue(new Callback<String>() {
                 @Override
@@ -88,7 +89,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
-        else
+
+         */
+        //else
             kakaoLogin.setEnabled(true);
 
         kakaoLogin.setOnClickListener(v -> {
