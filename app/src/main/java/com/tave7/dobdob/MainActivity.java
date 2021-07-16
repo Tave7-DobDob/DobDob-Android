@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -157,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
                         RetrofitClient.getApiService().postTagPost(tagPostInfo).enqueue(new Callback<String>() {
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                                Log.i("MainA 태그검색 성공", response.body());
                                 if (response.code() == 200) {
                                     try {
                                         JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
@@ -248,7 +246,6 @@ public class MainActivity extends AppCompatActivity {
                     RetrofitClient.getApiService().postTitlePost(titlePostInfo).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("MainA 제목검색 성공", response.body());
                             if (response.code() == 200) {
                                 try {
                                     JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));
@@ -358,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
                 if (menuItem.getItemId() == R.id.mypage)
                     startActivityForResult(new Intent(MainActivity.this, MyPageActivity.class), MYPAGE_REQUEST);
                 else {      //로그아웃
-                    PreferenceManager.removeKey(MainActivity.this, "userID");         //TODO: 수정 요망!!!!!!!!!!
+                    PreferenceManager.removeKey(MainActivity.this, "jwt");
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
                 }
@@ -389,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == MYPAGE_REQUEST) {        //MyPage에서 User 정보 변경 시 적용 위함
+            if (requestCode == MYPAGE_REQUEST) {
                 if (Objects.requireNonNull(data).hasExtra("isChanged")) {
                     if (myInfo.getUserProfileUrl() == null)
                         civSubMenuUser.setImageResource(R.drawable.user);
@@ -435,7 +432,6 @@ public class MainActivity extends AppCompatActivity {
         RetrofitClient.getApiService().postLocationPost(location).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("MainA 전체글 새로고침 성공", response.body());
                 if (response.code() == 200) {
                     totalPostList.clear();
                     try {

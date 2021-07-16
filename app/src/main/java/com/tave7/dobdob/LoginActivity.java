@@ -42,23 +42,20 @@ public class LoginActivity extends AppCompatActivity {
 
         kakaoLogin = findViewById(R.id.btLogin);
         kakaoLogin.setEnabled(false);
-        
-        //  -> userID를 통해 검색을 한 후에 닉네임이 없으면 넘기고(InitialSet로) 아니면 Main으로 넘어감(UserInfo를 전달해야 함!)
-        if (PreferenceManager.getInt(LoginActivity.this, "userID") != -1) {      //토큰이 있을 시 자동로그인 가능
-            RetrofitClient.getApiService().getUserInfo(PreferenceManager.getInt(LoginActivity.this, "userID")).enqueue(new Callback<String>() {
+
+        if (!PreferenceManager.getString(LoginActivity.this, "jwt").equals("")) {
+            RetrofitClient.getApiService().postAutoLogin(PreferenceManager.getString(LoginActivity.this, "jwt")).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    Log.i("LoginA user정보받기 성공", response.body());
                     if (response.code() == 200) {
                         try {
                             JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             int userID = loginInfo.getJSONObject("user").getInt("id");
-                            PreferenceManager.setInt(LoginActivity.this, "userID", userID);
 
                             if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {
                                 Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
                                 Bundle bundle = new Bundle();
-                                bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!
+                                    bundle.putInt("userID", userID);
                                 showIS.putExtras(bundle);
                                 startActivity(showIS);
                             }
@@ -79,18 +76,20 @@ public class LoginActivity extends AppCompatActivity {
                         } catch (JSONException e) { e.printStackTrace(); }
                     }
                     else {
+                        kakaoLogin.setEnabled(true);
                         Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                    kakaoLogin.setEnabled(true);
                     Toast.makeText(LoginActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                 }
             });
         }
         else
-            kakaoLogin.setEnabled(true);    //로그인을 해야 함!
+            kakaoLogin.setEnabled(true);
 
         kakaoLogin.setOnClickListener(v -> {
             if (UserApiClient.getInstance().isKakaoTalkLoginAvailable(this))
@@ -107,20 +106,19 @@ public class LoginActivity extends AppCompatActivity {
         if (oAuthToken != null) {
             JsonObject kakaoToken = new JsonObject();
             kakaoToken.addProperty("access_token", oAuthToken.getAccessToken());
-            RetrofitClient.getApiService().postKakaoToken(kakaoToken).enqueue(new Callback<String>() {
+            RetrofitClient.getApiService().postLogin(kakaoToken).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    Log.i("Login 연결 성공", response.body());
-                    if (response.code() == 200 || response.code() == 201) {
+                    if (response.code() == 200) {
                         try {
                             JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
                             int userID = loginInfo.getJSONObject("user").getInt("id");
-                            PreferenceManager.setInt(LoginActivity.this, "userID", userID);
+                            PreferenceManager.setString(LoginActivity.this, "jwt", loginInfo.getString("jwt"));
 
                             if (loginInfo.getJSONObject("user").getString("nickName").equals("")) {
                                 Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
                                 Bundle bundle = new Bundle();
-                                    bundle.putInt("userID", userID);        //TODO: 추후에 변경될 가능성 있음??!?!!
+                                    bundle.putInt("userID", userID);
                                 showIS.putExtras(bundle);
                                 startActivity(showIS);
                             }
@@ -140,6 +138,18 @@ public class LoginActivity extends AppCompatActivity {
                             finish();
                         } catch (JSONException e) { e.printStackTrace(); }
                     }
+                    else if (response.code() == 201) {
+                        try {
+                            JSONObject loginInfo = new JSONObject(Objects.requireNonNull(response.body()));
+                            int userID = loginInfo.getJSONObject("user").getInt("id");
+
+                            Intent showIS = new Intent(LoginActivity.this, InitialSettingActivity.class);
+                            Bundle bundle = new Bundle();
+                                bundle.putInt("userID", userID);
+                            showIS.putExtras(bundle);
+                            startActivity(showIS);
+                        } catch (JSONException e) { e.printStackTrace(); }
+                    }
                     else
                         Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
                 }
@@ -157,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
         return null;
     };
 
-    private void checkDangerousPermissions() {      //권한 체크
+    private void checkDangerousPermissions() {
         String temp = "";
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)

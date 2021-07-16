@@ -16,7 +16,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -145,7 +144,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().patchUserProfileImg(myInfo.getUserID(), postImage).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("MProfileImg 설정 성공", response.body());
                         if (response.code() == 200) {
                             String profileUrl = null;
                             try {
@@ -170,7 +168,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
                                 RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
                                     @Override
                                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                                        Log.i("MProfile 설정 성공", response.body());
                                         if (response.code() == 200) {
                                             tvOK.setEnabled(true);
 
@@ -215,7 +212,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        Log.i("MProfileImg 설정 실패", t.getMessage());
                         Toast.makeText(ModifyProfileActivity.this, "서버와 연결되지 않았습니다. 확인해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -230,7 +226,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("MProfile 설정 성공", response.body());
                         if (response.code() == 200) {
                             tvOK.setEnabled(true);
 
@@ -354,7 +349,6 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().checkExistNick(username).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("MProfile 닉중복확인 성공", response.body());
                         tvNameCheckInfo.setVisibility(View.VISIBLE);
                         if (response.code() == 200) {
                             try {

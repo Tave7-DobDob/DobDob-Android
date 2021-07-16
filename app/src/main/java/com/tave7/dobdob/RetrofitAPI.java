@@ -11,6 +11,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
@@ -20,10 +21,13 @@ import retrofit2.http.Path;
 
 public interface RetrofitAPI {
     @POST("/auth/kakao")
-    Call<String> postKakaoToken(@Body JsonObject kakaoToken);       //서버로 카카오 토큰 전달
+    Call<String> postAutoLogin(@Header("authorization") String jwt);   //서버로 jwt 전달(자동로그인)
+
+    @POST("/auth/kakao")
+    Call<String> postLogin(@Body JsonObject kakaoToken);                 //서버로 카카오 토큰 전달(일반로그인)
 
     @GET("/user/{id}")
-    Call<String> getUserInfo(@Path("id") int userID);               //서버로부터 해당 유저 id의 정보를 받음
+    Call<String> getUserInfo(@Path("id") int userID);                   //서버로부터 해당 유저 id의 정보를 받음
 
     @PATCH("/user/{id}")
     Call<String> patchUserInfo(@Path("id") int userID, @Body JsonObject userData);  //서버로 수정할 유저의 정보를 전달

@@ -10,7 +10,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -164,7 +163,6 @@ public class PostActivity extends AppCompatActivity {
         RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("PostA 글 성공", response.body());
                 if (response.code() == 200) {
                     postInfoDetail.getPostImages().clear();
                     postInfoDetail.getComments().clear();
@@ -314,8 +312,6 @@ public class PostActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postID).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("PostA 좋아요취소 성공", response.body());
-
                         if (response.code() == 200) {
                             postInfoDetail.getPostInfoSimple().setIsILike(0);
                             postInfoDetail.getPostInfoSimple().setLikeNum(postInfoDetail.getPostInfoSimple().getLikeNum()-1);
@@ -323,8 +319,6 @@ public class PostActivity extends AppCompatActivity {
                             ivHeart.setImageResource(R.drawable.heart);
                             tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
                         }
-                        else
-                            Toast.makeText(PostActivity.this, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -340,8 +334,6 @@ public class PostActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().postLike(likeInfo).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("PostA 좋아요 성공", response.body());
-
                         if (response.code() == 201) {
                             postInfoDetail.getPostInfoSimple().setIsILike(1);
                             postInfoDetail.getPostInfoSimple().setLikeNum(postInfoDetail.getPostInfoSimple().getLikeNum()+1);
@@ -349,8 +341,6 @@ public class PostActivity extends AppCompatActivity {
                             ivHeart.setImageResource(R.drawable.heart_click);
                             tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
                         }
-                        else
-                            Toast.makeText(PostActivity.this, "죄송합니다. 다시 시도해 주세요:)", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -397,7 +387,6 @@ public class PostActivity extends AppCompatActivity {
                 RetrofitClient.getApiService().postComment(commentInfo).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("PostA 댓글 post 성공", response.body());
                         etWriteComment.setEnabled(true);
                         if (response.code() == 201) {
                             showPost(false);
@@ -489,14 +478,12 @@ public class PostActivity extends AppCompatActivity {
                     RetrofitClient.getApiService().deleteIDPost(postID).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("PostA 글 삭제 성공", response.body());
                             if (response.code() == 200) {
                                 isDeleted = true;
                                 finish();
                             }
-                            else {
+                            else
                                 Toast.makeText(PostActivity.this, "해당 글 삭제에 문제가 생겼습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
-                            }
                         }
 
                         @Override
@@ -527,7 +514,6 @@ public class PostActivity extends AppCompatActivity {
             RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    Log.i("PostA 글 성공", response.body());
                     if (response.code() == 200)
                         showPost(false);
                     else

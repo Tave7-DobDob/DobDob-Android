@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -85,7 +84,6 @@ public class LikeUserActivity extends AppCompatActivity {
         RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("LikeUserA 좋아요사용자 성공", response.body());
                 if (response.code() == 200) {
                     try {
                         likeUserLists.clear();

@@ -10,7 +10,6 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -128,7 +127,6 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                     RetrofitClient.getApiService().deleteIDComment(commentList.get(position).getCommentID()).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("Comment 글 삭제 성공", response.body());
                             if (response.code() == 200)
                                 ((PostActivity) context).showPost(false);
                             else

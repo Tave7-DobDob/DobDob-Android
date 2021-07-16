@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,8 +77,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postList.get(position).getPostID()).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("PostA 좋아요취소 성공", response.body());
-
                         if (response.code() == 200) {
                             postList.get(position).setIsILike(0);
                             postList.get(position).setLikeNum(postList.get(position).getLikeNum()-1);
@@ -100,7 +97,6 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 RetrofitClient.getApiService().postLike(likeInfo).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        Log.i("PostA 좋아요 성공", response.body());
                         if (response.code() == 201) {
                             postList.get(position).setIsILike(1);
                             postList.get(position).setLikeNum(postList.get(position).getLikeNum()+1);

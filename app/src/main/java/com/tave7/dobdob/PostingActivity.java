@@ -11,7 +11,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -185,7 +184,6 @@ public class PostingActivity extends AppCompatActivity {
                         RetrofitClient.getApiService().patchIDPost(editPostInfo.getPostInfoSimple().getPostID(), postData).enqueue(new Callback<String>() {       //DB전달
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                                Log.i("Posting 수정 성공", response.body());
                                 if (response.code() == 200)
                                     finish();
                                 else
@@ -218,7 +216,6 @@ public class PostingActivity extends AppCompatActivity {
                     RetrofitClient.getApiService().postNewPost(postImage, dataMap).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                            Log.i("Posting 연결성공", response.body());
                             if (response.code() == 201) {
                                 finish();
                             }

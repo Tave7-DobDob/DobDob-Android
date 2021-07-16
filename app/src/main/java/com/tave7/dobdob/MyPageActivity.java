@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -100,7 +99,6 @@ public class MyPageActivity extends AppCompatActivity {
             RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    Log.i("MyPage user정보받기 성공", response.body());
                     nsvPage.setVisibility(View.VISIBLE);
                     if (response.code() == 200) {
                         try {
@@ -245,7 +243,6 @@ public class MyPageActivity extends AppCompatActivity {
         RetrofitClient.getApiService().getUserPosts(whoseID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                Log.i("MyPage user글받기 성공", response.body());
                 if (response.code() == 200) {
                     try {
                         JSONObject result = new JSONObject(Objects.requireNonNull(response.body()));

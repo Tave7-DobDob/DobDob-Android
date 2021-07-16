@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -55,7 +54,7 @@ public class InitialSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initialsetting);
 
-        userID = getIntent().getExtras().getInt("userID");      //TODO: 추후에 변경될 가능성 있음??!?!!
+        userID = getIntent().getExtras().getInt("userID");
 
         clWhole = findViewById(R.id.is_wholeLayout);
         etName = findViewById(R.id.is_etName);
@@ -166,7 +165,7 @@ public class InitialSettingActivity extends AppCompatActivity {
             }
             else if (!isSetTown)
                 tvTownError.setVisibility(View.VISIBLE);
-            else {  //서버에 유저 정보를 전달함
+            else {
                 String nickName = etName.getText().toString().trim();
                 JsonObject userData = new JsonObject();
                 userData.addProperty("nickName", nickName);
