@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_downbar" >
@@ -45,7 +46,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:text="프로필 사진 변경"
+                android:text="@string/modifyprofile_change_profile"
                 android:textColor="#5CDCC9"/>
         </LinearLayout>
 
@@ -61,7 +62,7 @@
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="닉네임"
+                android:text="@string/nickname"
                 android:textSize="15sp"
                 android:textColor="@color/black"
                 android:textStyle="bold"/>
@@ -75,7 +76,9 @@
                 android:padding="8dp"
                 android:inputType="text"
                 android:textColor="@color/black"
-                android:textSize="15sp"/>
+                android:textSize="15sp"
+                android:importantForAutofill="no"
+                tools:ignore="LabelFor" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/modify_btCheckName"
@@ -89,8 +92,8 @@
                 android:paddingBottom="8dp"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
-                android:text="중복 확인"
-                android:textSize="12dp"/>
+                android:text="@string/nickcheck"
+                android:textSize="12sp"/>
         </LinearLayout>
         <TextView
             android:id="@+id/modify_tvNameCheckInfo"
@@ -98,9 +101,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
             android:layout_marginStart="80dp"
-            android:text="닉네임 중복 확인해 주세요."
+            android:text="@string/modifyprofile_check_info"
             android:textSize="11sp"
-            android:textColor="#FF0000"/>
+            android:textColor="#FF0000"
+            tools:ignore="SmallSp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -111,7 +115,7 @@
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:text="나의 동네"
+                android:text="@string/modifyprofile_town"
                 android:textSize="15sp"
                 android:textColor="@color/black"
                 android:textStyle="bold"/>
@@ -119,15 +123,15 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/pin"
-                android:contentDescription="닉네임 수정"/>
+                android:contentDescription="@string/gps"/>
             <TextView
                 android:id="@+id/modify_userTown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="XX동"
+                android:text="@string/town"
                 android:textColor="@color/yellow"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 android:textStyle="bold"/>
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/modify_btChangeTown"
@@ -141,8 +145,8 @@
                 android:paddingBottom="8dp"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
-                android:textSize="12dp"
-                android:text="동네 재설정"/>
+                android:textSize="12sp"
+                android:text="@string/modifyprofile_town_rechange"/>
         </LinearLayout>
         <TextView
             android:id="@+id/modify_tvFullAddress"
@@ -153,6 +157,7 @@
             android:layout_marginEnd="20dp"
             android:background="@drawable/bg_position_border"
             android:textColor="#999999"
-            android:textSize="11sp"/>
+            android:textSize="11sp"
+            tools:ignore="SmallSp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

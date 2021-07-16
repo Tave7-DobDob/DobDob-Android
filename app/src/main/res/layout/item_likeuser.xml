@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:padding="7dp"
         android:layout_marginStart="18dp"
-        android:text="닉네임"
+        android:text="@string/nickname"
         android:textColor="@color/black"
         android:textSize="15sp" />
 </LinearLayout>

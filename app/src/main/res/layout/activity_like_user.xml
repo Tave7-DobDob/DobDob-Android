@@ -18,7 +18,7 @@
         android:id="@+id/likeUser_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="글에 좋아요를 누른 사용자가 없습니다."
+        android:text="@string/likeuser_info"
         android:textAlignment="center"
         android:lineSpacingExtra="8dp"
         android:textColor="#666666"

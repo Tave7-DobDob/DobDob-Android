@@ -35,10 +35,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="15dp"
-            android:hint="제목"
+            android:hint="@string/title"
             android:inputType="text"
             android:textStyle="bold"
-            android:textColor="@color/black"/>
+            android:textColor="@color/black"
+            android:importantForAutofill="no" />
         <View
             android:layout_width="match_parent"
             android:layout_height="0.6dp"
@@ -67,10 +68,11 @@
             android:layout_marginTop="10dp"
             android:background="@android:color/transparent"
             android:scrollHorizontally="false"
-            android:hint="내용을 입력해주세요."
-            android:textSize="15dp"
+            android:hint="@string/posting_content_hint"
+            android:textSize="15sp"
             android:inputType="none"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:importantForAutofill="no" />
 
         <View
             android:layout_width="match_parent"
@@ -82,25 +84,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:gravity="center_vertical"
             android:orientation="horizontal" >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="#"
+                android:text="@string/posting_tag"
                 android:textColor="#5AAEFF"
                 android:textStyle="bold"
-                android:textSize="15dp"/>
+                android:textSize="15sp"/>
             <EditText
                 android:id="@+id/posting_etTag"
                 android:background="@drawable/bg_edittext2"
                 android:layout_width="110dp"
                 android:layout_height="wrap_content"
-                android:hint="태그 입력"
+                android:hint="@string/posting_tag_hint"
                 android:inputType="text"
                 android:textColor="@color/black"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                android:importantForAutofill="no" />
             <ScrollView
                 android:id="@+id/posting_svTags"
                 android:layout_width="0dp"
@@ -142,15 +145,15 @@
                 android:src="@drawable/pin"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
-                android:contentDescription="🧭GPS"/>
+                android:contentDescription="@string/gps"/>
             <TextView
                 android:id="@+id/posting_town"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="3dp"
-                android:text="동네 설정"
+                android:text="@string/posting_town_set"
                 android:textStyle="bold"
-                android:textSize="15dp"
+                android:textSize="15sp"
                 android:textColor="@color/yellow" />
         </LinearLayout>
 
@@ -167,14 +170,14 @@
                 android:src="@drawable/photos"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
-                android:contentDescription="🧭GPS"/>
+                android:contentDescription="@string/image"/>
             <TextView
                 android:id="@+id/posting_photo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="사진(0/5)"
-                android:textSize="15dp"
+                android:text="@string/posting_image_text"
+                android:textSize="15sp"
                 android:textColor="@color/yellow"
                 android:textStyle="bold"/>
         </LinearLayout>

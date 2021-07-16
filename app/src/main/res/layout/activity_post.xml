@@ -69,7 +69,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center_vertical"
-                                android:text="닉네임"
+                                android:text="@string/nickname"
                                 android:textSize="13sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/black"/>
@@ -83,18 +83,19 @@
                                 <ImageView
                                     android:layout_width="13dp"
                                     android:layout_height="13dp"
+                                    android:layout_marginEnd="2dp"
                                     android:src="@drawable/pin_gray"
                                     android:scaleType="fitCenter"
-                                    android:layout_marginEnd="2dp"
-                                    android:adjustViewBounds="true" />
+                                    android:adjustViewBounds="true"
+                                    android:contentDescription="@string/gps" />
                                 <TextView
                                     android:id="@+id/post_writerTown"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginEnd="10dp"
-                                    android:text="XX동"
+                                    android:text="@string/town"
                                     android:textColor="#A3A3A3"
-                                    android:textSize="12dp"/>
+                                    android:textSize="12sp"/>
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -106,7 +107,6 @@
                         android:layout_marginBottom="10dp"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
-                        android:text="post 제목"
                         android:textStyle="bold"
                         android:textSize="20sp"
                         android:textColor="@color/black" />
@@ -116,8 +116,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
-                        android:text="----.--.--  --:--:--"
-                        android:textSize="12dp"
+                        android:text="@string/date"
+                        android:textSize="12sp"
                         android:textColor="#666666"/>
 
                     <TextView
@@ -125,7 +125,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top"
-                        android:lineHeight="20dp"
+                        android:lineSpacingExtra="8dp"
                         android:layout_marginTop="25dp"
                         android:layout_marginBottom="25dp"
                         android:layout_marginLeft="5dp"
@@ -170,13 +170,14 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingStart="3dp">
+                        android:paddingStart="3dp"
+                        android:paddingEnd="3dp">
 
                         <ImageView
                             android:id="@+id/post_ivHeart"
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:contentDescription="하트수"
+                            android:contentDescription="@string/post_likenum"
                             android:src="@drawable/heart" />
                         <LinearLayout
                             android:id="@+id/post_lllike"
@@ -188,32 +189,32 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="좋아요"
+                                android:text="@string/post_like"
                                 android:textColor="@color/black"
-                                android:textSize="13dp" />
+                                android:textSize="13sp" />
                             <TextView
                                 android:id="@+id/post_heartNum"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="7dp"
-                                android:text="0"
+                                android:text="@string/post_0"
                                 android:textColor="@color/black"
-                                android:textSize="13dp"
+                                android:textSize="13sp"
                                 android:textStyle="bold"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="2dp"
-                                android:text="개"
+                                android:text="@string/post_num"
                                 android:textColor="@color/black"
-                                android:textSize="13dp" />
+                                android:textSize="13sp" />
                         </LinearLayout>
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginStart="20dp"
-                            android:contentDescription="댓글수"
+                            android:contentDescription="@string/post_commentnum"
                             android:src="@drawable/comment_icon" />
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -224,25 +225,25 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="댓글"
+                                android:text="@string/post_comment"
                                 android:textColor="@color/black"
-                                android:textSize="13dp" />
+                                android:textSize="13sp" />
                             <TextView
                                 android:id="@+id/post_commentNum"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="7dp"
-                                android:text="0"
+                                android:text="@string/post_0"
                                 android:textColor="@color/black"
-                                android:textSize="13dp"
+                                android:textSize="13sp"
                                 android:textStyle="bold"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="2dp"
-                                android:text="개"
+                                android:text="@string/post_num"
                                 android:textColor="@color/black"
-                                android:textSize="13dp" />
+                                android:textSize="13sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -259,7 +260,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="35dp"
                     android:layout_marginBottom="10dp"
-                    android:text="아직 댓글이 없습니다."
+                    android:text="@string/post_no_comment"
                     android:textColor="#666666"
                     android:textSize="16sp"
                     android:textAlignment="center"/>
@@ -305,17 +306,18 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:background="@android:color/transparent"
-            android:hint="댓글 달기.."
+            android:hint="@string/post_comment_hint"
             android:inputType="text"
             android:textSize="15sp"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:importantForAutofill="no" />
 
         <TextView
             android:id="@+id/post_postComment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="게시"
+            android:text="@string/post_comment_add"
             android:textStyle="bold"
             android:textSize="12sp"
             android:textColor="@color/yellow" />

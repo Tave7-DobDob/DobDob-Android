@@ -19,7 +19,7 @@
         android:id="@+id/myPage_pageInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="사용자님의 페이지를 로드할 수 없습니다."
+        android:text="@string/mypage_load_error"
         android:textAlignment="center"
         android:lineSpacingExtra="8dp"
         android:textColor="#666666"
@@ -45,66 +45,58 @@
             android:orientation="vertical" >
 
             <LinearLayout
-                android:id="@+id/myPage_llUserInfo"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="5dp">
+                android:layout_gravity="center"
+                android:gravity="center_vertical"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal" >
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/myPage_userProfile"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/user"
+                    app:civ_border_width="1dp"
+                    app:civ_border_color="#AAAAAA" />
+
+                <View
+                    android:id="@+id/myPage_view"
+                    android:layout_height="wrap_content"
+                    android:layout_width="40dp"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="30dp"
-                    android:orientation="horizontal" >
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/myPage_userProfile"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:src="@drawable/user"
-                        app:civ_border_width="1dp"
-                        app:civ_border_color="#AAAAAA" />
-
-                    <View
-                        android:id="@+id/myPage_view"
+                    android:layout_marginEnd="40dp"
+                    android:orientation="vertical" >
+                    <TextView
+                        android:id="@+id/myPage_userName"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_width="40dp"/>
+                        android:text="@string/nickname"
+                        android:textSize="20sp"
+                        android:textColor="@color/black"/>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="40dp"
-                        android:orientation="vertical" >
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="10dp">
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/pin_gray"
+                            android:contentDescription="@string/gps"/>
+
                         <TextView
-                            android:id="@+id/myPage_userName"
+                            android:id="@+id/myPage_userTown"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="닉네임"
-                            android:textSize="20sp"
-                            android:textColor="@color/black"/>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="10dp">
-                            <ImageView
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:src="@drawable/pin_gray"
-                                android:contentDescription="닉네임 수정"/>
-
-                            <TextView
-                                android:id="@+id/myPage_userTown"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="5dp"
-                                android:text="XX동"
-                                android:textColor="@color/gray"
-                                android:textSize="18sp" />
-                        </LinearLayout>
+                            android:layout_marginStart="5dp"
+                            android:text="@string/town"
+                            android:textColor="@color/gray"
+                            android:textSize="18sp" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -119,7 +111,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="닉네임님이 작성한 글"
+                    android:text="@string/mypage_posts"
                     android:textColor="@color/black"/>
 
                 <View
@@ -135,7 +127,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="35dp"
-                    android:text="닉네임님의 글을 찾고 있습니다."
+                    android:text="@string/mypage_search_post"
                     android:textAlignment="center"
                     android:lineSpacingExtra="8dp"
                     android:textColor="#666666"

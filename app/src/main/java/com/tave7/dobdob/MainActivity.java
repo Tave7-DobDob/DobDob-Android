@@ -354,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
             popupMenu.setOnMenuItemClickListener(menuItem -> {
                 if (menuItem.getItemId() == R.id.mypage)
                     startActivityForResult(new Intent(MainActivity.this, MyPageActivity.class), MYPAGE_REQUEST);
-                else {      //로그아웃
+                else {      //로그아웃   TODO: 확인요망!
                     PreferenceManager.removeKey(MainActivity.this, "jwt");
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();

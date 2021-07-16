@@ -13,7 +13,7 @@
         android:id="@+id/tag_tagName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="태그"
+        android:text="@string/item_tag_text"
         android:textColor="@color/black"/>
 
     <ImageView
@@ -25,5 +25,5 @@
         android:src="@drawable/cancel"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:contentDescription="태그삭제" />
+        android:contentDescription="@string/delete" />
 </LinearLayout>

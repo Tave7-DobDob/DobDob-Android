@@ -15,9 +15,9 @@
         android:gravity="center_vertical"
         android:paddingLeft="14dp"
         android:paddingRight="14dp"
-        android:text="프로필 사진"
+        android:text="@string/dialog_setprofile_profile"
         android:textColor="@color/black"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
@@ -28,9 +28,9 @@
         android:gravity="center_vertical"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:text="기본 이미지로 변경"
+        android:text="@string/dialog_setprofile_default"
         android:textColor="@color/black"
-        android:textSize="16dp"/>
+        android:textSize="16sp"/>
 
     <TextView
         android:id="@+id/pdialog_selectImg"
@@ -40,8 +40,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:text="갤러리에서 사진 선택"
+        android:text="@string/dialog_setprofile_gallery"
         android:textColor="@color/black"
-        android:textSize="16dp" />
-
+        android:textSize="16sp" />
 </LinearLayout>

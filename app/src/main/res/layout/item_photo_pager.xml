@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="이미지를 로드할 수 없습니다.\n새로 고침해 주세요."
+        android:text="@string/item_photo_pager_error"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="20sp"/>
@@ -21,5 +21,5 @@
         android:src="@drawable/logo2"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
-        android:contentDescription="첨부사진"/>
+        android:contentDescription="@string/image"/>
 </FrameLayout>

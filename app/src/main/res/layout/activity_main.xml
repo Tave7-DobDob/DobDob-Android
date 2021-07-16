@@ -19,7 +19,7 @@
         android:id="@+id/main_postInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="동네의 글을 찾고 있습니다."
+        android:text="@string/main_searchpost"
         android:textAlignment="center"
         android:lineSpacingExtra="8dp"
         android:textColor="#666666"
@@ -51,15 +51,16 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/mainFabAddPost"
-        android:padding="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="10dp"
         android:src="@drawable/plus"
+        android:backgroundTint="#ffc600"
+        android:contentDescription="@string/main_add_post"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
-        app:layout_constraintVertical_bias="0.95"
-        android:backgroundTint="#ffc600"/>
+        app:layout_constraintVertical_bias="0.95" />
 </androidx.constraintlayout.widget.ConstraintLayout>

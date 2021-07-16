@@ -77,7 +77,7 @@ public class InitialSettingActivity extends AppCompatActivity {
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     public void initialSettingClickListener(){
         clWhole.setOnTouchListener((v, event) -> {
-            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);  //키보드 안보이게 하기 위한 InputMethodManager객체
+            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
             getCurrentFocus().clearFocus();
 
             return false;

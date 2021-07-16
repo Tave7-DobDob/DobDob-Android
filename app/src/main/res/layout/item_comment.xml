@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="닉네임"
+                android:text="@string/nickname"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -46,26 +46,27 @@
                 <ImageView
                     android:layout_width="13dp"
                     android:layout_height="13dp"
+                    android:layout_marginEnd="2dp"
                     android:src="@drawable/pin_gray"
                     android:scaleType="fitCenter"
-                    android:layout_marginRight="2dp"
-                    android:adjustViewBounds="true" />
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/gps" />
                 <TextView
                     android:id="@+id/commentrow_town"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
-                    android:text="XX동"
+                    android:text="@string/town"
                     android:textColor="#A3A3A3"
-                    android:textSize="12dp"/>
+                    android:textSize="12sp"/>
 
                 <TextView
                     android:id="@+id/commentrow_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="----.--.--  --:--:--"
+                    android:text="@string/date"
                     android:textColor="#A3A3A3"
-                    android:textSize="12dp"/>
+                    android:textSize="12sp"/>
             </LinearLayout>
         </LinearLayout>
         <TextView
@@ -73,10 +74,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginRight="10dp"
-            android:textSize="12dp"
-            android:text="삭제"
-            android:textColor="@color/gray"/>
+            android:layout_marginEnd="10dp"
+            android:text="@string/delete"
+            android:textColor="@color/gray"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <TextView
@@ -85,6 +86,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:bufferType="spannable"
-        android:text="댓글 내용"
+        android:text="@string/item_comment_content"
         android:textColor="@color/black"/>
 </LinearLayout>

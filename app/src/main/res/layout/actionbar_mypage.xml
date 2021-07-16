@@ -9,11 +9,12 @@
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
         android:paddingStart="10dp"
+        android:paddingEnd="0dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="10dp"
         android:adjustViewBounds="true"
-        android:contentDescription="수정"
+        android:contentDescription="@string/mypage_actionbar_modify"
         android:scaleType="fitCenter"
         android:src="@drawable/edit_pen" />
 </RelativeLayout>

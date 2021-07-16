@@ -51,7 +51,7 @@ public class LikeUserActivity extends AppCompatActivity {
             actionBar.setDisplayShowTitleEnabled(false);
             actionBar.setDisplayHomeAsUpEnabled(true);
 
-        @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_tagpost, null);
+        @SuppressLint("InflateParams") View customView = LayoutInflater.from(this).inflate(R.layout.actionbar_tag_or_like, null);
         actionBar.setCustomView(customView);
         TextView tvLike = toolbar.findViewById(R.id.toolbar_tv);
         tvLike.setText("좋아요");
