@@ -43,7 +43,6 @@ public class LoginActivity extends AppCompatActivity {
         kakaoLogin = findViewById(R.id.btLogin);
         kakaoLogin.setEnabled(false);
 
-        /*
         if (!PreferenceManager.getString(LoginActivity.this, "jwt").equals("")) {
             RetrofitClient.getApiService().postAutoLogin(PreferenceManager.getString(LoginActivity.this, "jwt")).enqueue(new Callback<String>() {
                 @Override
@@ -76,6 +75,11 @@ public class LoginActivity extends AppCompatActivity {
                             finish();
                         } catch (JSONException e) { e.printStackTrace(); }
                     }
+                    else if (response.code() == 419) {
+                        kakaoLogin.setEnabled(true);
+                        Toast.makeText(LoginActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                        PreferenceManager.removeKey(LoginActivity.this, "jwt");
+                    }
                     else {
                         kakaoLogin.setEnabled(true);
                         Toast.makeText(LoginActivity.this, "다시 로그인 부탁드립니다.", Toast.LENGTH_SHORT).show();
@@ -89,9 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
-
-         */
-        //else
+        else
             kakaoLogin.setEnabled(true);
 
         kakaoLogin.setOnClickListener(v -> {

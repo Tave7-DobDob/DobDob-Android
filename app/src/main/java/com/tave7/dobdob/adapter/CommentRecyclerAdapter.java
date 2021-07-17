@@ -20,8 +20,10 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.tave7.dobdob.LoginActivity;
 import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.PostActivity;
+import com.tave7.dobdob.PreferenceManager;
 import com.tave7.dobdob.R;
 import com.tave7.dobdob.RetrofitClient;
 import com.tave7.dobdob.data.CommentInfo;
@@ -125,11 +127,19 @@ public class CommentRecyclerAdapter extends RecyclerView.Adapter<CommentRecycler
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("댓글 삭제").setMessage("이 댓글을 삭제하시겠습니까?");
                 builder.setPositiveButton("삭제", (dialog, which) -> {
-                    RetrofitClient.getApiService().deleteIDComment(commentList.get(position).getCommentID()).enqueue(new Callback<String>() {
+                    RetrofitClient.getApiService().deleteIDComment(PreferenceManager.getString(context, "jwt"), commentList.get(position).getCommentID()).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                             if (response.code() == 200)
                                 ((PostActivity) context).showPost(false);
+                            else if (response.code() == 419) {
+                                Toast.makeText(context, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                                PreferenceManager.removeKey(context, "jwt");
+                                Intent reLogin = new Intent(context, LoginActivity.class);
+                                reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                context.startActivity(reLogin);
+                                ((PostActivity) context).finish();
+                            }
                             else
                                 Toast.makeText(context, "해당 댓글 삭제에 실패했습니다. 다시 시도해 주세요.", Toast.LENGTH_SHORT).show();
                         }

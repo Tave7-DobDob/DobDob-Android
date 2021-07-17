@@ -181,11 +181,19 @@ public class PostingActivity extends AppCompatActivity {
                         postData.addProperty("title", etTitle.getText().toString().trim());
                         postData.addProperty("content", etContent.getText().toString().trim());
                         postData.addProperty("tags", new Gson().toJson(tmpTag));
-                        RetrofitClient.getApiService().patchIDPost(editPostInfo.getPostInfoSimple().getPostID(), postData).enqueue(new Callback<String>() {       //DB전달
+                        RetrofitClient.getApiService().patchIDPost(PreferenceManager.getString(this, "jwt"), editPostInfo.getPostInfoSimple().getPostID(), postData).enqueue(new Callback<String>() {       //DB전달
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                                 if (response.code() == 200)
                                     finish();
+                                else if (response.code() == 419) {
+                                    Toast.makeText(PostingActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                                    PreferenceManager.removeKey(PostingActivity.this, "jwt");
+                                    Intent reLogin = new Intent(PostingActivity.this, LoginActivity.class);
+                                    reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(reLogin);
+                                    finish();
+                                }
                                 else
                                     Toast.makeText(PostingActivity.this, "다시 수정 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
                             }
@@ -213,10 +221,18 @@ public class PostingActivity extends AppCompatActivity {
                     dataMap.put("content", RequestBody.create(MediaType.parse("text/plain"), etContent.getText().toString().trim()));
                     dataMap.put("tags", RequestBody.create(MediaType.parse("multipart/form-data"), new Gson().toJson(tmpTag)));
 
-                    RetrofitClient.getApiService().postNewPost(postImage, dataMap).enqueue(new Callback<String>() {
+                    RetrofitClient.getApiService().postNewPost(PreferenceManager.getString(this, "jwt"), postImage, dataMap).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                             if (response.code() == 201) {
+                                finish();
+                            }
+                            else if (response.code() == 419) {
+                                Toast.makeText(PostingActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                                PreferenceManager.removeKey(PostingActivity.this, "jwt");
+                                Intent reLogin = new Intent(PostingActivity.this, LoginActivity.class);
+                                reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(reLogin);
                                 finish();
                             }
                         }

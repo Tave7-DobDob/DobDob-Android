@@ -1,6 +1,7 @@
 package com.tave7.dobdob;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -81,7 +83,7 @@ public class LikeUserActivity extends AppCompatActivity {
     }
     
     private void setLikeUsers(int postID) {
-        RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
+        RetrofitClient.getApiService().getIDPost(PreferenceManager.getString(this, "jwt"), postID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.code() == 200) {
@@ -107,6 +109,14 @@ public class LikeUserActivity extends AppCompatActivity {
                         else
                             adapter.notifyDataSetChanged();
                     } catch (JSONException e) { e.printStackTrace(); }
+                }
+                else if (response.code() == 419) {
+                    Toast.makeText(LikeUserActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                    PreferenceManager.removeKey(LikeUserActivity.this, "jwt");
+                    Intent reLogin = new Intent(LikeUserActivity.this, LoginActivity.class);
+                    reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(reLogin);
+                    finish();
                 }
                 else {
                     tvInfo.setVisibility(View.VISIBLE);

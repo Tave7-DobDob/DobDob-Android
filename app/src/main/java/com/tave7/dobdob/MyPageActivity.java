@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -96,7 +97,7 @@ public class MyPageActivity extends AppCompatActivity {
 
         if (!isMyPage) {
             nsvPage.setVisibility(View.GONE);
-            RetrofitClient.getApiService().getUserInfo(userID).enqueue(new Callback<String>() {
+            RetrofitClient.getApiService().getUserInfo(PreferenceManager.getString(this, "jwt"), userID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                     nsvPage.setVisibility(View.VISIBLE);
@@ -126,6 +127,14 @@ public class MyPageActivity extends AppCompatActivity {
 
                             setWhosePosts(userID);
                         } catch (JSONException e) { e.printStackTrace(); }
+                    }
+                    else if (response.code() == 419) {
+                        Toast.makeText(MyPageActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                        PreferenceManager.removeKey(MyPageActivity.this, "jwt");
+                        Intent reLogin = new Intent(MyPageActivity.this, LoginActivity.class);
+                        reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(reLogin);
+                        finish();
                     }
                     else {
                         tvPageInfo.setVisibility(View.VISIBLE);
@@ -240,7 +249,7 @@ public class MyPageActivity extends AppCompatActivity {
             tvPostInfo.setText(myInfo.getUserName().concat("님의 글을 찾고 있습니다."));
         else
             tvPostInfo.setText(otherInfo.getUserName().concat("님의 글을 찾고 있습니다."));
-        RetrofitClient.getApiService().getUserPosts(whoseID).enqueue(new Callback<String>() {
+        RetrofitClient.getApiService().getUserPosts(PreferenceManager.getString(this, "jwt"), whoseID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.code() == 200) {
@@ -312,6 +321,14 @@ public class MyPageActivity extends AppCompatActivity {
                         else
                             tvPostInfo.setText(otherInfo.getUserName().concat("님이 작성한 글이 없습니다."));
                     }
+                }
+                else if (response.code() == 419) {
+                    Toast.makeText(MyPageActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                    PreferenceManager.removeKey(MyPageActivity.this, "jwt");
+                    Intent reLogin = new Intent(MyPageActivity.this, LoginActivity.class);
+                    reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(reLogin);
+                    finish();
                 }
                 else {
                     if (isMyPage)

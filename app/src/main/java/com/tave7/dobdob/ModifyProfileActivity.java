@@ -141,7 +141,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                     }
                 }
 
-                RetrofitClient.getApiService().patchUserProfileImg(myInfo.getUserID(), postImage).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().patchUserProfileImg(PreferenceManager.getString(this, "jwt"), myInfo.getUserID(), postImage).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.code() == 200) {
@@ -165,7 +165,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                                 if (isChangeAddress)
                                     userData.addProperty("location", String.valueOf(location));
 
-                                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
+                                RetrofitClient.getApiService().patchUserInfo(PreferenceManager.getString(ModifyProfileActivity.this, "jwt"), myInfo.getUserID(), userData).enqueue(new Callback<String>() {
                                     @Override
                                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                                         if (response.code() == 200) {
@@ -206,6 +206,14 @@ public class ModifyProfileActivity extends AppCompatActivity {
                                 finish();
                             }
                         }
+                        else if (response.code() == 419) {
+                            Toast.makeText(ModifyProfileActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            PreferenceManager.removeKey(ModifyProfileActivity.this, "jwt");
+                            Intent reLogin = new Intent(ModifyProfileActivity.this, LoginActivity.class);
+                            reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(reLogin);
+                            finish();
+                        }
                         else
                             Toast.makeText(ModifyProfileActivity.this, "다시 완료 버튼을 눌러주세요:)", Toast.LENGTH_SHORT).show();
                     }
@@ -223,7 +231,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 if (isChangeAddress)
                     userData.addProperty("location", String.valueOf(location));
 
-                RetrofitClient.getApiService().patchUserInfo(myInfo.getUserID(), userData).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().patchUserInfo(PreferenceManager.getString(this, "jwt"), myInfo.getUserID(), userData).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.code() == 200) {
@@ -245,6 +253,14 @@ public class ModifyProfileActivity extends AppCompatActivity {
                             bUserInfo.putBoolean("isChanged", true);
                             giveChangedUserInfo.putExtras(bUserInfo);
                             setResult(RESULT_OK, giveChangedUserInfo);
+                            finish();
+                        }
+                        else if (response.code() == 419) {
+                            Toast.makeText(ModifyProfileActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            PreferenceManager.removeKey(ModifyProfileActivity.this, "jwt");
+                            Intent reLogin = new Intent(ModifyProfileActivity.this, LoginActivity.class);
+                            reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(reLogin);
                             finish();
                         }
                         else
@@ -345,7 +361,7 @@ public class ModifyProfileActivity extends AppCompatActivity {
                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
             }
             else {
-                RetrofitClient.getApiService().checkExistNick(username).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().checkExistNick(PreferenceManager.getString(this, "jwt"), username).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         tvNameCheckInfo.setVisibility(View.VISIBLE);
@@ -366,6 +382,14 @@ public class ModifyProfileActivity extends AppCompatActivity {
                                 tvNameCheckInfo.setText("닉네임 중복 확인을 다시 시도해 주세요:)");
                                 tvNameCheckInfo.setTextColor(Color.parseColor("#FA5858"));
                             }
+                        }
+                        else if (response.code() == 419) {
+                            Toast.makeText(ModifyProfileActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            PreferenceManager.removeKey(ModifyProfileActivity.this, "jwt");
+                            Intent reLogin = new Intent(ModifyProfileActivity.this, LoginActivity.class);
+                            reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(reLogin);
+                            finish();
                         }
                         else {
                             tvNameCheckInfo.setText("닉네임 중복 확인을 다시 시도해 주세요:)");

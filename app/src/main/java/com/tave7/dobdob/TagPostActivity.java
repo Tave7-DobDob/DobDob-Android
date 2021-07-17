@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -102,7 +103,7 @@ public class TagPostActivity extends AppCompatActivity {
         tagPostInfo.addProperty("keyword", tagName);
         tagPostInfo.addProperty("locationX", locationX);
         tagPostInfo.addProperty("locationY", locationY);
-        RetrofitClient.getApiService().postTagPost(tagPostInfo).enqueue(new Callback<String>() {
+        RetrofitClient.getApiService().postTagPost(PreferenceManager.getString(this, "jwt"), tagPostInfo).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.code() == 200) {
@@ -164,6 +165,14 @@ public class TagPostActivity extends AppCompatActivity {
                     else
                         tvPostInfo.setText("해당 태그를 가진 글이 존재하지 않습니다.\n다른 태그를 검색해 보세요:)");
                     adapter.notifyDataSetChanged();
+                }
+                else if (response.code() == 419) {
+                    Toast.makeText(TagPostActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                    PreferenceManager.removeKey(TagPostActivity.this, "jwt");
+                    Intent reLogin = new Intent(TagPostActivity.this, LoginActivity.class);
+                    reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(reLogin);
+                    finish();
                 }
                 else
                     tvPostInfo.setText("글을 로드할 수 없음\n다시 로드해 주세요.");

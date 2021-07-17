@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                         tagPostInfo.addProperty("keyword", searchTag);
                         tagPostInfo.addProperty("locationX", location.get("locationX").getAsDouble());
                         tagPostInfo.addProperty("locationY", location.get("locationY").getAsDouble());
-                        RetrofitClient.getApiService().postTagPost(tagPostInfo).enqueue(new Callback<String>() {
+                        RetrofitClient.getApiService().postTagPost(PreferenceManager.getString(MainActivity.this, "jwt"), tagPostInfo).enqueue(new Callback<String>() {
                             @Override
                             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                                 if (response.code() == 200) {
@@ -219,6 +219,14 @@ public class MainActivity extends AppCompatActivity {
                                         tvPostInfo.setText("동네의 글이 아직 없습니다.\n글을 작성해 보세요:)");
                                     adapter.notifyDataSetChanged();
                                 }
+                                else if (response.code() == 419) {
+                                    Toast.makeText(MainActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                                    PreferenceManager.removeKey(MainActivity.this, "jwt");
+                                    Intent reLogin = new Intent(MainActivity.this, LoginActivity.class);
+                                    reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(reLogin);
+                                    finish();
+                                }
                                 else
                                     tvPostInfo.setText("해당 태그 글 로드할 수 없음\n다시 로드해 주세요.");
                             }
@@ -243,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     titlePostInfo.addProperty("keyword", query.trim());
                     titlePostInfo.addProperty("locationX", location.get("locationX").getAsDouble());
                     titlePostInfo.addProperty("locationY", location.get("locationY").getAsDouble());
-                    RetrofitClient.getApiService().postTitlePost(titlePostInfo).enqueue(new Callback<String>() {
+                    RetrofitClient.getApiService().postTitlePost(PreferenceManager.getString(MainActivity.this, "jwt"), titlePostInfo).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                             if (response.code() == 200) {
@@ -309,6 +317,14 @@ public class MainActivity extends AppCompatActivity {
                                     tvPostInfo.setText("동네의 글이 아직 없습니다.\n글을 작성해 보세요:)");
                                 adapter.notifyDataSetChanged();
                             }
+                            else if (response.code() == 419) {
+                                Toast.makeText(MainActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                                PreferenceManager.removeKey(MainActivity.this, "jwt");
+                                Intent reLogin = new Intent(MainActivity.this, LoginActivity.class);
+                                reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(reLogin);
+                                finish();
+                            }
                             else
                                 tvPostInfo.setText("해당 제목 글 로드할 수 없음\n다시 로드해 주세요.");
                         }
@@ -354,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
             popupMenu.setOnMenuItemClickListener(menuItem -> {
                 if (menuItem.getItemId() == R.id.mypage)
                     startActivityForResult(new Intent(MainActivity.this, MyPageActivity.class), MYPAGE_REQUEST);
-                else {      //로그아웃   TODO: 확인요망!
+                else {      //로그아웃
                     PreferenceManager.removeKey(MainActivity.this, "jwt");
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
@@ -429,7 +445,7 @@ public class MainActivity extends AppCompatActivity {
 
         tvPostInfo.setVisibility(View.VISIBLE);
         tvPostInfo.setText("동네의 글을 찾고 있습니다.");
-        RetrofitClient.getApiService().postLocationPost(location).enqueue(new Callback<String>() {
+        RetrofitClient.getApiService().postLocationPost(PreferenceManager.getString(this, "jwt"), location).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.code() == 200) {
@@ -497,6 +513,14 @@ public class MainActivity extends AppCompatActivity {
                         tvPostInfo.setText("동네의 글이 아직 없습니다.\n글을 작성해 보세요:)");
 
                     adapter.notifyDataSetChanged();
+                }
+                else if (response.code() == 419) {
+                    Toast.makeText(MainActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                    PreferenceManager.removeKey(MainActivity.this, "jwt");
+                    Intent reLogin = new Intent(MainActivity.this, LoginActivity.class);
+                    reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(reLogin);
+                    finish();
                 }
                 else
                     tvPostInfo.setText("동네의 글 로드할 수 없음\n다시 로드해 주세요.");

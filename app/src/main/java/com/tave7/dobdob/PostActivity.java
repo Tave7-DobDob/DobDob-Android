@@ -160,7 +160,7 @@ public class PostActivity extends AppCompatActivity {
     }
 
     public void showPost(boolean isSwipe) {
-        RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
+        RetrofitClient.getApiService().getIDPost(PreferenceManager.getString(this, "jwt"), postID).enqueue(new Callback<String>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                 if (response.code() == 200) {
@@ -267,6 +267,14 @@ public class PostActivity extends AppCompatActivity {
 
                     commentAdapter.notifyDataSetChanged();
                 }
+                else if (response.code() == 419) {
+                    Toast.makeText(PostActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                    PreferenceManager.removeKey(PostActivity.this, "jwt");
+                    Intent reLogin = new Intent(PostActivity.this, LoginActivity.class);
+                    reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(reLogin);
+                    finish();
+                }
                 else
                     Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
 
@@ -307,7 +315,7 @@ public class PostActivity extends AppCompatActivity {
 
         ivHeart.setOnClickListener(v -> {
             if (postInfoDetail.getPostInfoSimple().getIsILike() == 1) {
-                RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postID).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().deleteIDLike(PreferenceManager.getString(this, "jwt"), myInfo.getUserID(), postID).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.code() == 200) {
@@ -316,6 +324,14 @@ public class PostActivity extends AppCompatActivity {
 
                             ivHeart.setImageResource(R.drawable.heart);
                             tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
+                        }
+                        else if (response.code() == 419) {
+                            Toast.makeText(PostActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            PreferenceManager.removeKey(PostActivity.this, "jwt");
+                            Intent reLogin = new Intent(PostActivity.this, LoginActivity.class);
+                            reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(reLogin);
+                            finish();
                         }
                     }
 
@@ -329,7 +345,7 @@ public class PostActivity extends AppCompatActivity {
                 JsonObject likeInfo = new JsonObject();
                 likeInfo.addProperty("userId", myInfo.getUserID());
                 likeInfo.addProperty("postId", postID);
-                RetrofitClient.getApiService().postLike(likeInfo).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().postLike(PreferenceManager.getString(this, "jwt"), likeInfo).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.code() == 201) {
@@ -338,6 +354,14 @@ public class PostActivity extends AppCompatActivity {
 
                             ivHeart.setImageResource(R.drawable.heart_click);
                             tvHeartNums.setText(String.valueOf(postInfoDetail.getPostInfoSimple().getLikeNum()));
+                        }
+                        else if (response.code() == 419) {
+                            Toast.makeText(PostActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            PreferenceManager.removeKey(PostActivity.this, "jwt");
+                            Intent reLogin = new Intent(PostActivity.this, LoginActivity.class);
+                            reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(reLogin);
+                            finish();
                         }
                     }
 
@@ -382,7 +406,7 @@ public class PostActivity extends AppCompatActivity {
                 commentInfo.addProperty("postId", postID);
                 commentInfo.addProperty("userId", myInfo.getUserID());
                 commentInfo.addProperty("content", writeComment);
-                RetrofitClient.getApiService().postComment(commentInfo).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().postComment(PreferenceManager.getString(this, "jwt"), commentInfo).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         etWriteComment.setEnabled(true);
@@ -390,6 +414,14 @@ public class PostActivity extends AppCompatActivity {
                             showPost(false);
                             etWriteComment.setText("");
                             svEntirePost.post(() -> svEntirePost.fullScroll(View.FOCUS_DOWN));
+                        }
+                        else if (response.code() == 419) {
+                            Toast.makeText(PostActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            PreferenceManager.removeKey(PostActivity.this, "jwt");
+                            Intent reLogin = new Intent(PostActivity.this, LoginActivity.class);
+                            reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(reLogin);
+                            finish();
                         }
                         else
                             Toast.makeText(PostActivity.this, "죄송합니다. 다시 한번 댓글을 전송해주세요:)", Toast.LENGTH_SHORT).show();
@@ -473,11 +505,19 @@ public class PostActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
                 builder.setTitle("글 삭제").setMessage("현재 글을 삭제하시겠습니까?");
                 builder.setPositiveButton("삭제", (dialog, which) ->
-                    RetrofitClient.getApiService().deleteIDPost(postID).enqueue(new Callback<String>() {
+                    RetrofitClient.getApiService().deleteIDPost(PreferenceManager.getString(this, "jwt"), postID).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                             if (response.code() == 200) {
                                 isDeleted = true;
+                                finish();
+                            }
+                            else if (response.code() == 419) {
+                                Toast.makeText(PostActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                                PreferenceManager.removeKey(PostActivity.this, "jwt");
+                                Intent reLogin = new Intent(PostActivity.this, LoginActivity.class);
+                                reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(reLogin);
                                 finish();
                             }
                             else
@@ -509,11 +549,19 @@ public class PostActivity extends AppCompatActivity {
 
         if(requestCode == POST_EDIT_REQUEST && resultCode == RESULT_OK) {
             isEdited = true;
-            RetrofitClient.getApiService().getIDPost(postID).enqueue(new Callback<String>() {
+            RetrofitClient.getApiService().getIDPost(PreferenceManager.getString(this, "jwt"), postID).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                     if (response.code() == 200)
                         showPost(false);
+                    else if (response.code() == 419) {
+                        Toast.makeText(PostActivity.this, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                        PreferenceManager.removeKey(PostActivity.this, "jwt");
+                        Intent reLogin = new Intent(PostActivity.this, LoginActivity.class);
+                        reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(reLogin);
+                        finish();
+                    }
                     else
                         Toast.makeText(PostActivity.this, "해당 글 로드에 문제가 생겼습니다. 새로 고침을 해주세요.", Toast.LENGTH_SHORT).show();
                 }

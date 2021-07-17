@@ -18,9 +18,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.JsonObject;
 import com.nex3z.flowlayout.FlowLayout;
+import com.tave7.dobdob.LoginActivity;
 import com.tave7.dobdob.MainActivity;
 import com.tave7.dobdob.MyPageActivity;
 import com.tave7.dobdob.PostActivity;
+import com.tave7.dobdob.PreferenceManager;
 import com.tave7.dobdob.R;
 import com.tave7.dobdob.RetrofitClient;
 import com.tave7.dobdob.TagPostActivity;
@@ -74,13 +76,26 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
             holder.ivHeart.setImageResource(R.drawable.heart);
         holder.ivHeart.setOnClickListener(v -> {
             if (postList.get(position).getIsILike() == 1) {
-                RetrofitClient.getApiService().deleteIDLike(myInfo.getUserID(), postList.get(position).getPostID()).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().deleteIDLike(PreferenceManager.getString(context, "jwt"), myInfo.getUserID(), postList.get(position).getPostID()).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.code() == 200) {
                             postList.get(position).setIsILike(0);
                             postList.get(position).setLikeNum(postList.get(position).getLikeNum()-1);
                             notifyItemChanged(position);
+                        }
+                        else if (response.code() == 419) {
+                            Toast.makeText(context, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            PreferenceManager.removeKey(context, "jwt");
+                            Intent reLogin = new Intent(context, LoginActivity.class);
+                            reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            context.startActivity(reLogin);
+                            if (whereActivity == 'm')
+                                ((MainActivity) context).finish();
+                            else if (whereActivity == 'p')
+                                ((MyPageActivity) context).finish();
+                            else
+                                ((TagPostActivity) context).finish();
                         }
                     }
 
@@ -94,13 +109,26 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<PostRecyclerAdapte
                 JsonObject likeInfo = new JsonObject();
                 likeInfo.addProperty("userId", myInfo.getUserID());
                 likeInfo.addProperty("postId", postList.get(position).getPostID());
-                RetrofitClient.getApiService().postLike(likeInfo).enqueue(new Callback<String>() {
+                RetrofitClient.getApiService().postLike(PreferenceManager.getString(context, "jwt"), likeInfo).enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                         if (response.code() == 201) {
                             postList.get(position).setIsILike(1);
                             postList.get(position).setLikeNum(postList.get(position).getLikeNum()+1);
                             notifyItemChanged(position);
+                        }
+                        else if (response.code() == 419) {
+                            Toast.makeText(context, "로그인 기한이 만료되어\n 로그인 화면으로 이동합니다.", Toast.LENGTH_SHORT).show();
+                            PreferenceManager.removeKey(context, "jwt");
+                            Intent reLogin = new Intent(context, LoginActivity.class);
+                            reLogin.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            context.startActivity(reLogin);
+                            if (whereActivity == 'm')
+                                ((MainActivity) context).finish();
+                            else if (whereActivity == 'p')
+                                ((MyPageActivity) context).finish();
+                            else
+                                ((TagPostActivity) context).finish();
                         }
                     }
 
