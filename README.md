@@ -55,4 +55,4 @@
 <br/>
   
 ### 시연 영상
-[DobDob 앱 시연 영상 바로가기](https://drive.google.com/file/d/1iPQKxndjxxBBNy2shMmDfVa7rst56ceM/view?usp=sharing/)
+[DobDob 앱 시연 영상 바로가기](https://drive.google.com/file/d/1yg-MM3_afpTBmmpb4VHVlLJ-nu6luSIc/view?usp=sharing/)
